@@ -9,9 +9,9 @@
 ### pwn ###
 
  - [ ] 100 ezpz
- - [x] 150 Shell-JAIL-1
+ - [x] [150 Shell-JAIL-1](#pwn--150-shell-jail-1)
  - [ ] 200 Forker.1
- - [x] 250 Shell-JAIL-2
+ - [x] [250 Shell-JAIL-2](#pwn--250-shell-jail-2)
  - [ ] 300 Breakingout
  - [ ] 300 Forker.2
  - [ ] 500 Forker.3
@@ -24,8 +24,8 @@
 
 ### Web ###
 
- - [x] 150 Dance
- - [x] 200 Vault
+ - [x] [150 Dance](#web--150-dance)
+ - [x] [200 Vault](#web--200-vault)
 
 ### Crypto ###
 
@@ -33,18 +33,18 @@
 
 ### Reversing ###
 
- - [x] 50 Penguin
+ - [x] [50 Penguin](#reversing--50-penguin)
  - [ ] 150 kerning
 
 ### Misc ###
 
- - [x] 1 Read
- - [x] 2 Get a job
- - [x] 5 Feedback
- - [x] 10 Discord
- - [x] 50 Kittens
- - [x] 100 Sneakers
- - [x] 100 Bitpuzzler
+ - [x] [1 Read](#misc--1-read)
+ - [x] [2 Get a job](#misc--2-get-a-job)
+ - [x] [5 Feedback](#misc--5-feedback)
+ - [x] [10 Discord](#misc--10-discord)
+ - [x] [50 Kittens](#misc--50-kittens)
+ - [x] [100 Sneakers](#misc--100-sneakers)
+ - [x] [100 Bitpuzzler](#misc--100-bitpuzzler)
 
 ### Recon ###
 
