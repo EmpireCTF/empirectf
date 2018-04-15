@@ -340,7 +340,7 @@ And that works:
 
 **Files provided**
 
-> [`penguin`](#) (binary file)
+> [`penguin`](files/50-penguin) (binary file)
 
 **Description**
 
