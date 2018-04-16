@@ -61,8 +61,11 @@
 **Description**
 
 > Download the login private key, then run:
+> 
 > ssh -p 31337 -i login shjail@shelljail1.wpictf.xyz
+> 
 > redundant servers on 31338 and 31339
+> 
 > made by Ben Chaney
 
 **Solution**
@@ -126,8 +129,11 @@ The executable runs whatever arguments we give it as the `pc_owner` user. Howeve
 **Description**
 
 > Download the login private key, then run:
+> 
 > ssh -p 31337 -i login shjail@shelljail2.wpictf.xyz
+> 
 > redundant servers on 31338 and 31339
+> 
 > made by Ben Chaney
 
 **Solution**
@@ -160,6 +166,7 @@ This attempts to parse `flag.txt` as a shell script, which naturally fails. Luck
 **Description**
 
 > https://dance.wpictf.xyz
+> 
 > by binam
 
 **Solution**
@@ -232,7 +239,9 @@ And, sure enough, with a key of 17, we get:
 **Description**
 
 > https://vault.wpictf.xyz
+> 
 > UPDATE: everything fixed
+> 
 > by GODeva
 
 **Solution**
@@ -428,6 +437,7 @@ So, with some intense word reading in reverse and guessing based on consecutive 
 **Description**
 
 > (discord link)
+> 
 > Flag is somewhere in discord. /flag bot does not reply to messages. It's only there for kittens.
 
 **Solution**
@@ -441,7 +451,9 @@ The topic of the `#discord_chal` channel was `WPI{Welcome_to_Disc0rd_ya-D00fus} 
 **Description**
 
 > discord
+> 
 > created by binam
+> 
 > this challenge is stupid
 
 **Solution**
@@ -460,24 +472,126 @@ Putting hundreds of `flag` in one message was allowed. After 65535, the counter 
 **Description**
 
 > nc sneakers.wpictf.xyz 31337
+> 
 > redundant servers on 31338 and 31339
+> 
 > made by rm -k
+> 
 > Hint: ?v=F5bAa6gFvLs
 
 **Solution**
 
 The hint is for [this video](https://www.youtube.com/watch?v=F5bAa6gFvLs).
 
-After `nc sneakers.wpictf.xyz 31337`, we are greeted with a big block of 1's and 0's, organised in pairs, and lines of three. Given the video which features a blind hacker using a Braille "monitor", it was quite clear these 1's and 0's represented Braille characters.
+After `nc sneakers.wpictf.xyz 31337`, we are greeted with a big block of 1's and 0's:
 
-After some automated deciphering, the server was asking the user that they are "visually impaired", by:
+    00  01  10  10  11  10  11  10  00  01  10  00  01  10  10  00  10  10  10  01  
+    00  11  01  10  00  01  00  01  00  11  01  00  11  11  01  00  10  11  00  10  
+    01  01  00  10  00  10  10  00  00  10  10  00  10  00  00  00  00  10  00  00  
 
- - typing `continue`
- - solving a simple mathematical problem and giving the numerical solution
- - typing `ACCESS FLAG!`
- - typing `please`
+    10  10  10  00  01  10  10  11  01  11  10  10  00  00  00  01  00  10  10  00  
+    10  10  01  00  11  01  11  00  10  01  00  10  11  00  00  10  00  10  10  00  
+    10  10  00  00  10  00  10  10  00  10  00  10  10  00  01  00  10  10  10  00  
 
-All input was given in a single-line representation of Braille text. The final `please` was a response to the server saying "Ah ah ah, you didn't say the magic word!", and referencing [this video](https://www.youtube.com/watch?v=RfiQYRn7fBg).
+    10  11  10  11  00  11  01  10  10  00  11  10  10  00  01  10  10  00  11  10  
+    01  01  10  01  00  11  10  10  01  00  01  01  00  00  11  11  01  00  10  10  
+    10  10  10  11  00  00  00  11  00  00  11  10  11  00  10  00  00  00  00  10  
+
+    10  11  00  01  11  00  11  10  10  00  11  10  11  00  11  10  10  10  10  00  
+    00  11  00  10  10  00  01  01  00  00  00  00  01  00  10  11  01  10  01  00  
+    00  00  00  00  00  00  11  10  11  00  00  00  10  00  10  10  10  11  00  00  
+
+    01  10  10  01  00  11  10  10  00  10  10  10  00  10  01  01  10  10  10  10  
+    11  11  00  11  00  01  01  00  00  00  11  01  00  10  10  10  00  00  10  10  
+    10  00  00  10  00  11  10  11  00  00  10  00  00  11  00  10  11  00  10  10  
+
+    11  00  01  11  11  10  01  10  10  11  00  00  00  11  10  10  10  01  10  00  
+    01  00  10  00  10  00  10  11  01  01  11  00  00  10  10  01  00  10  01  00  
+    11  00  00  10  10  00  00  10  00  00  01  00  01  10  10  00  00  10  00  00  
+
+    01  11  11  10  00  00  11  10  11  01  01  11  10  10  00  00  01  11  00  10  
+    11  01  10  01  00  00  00  01  01  11  10  01  00  01  00  00  10  01  00  10  
+    10  11  10  00  00  10  00  10  10  10  00  10  11  00  10  00  00  10  00  00  
+
+    10  10  01  10  10  10  00  01  10  00  10  10  11  01  11  00  00  00  10  10  
+    11  00  10  10  10  01  00  11  01  00  10  01  11  10  01  11  00  00  11  01  
+    10  00  00  10  10  00  00  10  10  00  00  00  00  00  10  01  00  01  00  10  
+
+    01  00  01  10  00  01  10  01  01  10  00  10  00  10  10  01  11  10  11  01  
+    11  00  11  01  00  11  11  10  11  01  00  00  00  11  01  10  10  01  01  10  
+    01  00  10  10  00  01  10  00  10  00  00  00  00  10  00  10  10  10  10  10  
+
+    10  00  00  00  01  10  01  01  10  00  10  10  11  10  00  10  10  01  00  10  
+    01  00  00  00  11  11  10  11  01  00  01  00  00  11  00  11  01  11  00  01  
+    00  11  00  01  01  10  00  10  00  00  00  00  00  00  00  10  10  01  00  10  
+
+    11  00  10  10  10  01  10  10  10  00  10  01  00  01  01  00  01  00  10  11  
+    10  00  10  11  00  10  10  10  01  00  00  10  00  01  11  00  10  00  00  01  
+    00  00  00  10  00  00  10  10  00  00  00  10  00  11  00  10  10  00  00  10  
+
+    11  00  01  10  00  01  00  00  01  10  10  11  00  11  10  10  11  10  00  10  
+    01  00  01  00  00  10  10  00  11  11  01  01  00  10  10  00  00  01  00  00  
+    00  00  11  00  10  10  00  00  10  00  00  10  00  10  10  00  00  00  00  00  
+
+    11  00  00  11  00  00  10  01  00  01  10  10  00  10  11  11  00  10  11  00  
+    01  00  00  00  00  00  00  11  00  11  11  01  00  01  01  01  00  01  10  00  
+    10  00  10  11  10  00  00  10  00  10  00  00  00  00  10  00  00  10  00  00  
+
+    01  10  10  00  10  10  01  00  00  00  01  10  01  01  00  11  10  10  11  01  
+    11  11  01  00  11  01  11  11  00  00  11  11  10  10  00  00  01  00  01  10  
+    10  00  00  00  10  10  01  01  00  01  10  00  00  10  00  10  00  00  10  10  
+
+    00  01  10  10  01  00  10  10  10  00  01  10  10  10  10  00  10  10  01  01  
+    00  11  11  00  11  00  00  10  10  00  11  11  11  01  01  00  11  01  11  10  
+    00  10  00  00  10  00  00  10  10  00  10  00  10  00  00  00  10  10  01  10  
+
+    00  10  10  10  00  01  10  01  01  01  10  11  00  10  11  00  10  00  01  01  
+    00  00  11  01  00  11  11  10  11  11  01  01  00  01  01  00  00  00  10  10  
+    00  00  10  00  00  01  10  00  10  10  00  10  00  10  10  00  00  00  10  00  
+
+    11  11  10  10  00  10  01  11  10  00  10  11  00  01  11  11  10  01  00  00  
+    01  11  10  01  00  10  10  01  01  00  01  10  00  10  01  10  00  11  10  00  
+    10  00  10  00  00  10  00  10  00  00  10  00  00  00  10  10  11  10  00  00  
+
+    01  11  00  01  10  10  00  11  10  10  11  00  00  00  00  11  00  00  00  11  
+    10  01  00  11  11  01  00  10  01  11  00  00  11  11  11  00  11  11  11  00  
+    00  10  00  10  00  00  00  00  10  10  10  00  01  01  01  11  01  01  01  11  
+
+    00  00  00  11  00  
+    11  11  11  00  11  
+    01  01  01  11  01  
+
+Given the video which features a blind hacker using a Braille "monitor", it was quite clear these 1's and 0's represented Braille characters.
+
+After some automated deciphering:
+
+    Welcome to the brai
+    lle terminal! I'll 
+    only give you the fl
+    ag if you can prove 
+    that you are visuall
+    y impaired. Please 
+    type 'continue' in b
+    raille to begin. Ho
+    w to write a respons
+    e- Write each row o
+    f braille as 0's an
+    d 1's, then place a
+    n 'x' at the end of 
+    the row. This means
+     that all three rows
+     are written on a si
+    ngle line of input, 
+    in the form ...x...x
+
+The individual parts of the challenge asked to:
+
+ - type `continue`
+ - solve a simple mathematical problem and give the numerical solution
+ - type `ACCESS FLAG!`
+ - type `please`
+
+The final `please` was a response to the server saying "Ah ah ah, you didn't say the magic word!", and referencing [this video](https://www.youtube.com/watch?v=RfiQYRn7fBg).
 
 ## Misc / 100 Bitpuzzler ##
 
@@ -486,7 +600,9 @@ All input was given in a single-line representation of Braille text. The final `
 **Description**
 
 > nc bitpuzzler.wpictf.xyz 31337
+> 
 > redundant servers on 31338 and 31339
+> 
 > made Jacob Henry
 
 **Solution**
