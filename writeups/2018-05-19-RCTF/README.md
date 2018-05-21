@@ -959,7 +959,612 @@ And after decoding:
 
 ### magic
 
-todo, answer in my windows computer, didn't bring it to uni
+put it into IDA, look at the main
+
+```c
+int __cdecl main(int argc, const char **argv, const char **envp)
+{
+  signed int v3; // eax
+  unsigned __int8 v5[32]; // [rsp+20h] [rbp-30h]
+  _DWORD a2[4]; // [rsp+48h] [rbp-8h]
+
+  sub_403310();
+  a2[1] = time64(0i64);
+  a2[0] = rand();
+  if ( exchange_by_xor(&a2[1], a2) && exchange_by_xor(&a2[1], &a2[1]) )
+  {
+    puts("flag only appears at a specific time, range [2018-05-19 09:00, 2018-05-21 09:00)\nBetter luck next time :)");
+  }
+    //...
+}
+unsigned __int32 __fastcall exchange_by_xor(_DWORD *a1, _DWORD *a2)
+{
+  *a1 ^= *a2;
+  *a2 ^= *a1;
+  *a1 ^= *a2;
+  return *a1;
+}//exchange the *a1 and *a2 only when a1 != a2, or else set all of them to 0
+```
+
+
+
+In main, there are some operations. It seems that we want the first check to be false; however, it's already false, since the xor\_exchange is problematic when a1 and a2 are same address (this has been coverd in CSAPP). And indeed, if we set breakpoint at entry of main, we will get error massage immediately, which suggests the error message is **not the one from main function**.
+
+Actually, I got stuck here for a while since initially I didn't realize it is a "and" but thought it is a "or" :\(
+
+Thus, if we set the breakpoint at puts to obtain where such message occurs, we can get such stack trace
+
+```c
+__int64 __fastcall dynamic_str_gen(char *a4, char *a3, signed int size, char *buf)
+{
+  unsigned int v4; // ST2C_4
+  const char *a4a; // [rsp+40h] [rbp+10h]
+  signed int a3a; // [rsp+48h] [rbp+18h]
+  int a5a; // [rsp+50h] [rbp+20h]
+
+  a4a = a4;
+  a3a = (signed int)a3;
+  a5a = size;
+  xor_with_32key((unsigned int)a4, (unsigned int)a3, size);
+  v4 = puts(a4a);
+  xor_with_32key((unsigned int)a4a, a3a, a5a);
+  return v4;
+}
+
+__int64 __fastcall sub_402357(__time64_t *a1, char **a2)
+{
+  __int64 result; // rax
+  int v3; // eax
+  char *v4; // r9
+
+  sub_402268(a1, (__int64)a2);
+  result = (unsigned int)not_0_key[0];
+  if ( !not_0_key[0] )
+  {//we don't want this, so need not_0_key[0] to be true
+    v3 = strtol("ca11ab1e", 0i64, 16);
+    result = dynamic_str_gen(&a4, (char *)0x69, v3 ^ 0xBADD1917, v4);
+  }
+  return result;
+}
+
+/*
+0000000000402248
+00000000004023AA
+00000000004032D2//possibly system callback call(retrieve things from array)
+//000007FF756A13D2
+00000000004013CA
+000000000040152B
+//0000000078D359CD
+*/
+```
+
+Indeed, this is called before main function is called. So when will this happen? For example, in C++, the constructor of global object will be called before main is called.
+
+take a look at sub\_402268
+
+```c
+__int64 __fastcall sub_402268(__time64_t *a1, __int64 a2)
+{
+  __int64 result; // rax
+  char *v3; // r9
+  unsigned __int32 v4[2]; // [rsp+20h] [rbp-10h]
+  unsigned int Seed; // [rsp+28h] [rbp-8h]
+  int i; // [rsp+2Ch] [rbp-4h]
+
+  Seed = time64(0i64);
+  if ( Seed <= 0x5AFFE78F || Seed > 0x5B028A8F )
+    return 0i64;
+  srand(Seed);
+  for ( i = 0; i <= 255; ++i )
+    critical_key[i] ^= rand();
+  //This function is basically to generate array of random numbers
+  //based on current time64(), which is input as the hint said.
+  sub_4027ED(critical_key, &v4[1], v4, v3, 0i64);
+  if ( v4[1] == 0x700 )
+  {
+    not_0_key[0] = v4[0];                       // purpose
+    result = v4[0];
+  }
+  else
+  {
+    not_0_key[0] = 0;
+    result = 0i64;
+  }
+  return result;
+}
+
+_DWORD *__fastcall sub_4027ED(char *a1, _DWORD *a2, 
+                              _DWORD *want_0x700, char *critical_key, _DWORD *want_no0)
+{
+  _DWORD *result; // rax
+  __int64 v6; // [rsp+0h] [rbp-80h]
+  struc_1 a4[256]; // [rsp+20h] [rbp-60h]
+  int i; // [rsp+C2Ch] [rbp+BACh]
+  char vars0[8]; // [rsp+C30h] [rbp+BB0h]
+  char *ckeys; // [rsp+C40h] [rbp+BC0h]
+  _DWORD *v11; // [rsp+C48h] [rbp+BC8h]
+  _DWORD *v12; // [rsp+C50h] [rbp+BD0h]
+
+  ckeys = a1;
+  v11 = a2;
+  v12 = want_0x700;
+  memset(&v6 + 4, 0, 0xC00ui64);
+  for ( i = 0; i <= 255; ++i )
+  {
+    vars0[12 * i - 0xC10] = ckeys[i];           // IDA problematic? a4[i] accessing
+    *(_DWORD *)&vars0[12 * i - 0xC0C] = 0x7FFFFFFF;
+    *(_DWORD *)&vars0[12 * i - 0xC08] = 0;
+    sub_4026D0(a4, i);
+  }
+  *v11 = a4[255].want_0x700;
+  result = v12;
+  *v12 = a4[255].want_no0;
+  return result;
+}
+
+void __fastcall sub_4026D0(struc_1 *a4, unsigned int i)
+{
+  struc_1 *low_16_struc1; // rax
+  struc_1 *v3; // rax
+  int v4; // [rsp+24h] [rbp-1Ch]
+  struc_1 *low_16_struc1_; // [rsp+30h] [rbp-10h]
+  struc_1 *overall_struc1; // [rsp+38h] [rbp-8h]
+  struc_1 *rcx_Arg; // [rsp+50h] [rbp+10h]
+  unsigned int idx; // [rsp+58h] [rbp+18h]
+
+  rcx_Arg = a4;
+  idx = i;
+  overall_struc1 = safe_arr_access(a4, i);
+  if ( overall_struc1 )
+  {
+    if ( idx & 0xF )
+      low_16_struc1 = safe_arr_access(rcx_Arg, idx - 1);
+    else
+      low_16_struc1 = 0i64;
+    low_16_struc1_ = low_16_struc1;
+    if ( idx + 15 <= 30 )                       // if (idx <= 15)
+      v3 = 0i64;
+    else
+      v3 = safe_arr_access(rcx_Arg, idx - 16);  // >15, access -16
+                                                // so for first 0-15,this will return 0
+    if ( low_16_struc1_ || v3 )
+    {
+      if ( low_16_struc1_ )
+      {
+        overall_struc1->want_0x700 = overall_struc1->key + low_16_struc1_->want_0x700;
+        overall_struc1->want_no0 = 2 * low_16_struc1_->want_no0;
+      }
+      if ( v3 )
+      {
+        v4 = v3->want_0x700 + overall_struc1->key;
+        if ( v4 < overall_struc1->want_0x700 )
+        {
+          overall_struc1->want_0x700 = v4;
+          overall_struc1->want_no0 = 2 * v3->want_no0 | 1;
+        }
+      }
+    }
+    else
+    {
+      overall_struc1->want_0x700 = overall_struc1->key;
+    }
+  }
+}
+
+/* where struc_1 is
+00000000 struc_1         struc ; (sizeof=0xC, mappedto_17)
+00000000                                         ; XREF: sub_4027ED/r
+00000000 key             db ?
+00000001                 db ? ; undefined
+00000002                 db ? ; undefined
+00000003                 db ? ; undefined
+00000004 want_0x700      dd ?                    ; XREF: sub_4027ED+10C/r
+00000008 want_no0        dd ?                    ; XREF: sub_4027ED+11B/r
+0000000C struc_1         ends
+*/
+```
+
+
+
+sub\_4026D0 is doing dynamic programming using previous result of array, being called each time in the for loop of sub\_4027ED.Finally, index 255 element will be used to check.
+
+Without understanding what this dynamic programming is doing, we can write a bruteforce crack as shown.
+
+```c
+
+uint8_t ckeys1[] = {88, 113, 143, 50, 5, 6, 81, 199, 167, 248, 58, 225, 6, 72, 130, 9, 161, 18, 159, 124, 184, 42, 111, 149, 253, 208, 103, 200, 227, 206, 171, 18, 31, 152, 107, 20, 234, 137, 144, 33, 45, 253, 154, 187, 71, 204, 234, 156, 215, 80, 39, 175, 185, 119, 223, 197, 233, 225, 80, 211, 56, 137, 239, 45, 114, 194, 223, 243, 125, 125, 101, 149, 237, 19, 0, 28, 163, 60, 227, 87, 227, 247, 247, 44, 115, 136, 52, 177, 98, 211, 55, 25, 38, 190, 178, 51, 32, 63, 96, 57, 135, 166, 101, 173, 115, 26, 109, 73, 51, 73, 192, 86, 0, 190, 10, 207, 40, 126, 142, 105, 135, 225, 5, 136, 218, 84, 62, 60, 14, 169, 250, 215, 127, 78, 68, 198, 154, 10, 210, 152, 106, 164, 25, 109, 140, 225, 249, 48, 229, 255, 51, 74, 169, 82, 58, 13, 103, 32, 29, 191, 54, 62, 232, 86, 191, 90, 136, 168, 105, 214, 171, 82, 241, 20, 242, 215, 239, 146, 247, 160, 112, 161, 239, 227, 31, 102, 43, 151, 246, 43, 48, 15, 176, 180, 192, 254, 166, 98, 253, 230, 76, 57, 207, 32, 179, 16, 96, 159, 52, 190, 178, 28, 59, 107, 29, 223, 83, 114, 242, 250, 177, 81, 130, 4, 48, 86, 31, 55, 114, 122, 151, 80, 41, 134, 74, 9, 60, 89, 196, 65, 113, 248, 26, 210, 48, 136, 99, 255, 133, 222, 36, 140, 195, 55, 20, 199};
+uint8_t buf[256];
+struct struc_1
+{
+	int8_t key;
+    //not uint8_t, which will give multiple solutions
+    //obey the IDA, always !!!
+	int32_t want_0x700;
+	int32_t want_no0;
+};
+
+struct struc_1 dp_struc[256];
+
+struc_1* safe_arr_access(struc_1 *structs, signed int i)
+{
+	struc_1 *result; // rax
+
+	if (i >= 0 && i <= 255)
+		result = &structs[i];
+	else
+		result = 0LL;
+	return result;
+}
+
+void sub_4026D0(struc_1 *a4, unsigned int i)
+{
+	struc_1 *low_16_struc1; // rax
+	struc_1 *v3; // rax
+	int v4; // [rsp+24h] [rbp-1Ch]
+	struc_1 *low_16_struc1_; // [rsp+30h] [rbp-10h]
+	struc_1 *overall_struc1; // [rsp+38h] [rbp-8h]
+	struc_1 *rcx_Arg; // [rsp+50h] [rbp+10h]
+	unsigned int idx; // [rsp+58h] [rbp+18h]
+
+	rcx_Arg = a4;
+	idx = i;
+	overall_struc1 = safe_arr_access(a4, i);
+	if (overall_struc1)
+	{
+		if (idx & 0xF)
+			low_16_struc1 = safe_arr_access(rcx_Arg, idx - 1);
+		else
+			low_16_struc1 = 0i64;
+		low_16_struc1_ = low_16_struc1;
+		if (idx + 15 <= 30)                       // if (idx <= 15)
+			v3 = 0;
+		else
+			v3 = safe_arr_access(rcx_Arg, idx - 16);  // >15, access -16
+													  // so for first 0-15,this will return 0
+		if (low_16_struc1_ || v3)
+		{
+			if (low_16_struc1_)
+			{
+				overall_struc1->want_0x700 = overall_struc1->key + low_16_struc1_->want_0x700;
+				overall_struc1->want_no0 = 2 * low_16_struc1_->want_no0;
+			}
+			if (v3)
+			{
+				v4 = v3->want_0x700 + overall_struc1->key;
+				if (v4 < overall_struc1->want_0x700)
+				{
+					overall_struc1->want_0x700 = v4;
+					overall_struc1->want_no0 = 2 * v3->want_no0 | 1;
+				}
+			}
+		}
+		else
+		{
+			overall_struc1->want_0x700 = overall_struc1->key;
+		}
+	}
+}
+
+int main()
+{
+	for (size_t t = 0x5AFFE78F; t <= 0x5B028A8F; t++)
+	{
+		srand(t);
+		for (size_t i = 0; i < 256; i++)
+		{
+			buf[i] = ckeys1[i] ^ rand();
+		}
+		for (size_t i = 0; i < 256; i++)
+		{
+			dp_struc[i].key = buf[i];
+			dp_struc[i].want_0x700 = 0x7fffffff;
+			dp_struc[i].want_no0 = 0;
+			sub_4026D0(dp_struc, i);
+		}
+		if (dp_struc[255].want_0x700 == 0x700 && dp_struc[255].want_no0 != 0)
+			printf("%x\n", t);//0x5b00e398
+	}
+	system("pause");
+	return 0;
+}
+
+```
+
+patching the time64() to mov rax,0x5b00e398, we can come to next phase.
+
+also, by setting breakpoints at puts, we can get this stack frame
+
+```c
+//0000000000402248
+//0000000000402407
+__int64 __fastcall critical_4023B1(char *a1, __int64 a2, __int64 a3, char *a4)
+{
+  char *v4; // r9
+  const char *v5; // rcx
+  char *v6; // r9
+  char *v7; // r9
+  struc_2 *input; // [rsp+20h] [rbp-30h]
+  __int64 v10; // [rsp+28h] [rbp-28h]
+  __int64 v11; // [rsp+30h] [rbp-20h]
+  __int64 v12; // [rsp+38h] [rbp-18h]
+  struc_2 a5; // [rsp+43h] [rbp-Dh]
+
+  if ( !not_0_key[0] )
+    exit(0);
+  LOBYTE(a5.field_0) = 0;
+  a5.field_0 = not_0_key[0];
+  dynamic_str_gen(&buf, (char *)0x31, not_0_key[0], a4);
+  input = 0i64;
+  v10 = 0i64;
+  v11 = 0i64;
+  v12 = 0i64;
+  LODWORD(input) = 538976288;
+  a5.input = (char *)&input + 4;
+  scanf("%26s", (char *)&input + 4);
+  sym_encode((__int64)a5.input, 26i64, (unsigned __int64)&a5, (char *)4, input, v10);
+  if ( !(unsigned int)need_return_non0(a5.input) )
+    return dynamic_str_gen(&byte_4052D1, (char *)6, not_0_key[0], v4);
+  sym_encode((__int64)a5.input, 26i64, (unsigned __int64)&a5, (char *)4, input, v10);
+  sub_401FFB(v5);
+  dynamic_str_gen(&byte_4052E0, (char *)0x23, not_0_key[0], v6);
+  puts((const char *)&input);
+  return dynamic_str_gen(&byte_4052E0, (char *)0x23, not_0_key[0], v7);
+}
+
+__int64 __usercall need_return_non0@<rax>(char *input@<rcx>)
+{
+  int opcode; // eax
+  int v2; // eax
+  char Buf; // [rsp+20h] [rbp-110h]
+  unsigned int v5; // [rsp+124h] [rbp-Ch]
+  int v6; // [rsp+128h] [rbp-8h]
+  int nxt_ip; // [rsp+12Ch] [rbp-4h]
+
+  strncpy(::input, input, 0x1Aui64);
+  signal(SIGFPE, sub_402930);
+  nxt_ip = 0;
+  v6 = 1;
+  v5 = 0;
+  r1 = (unsigned __int64)keys;
+  r2 = (unsigned __int64)::input;
+  while ( v6 )
+  {
+    opcode = setjmp(&Buf);                      // pre: nxt ip opcode + 1
+                                                // post: next instruction opcode
+    if ( opcode == 168 )
+    {
+      reg[vmcode[nxt_ip] >> 4] -= reg[vmcode[nxt_ip] & 0xF];
+      ++nxt_ip;
+    }
+    else if ( opcode > 168 )
+    {
+      if ( opcode == 172 )
+      {
+        reg[vmcode[nxt_ip] >> 4] &= reg[vmcode[nxt_ip] & 0xF];
+        ++nxt_ip;
+      }
+      else if ( opcode > 172 )
+      {
+        if ( opcode == 174 )
+        {
+          reg[vmcode[nxt_ip] >> 4] ^= reg[vmcode[nxt_ip] & 0xF];
+          ++nxt_ip;
+        }
+        else if ( opcode < 174 )
+        {                                       // 173
+          reg[vmcode[nxt_ip]] = (unsigned __int8)~LOBYTE(reg[vmcode[nxt_ip]]);
+          ++nxt_ip;
+        }
+        else
+        {
+          if ( opcode != 175 )
+            goto LABEL_43;
+          r8_ = vmcode[nxt_ip] >> 4;            // 175
+          r9_ = vmcode[nxt_ip] & 0xF;
+          if ( !setjmp(::Buf) )                 // always 0 FIRST TIME
+            vmcode[nxt_ip] = r8_ / vmcode[nxt_ip + 1];
+          nxt_ip += 2;
+        }
+      }
+      else if ( opcode == 170 )
+      {
+        reg[vmcode[nxt_ip]] = reg[vmcode[nxt_ip + 1]];
+        nxt_ip += 2;
+      }
+      else if ( opcode > 170 )                  // 171
+      {
+        reg[vmcode[nxt_ip]] = vmcode[nxt_ip + 1];
+        nxt_ip += 2;
+      }
+      else
+      {                                         // 169
+        reg[vmcode[nxt_ip] >> 4] += reg[vmcode[nxt_ip] & 0xF];
+        ++nxt_ip;
+      }
+    }
+    else if ( opcode == 163 )
+    {
+      reg[vmcode[nxt_ip] >> 4] |= reg[vmcode[nxt_ip] & 0xF];
+      ++nxt_ip;
+    }
+    else if ( opcode > 163 )                    // < 168
+    {
+      if ( opcode == 166 )
+      {
+        if ( !r5 )
+          nxt_ip += (char)vmcode[nxt_ip];
+        ++nxt_ip;
+      }
+      else if ( opcode > 166 )                  // 167
+      {
+        if ( r5 )
+          nxt_ip += (char)vmcode[nxt_ip];
+        ++nxt_ip;
+      }
+      else
+      {
+        if ( opcode != 165 )
+          goto LABEL_43;
+        nxt_ip += vmcode[nxt_ip];
+        ++nxt_ip;
+      }
+    }
+    else if ( opcode == 160 )
+    {
+      reg[vmcode[nxt_ip]] = *(unsigned __int8 *)reg[vmcode[nxt_ip]];
+      ++nxt_ip;
+    }
+    else if ( opcode == 162 )
+    {
+      ++nxt_ip;
+      reg[vmcode[nxt_ip]] >>= reg[vmcode[nxt_ip]];
+      ++nxt_ip;
+    }
+    else
+    {
+      if ( !opcode )
+      {
+        v2 = nxt_ip++;
+        longjmp_0(&Buf, vmcode[v2]);
+      }
+LABEL_43:
+      v6 = 0;
+      v5 = r5;
+    }
+  }
+  return v5;
+}
+```
+
+
+
+need\_return\_non0 is a virtual machine based on setjmp, which returns 0 at the first time, and return non-zero by calling long\_jmp, which is opcode as shown. More detail: [http://en.cppreference.com/w/cpp/utility/program/setjmp](http://en.cppreference.com/w/cpp/utility/program/setjmp)
+
+The opcodes are not so long and not so hard, so I did it by hands. One instruction is interesting
+
+```c
+          r8_ = vmcode[nxt_ip] >> 4;            // 175
+          r9_ = vmcode[nxt_ip] & 0xF;
+          if ( !setjmp(::Buf) )                 // always 0 FIRST TIME
+            vmcode[nxt_ip] = r8_ / vmcode[nxt_ip + 1]; 
+            // for every 175 instruction, this is 0
+            // which throw the exception being handled in sub_402930
+          nxt_ip += 2;
+
+void __fastcall __noreturn sub_402930(__int64 a1, void (__cdecl *a2)(int), __int64 a3, int a4)
+{
+  if ( (_DWORD)a1 == SIGFPE )
+  {
+    signal(SIGFPE, sub_402930);
+    reg[r8_] = reg[r8_] == reg[r9_];
+    longjmp_0(Buf, 0);
+  }
+  exit(1);
+}
+/*
+This actually means
+175: 
+r8=rah, r9=ral
+if (bb == 0)
+  r[r8] = reg[r8] == reg[r9]
+else
+  aa = r8 / bb
+
+where
+aa is first agument, bb is second argument
+xh is high nibble, xl is low nibble
+
+This can be used to do conditional jmp
+*/
+```
+
+After translating, the virtual machine is basically
+
+```
+; r1 = (unsigned __int64)keys;
+; r2 = (unsigned __int64)::input;
+movzx r3,0
+movzx r4,26
+movzx r0,102
+loop:
+mov r5,r2
+add r8,r3
+movzx r5, byte [r5]
+mov r6,204
+add, r8,r6
+movzx r6,255
+and r8,r6
+xor r8,r0
+not r0
+mov r6,r5
+mov r5,r1
+add 83
+movzx r5,[r5]
+r8 = 0, r9 = 6
+r5 jmp next:
+return r5
+next:
+add 53
+mov r5,r3
+r8 = 0, r9 = 4
+!r5 jmp ? jmp loop
+return r5
+
+175: 
+r8=rah, r9=ral
+if (bb == 0)
+  r[r8] = reg[r8] == reg[r9]
+else
+  aa = r8 / bb
+
+174: xor rah,ral
+173: not raa(LOBYTE)
+172: and rah,ral
+171: movzx raa, bb
+170: mov raa,rbb
+169: add rah,ral
+167: r5 ? jmp nxtins + (sx)aa
+166: !r5 ? jmp nxtins + (sx)aa
+160: movzx raa,byte [raa]
+
+aa is first agument, bb is second argument
+xh is high nibble, xl is low nibble
+```
+
+which is not hard to understand and write bruteforce cracker!
+
+```c
+int main2()
+{
+	uint8_t r0 = 102;
+	for (size_t i = 0; i < 26; i++)
+	{
+		for (int c = 0; c < 256; c++)
+		{
+			if ((((c + 204) & 0xff) ^ r0) == ckeys2[i])
+			{
+				printf("%.2x", (uint8_t)c);
+			}
+		}
+		r0 = ~r0;
+	}//238cbefd25d765f4b6b3b60fe174a2effc384ed21a4ab11096a5
+	system("pause");
+	return 0;
+}
+```
+
+However, this is not the flag, sym\_encode is used to encode input first, so we need to find a input that, when put into this encode function, produces the result above. However, we don't need reverse this function, this encoding is symetric, bacause it is called twice to the same input, and it gives input (you may see this by debugging and changing the ZF bit even if the input is incorrect) , so encode(encode(x)) = x, which means encode = decode. So what we need to do is to debug, set breakpoint at sym\_encode, run and give an arbitrary input, change the buffer of input to 238cbefd25d765f4b6b3b60fe174a2effc384ed21a4ab11096a5, step over sym\_encode, and see the flag in buffer.
+
+![1526934951647](1526934951647.png)
+
+and if we put this into program, we can see
+
+![result](result.png)
+
+Initially I didn't realize what this is, but after sending it by messenger to ask my teamates for help, I found that it is "rctf\{h" clearly since the picture is smaller in messenger :D
+
+Therefore, to sum up, rctf\{h@ck\_For\_fun\_02508iO2\_2iOR\} is the flag
+
 
 ### simplere
 
