@@ -79,7 +79,6 @@ After solving the PoW:
       |         v\       o       o         <|          |           
      / \         <\      <\__ __/>         / \        / \          
 ​                                                                   
-​                                                                   
     In every round of the game, I'll choose some different numbers from the figure interval. You are required to guess those numbers,ofc so does the order of them.
     On each surmise of yours, 2 numbers will be told as a hint for you, but you need to speculate the fuctions of these 2 figures. (XD
     GLHF
@@ -159,7 +158,6 @@ We see there was a `Flag` commit that was reverted. So we can `git checkout f4d0
 
 **Solution**
 
-<<<<<<< HEAD
 At the address we see:
 
 ![](screens/cats.png)
@@ -1433,4 +1431,3 @@ Although we think there should be an math method that can solve it, we could not
 **4. bruteforce part**
 
 todo
->>>>>>> 2e467843a4aa5f6af3686ea6e790a8b69b90d7db
