@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 from hashlib import sha256
 import itertools
 import sys
