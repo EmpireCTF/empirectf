@@ -301,7 +301,11 @@ And with that:
 
 I did indeed.
 
-## Reverse / 161 babyre ##
+## 540 Reverse / magic ##
+
+todo, answer in my windows computer, didn't bring it to uni
+
+## 161 Reverse / babyre ##
 
 **Description**
 
@@ -424,7 +428,7 @@ int main(int argc, char const *argv[])
 
 **Description**
 
-> Please submit RCTF{<WhatYouInput>}. 
+> Please submit RCTF{\<WhatYouInput\>}. 
 > 
 > attachment: https://drive.google.com/open?id=1AQykwr6bNklqdtaVkFs0B79QAyrixXnd 
 
@@ -684,6 +688,525 @@ print "".join(flag)
 ```
 
 `RCTF{09a71bf084a93df7ce3def3ab1bd61f6}`
+
+## 606 Reverse / simple re ##
+
+**Description**
+
+> right time, right spell, right flag. 
+> 
+> attachment: https://drive.google.com/open?id=13Di0J0NeDw6CeQ8W4wqKyLpx0vFtKZM0 
+
+**Solution**
+
+### Unpacking ###
+
+This is actually my first time dealing with linux packed executables, but the mechanism is similar to that on Windows.
+
+After opening the executable in IDA, IDA says `.GOT.PLT` cannot be found, which suggests it may be packed; also, it says the entry  point of program is invalid, this won't happen even if the program is packed, so let's see what is going on.
+
+Firstly, the entry point is `0x4018C8` as specified in the ELF header, but it is red (invalid).
+
+![elfheader](screens/simplere-elf-header.png)
+
+IDA says this address is not in a loadable section, and if we go to that address in IDA, it is not shown either. However, if we load this in gdb and breakpoint at `0x4018c8`, it works.
+
+The problem is the at the PHT entry, the size is only `0x18c8`, which excludes the entry point:
+
+![pht](screens/simplere-pht.png)
+
+So after patching the `0x18C8` to `0x2000`, IDA analysis will be normal.
+
+```assembly
+public start
+start           proc near               ; DATA XREF: LOAD:0000000000400018↑o
+; start+7↓o
+mov     rbp, offset _init_proc
+mov     r9, offset start
+loc_4018D6:     ; CODE XREF: start+23↓j
+mov     r8, 0CCh
+xor     qword ptr [rbp], r8
+mov     r8, [rbp+0]
+inc     rbp
+cmp     rbp, r9
+jl      short loc_4018D6
+mov     rbp, offset _start
+jmp     rbp
+start           endp
+```
+
+This code decodes the `.text` segment by XORing with `0xCC`, so we can write a IDA python script to decode:
+
+```python
+def xor_decode(start, end, key):
+	for p in xrange(start, end):
+		PatchByte(p, Byte(p) ^ key)
+#xor_decode(0x400958, 0x4018C8, 0xCC)
+```
+
+Then apply the patch to the file and reopen the file, the executable is unpacked.
+
+### First attempt ###
+
+We can see following code in the main function:
+
+```c
+puts("input flag:");
+read(0, ::flag, 0x21uLL);
+flag[0] = ::flag[0];
+flag[1] = ::flag[1];
+flag[2] = ::flag[2];
+flag[3] = ::flag[3];
+v7 = word_602100;
+v9[0] = 0x67452301;
+v9[1] = 0xEFCDAB89;
+v9[2] = 0x98BADCFE;
+v9[3] = 0x10325476;
+length = (unsigned int)strlen((const char *)flag) >> 2;
+if ( length && return_true((unsigned int *)flag, length, v9) )
+  puts("Right!");
+kill(pid, 9);
+return 0LL;
+```
+
+There is actually more code in the previous part: calls to APIs like `fork`, `wait`, `ptrace`. Initially I thought these are just anti-debugging techniques and are not useful for obtaining the flag.
+
+`return_true` is:
+
+```c
+// length == 8
+bool __fastcall return_true(unsigned int *input, int length, unsigned int *key)
+{
+  unsigned int next; // ST2C_4
+  unsigned int v4; // ST34_4
+  unsigned int hash_gen_2bits; // [rsp+28h] [rbp-18h]
+  int i_1; // [rsp+30h] [rbp-10h]
+  unsigned int prev; // [rsp+34h] [rbp-Ch]
+  int i; // [rsp+38h] [rbp-8h]
+  unsigned int hash_gen; // [rsp+3Ch] [rbp-4h]
+
+  hash_gen = 0;
+  for ( i = 52 / length + 6; i; --i )
+  {
+    prev = input[length - 1];
+    i_1 = 0;
+    hash_gen -= 0x61C88647;
+    hash_gen_2bits = (hash_gen >> 2) & 3;
+    while ( length - 1 > i_1 )
+    {
+      next = input[i_1 + 1];
+      input[i_1] += ((next ^ hash_gen) + (prev ^ key[hash_gen_2bits ^ i_1 & 3])) ^ ((4 * next ^ (prev >> 5)) + ((next >> 3) ^ 16 * prev));
+      prev = input[i_1++];
+    }
+    input[length - 1] += ((*input ^ hash_gen) + (prev ^ key[hash_gen_2bits ^ i_1 & 3])) ^ ((4 * *input ^ (prev >> 5)) + ((*input >> 3) ^ 16 * prev));
+    v4 = input[length - 1];
+  }
+  __debugbreak();
+  return memcmp(input, "quehsj_kcneop_amneuf_ieha_ehdhde", 0x20uLL) == 0;
+}
+```
+
+First I searched for the magic number `0x61C88647`. It seems that it is a magic number used for hashing algorithm.
+
+So this seems like a hashing algorithm, input is added according to the previous element and the next element (the first's element previous element is the last element and vice versa, like a cyclic list), and this will be executed `52 / length + 6` times, with `hash_gen` being changed in each iteration. However, `[0]` (the first element) will use `[len - 1]` and `[1]`, which are not encoded; the `[i]` element (where `0 < i < len - 1`) will use `[i - 1]` (encoded) and `[i + 1]` (not encoded); the `[len - 1]` element will use `[len - 2]` and `[0]`, which are **encoded**. Therefore, we can recover the last element given the result of the hashing, and in turn recover all of the previous elements with a reverse loop, as shown:
+
+```c
+#include <stdint.h>
+#include <stdio.h>
+#include <memory.h>
+#include <sys/ptrace.h>
+
+#define LEN 8
+unsigned char buf[33] = "quehsj_kcneop_amneuf_ieha_ehdhde";
+unsigned int* test = (unsigned int*)testbufin;
+unsigned int* flag = (unsigned int*)buf;
+
+uint32_t key[4]={
+ 0x67452301
+,0xEFCDAB89
+,0x98BADCFE
+,0x10325476};
+
+void print_hex(unsigned char* buf, size_t len)
+{
+  for (int i = 0; i < len; ++i)
+  {
+    printf("\\x%.2x", buf[i]);
+  }
+  printf("\n");
+}
+
+unsigned int hash_gens[13];
+
+void init_hash_gens()
+{
+  unsigned int hash_gen = 0;
+  for (int i = 0; i < 12; ++i)
+  {
+    hash_gen -= 0x61C88647;
+    hash_gens[i] = hash_gen;
+  }
+}
+
+void one_iteration(unsigned int* flag, int i)
+{
+  unsigned int hash_gen_2bits = (hash_gens[i] >> 2) & 3;
+  flag[LEN - 1] -= ((*flag ^ hash_gens[i]) +
+        (flag[LEN - 2] ^ key[hash_gen_2bits ^ ((LEN - 1) & 3)]))
+        ^ ((4 * *flag ^ (flag[LEN - 2] >> 5))
+        + ((*flag >> 3) ^ 16 * flag[LEN - 2]));
+  //now flag[LEN - 1] has been recovered
+  for (int j = LEN - 2; j >= 1; --j)
+  {
+    flag[j] -= ((flag[j + 1] ^ hash_gens[i]) + (flag[j - 1] ^ key[hash_gen_2bits ^ (j & 3)])) ^ ((4 * flag[j + 1] ^ (flag[j - 1] >> 5)) + ((flag[j + 1] >> 3) ^ 16 * flag[j - 1]));
+  }
+  flag[0] -= ((flag[1] ^ hash_gens[i]) + (flag[LEN - 1] ^ key[hash_gen_2bits ^ (0 & 3)])) ^ ((4 * flag[1] ^ (flag[LEN - 1] >> 5)) + ((flag[1] >> 3) ^ 16 * flag[LEN - 1]));
+}
+
+int main()
+{
+  init_hash_gens();
+  printf("recover:\n");
+  for (int i = 52 / LEN + 6; i; i--)
+  {
+    one_iteration(flag, i - 1/*damn it, stuck for 2 hours!!!!!!!*/);
+    print_hex(buf, 33);
+    printf("%s\n", buf);
+  }
+}
+```
+
+However, the result is not readable, and indeed, if we `nop` the `fork` and ignore all the previous instructions, and redirect the resulting unreadable bytes into the stdin of the program, it will work, but this is certainly not the flag, so it must have something to do with the previous part of code.
+
+```
+$ ./simplere_unpacked_nofork < flag.txt 
+input flag:
+Right!
+$ xxd flag.txt 
+00000000: 8ec8 e688 d671 767d 39f1 ae60 8447 b784  .....qv}9..`.G..
+00000010: 1ea4 f3ed 963a ed98 fc71 6351 8709 460b  .....:...qcQ..F.
+00000020: 00
+```
+
+### Second attempt ###
+
+Then I looked at the previous instructions, which did not seem like they were checking the flag, but I found something interesting:
+
+```assembly
+;in main function
+loc_401221: ; CODE XREF: main+136↑j
+lea     rax, cs:1F2498h
+mov     rdi, rax
+call    plus_0x20edac
+mov     [rbp+var_18], rax
+push    [rbp+var_18]
+retn    ; jmp 0x401244
+
+
+LOAD:0000000000400EC1 plus_0x20edac   proc near               ; CODE XREF: sub_400FB1+12↓p
+LOAD:0000000000400EC1                                         ; main+1AA↓p
+LOAD:0000000000400EC1                 push    rbp
+LOAD:0000000000400EC2                 mov     rbp, rsp
+LOAD:0000000000400EC5                 push    rbx
+LOAD:0000000000400EC6                 mov     rbx, rdi        ; rbx = arg
+LOAD:0000000000400EC9                 lea     rdi, cs:300E37h
+LOAD:0000000000400ED0                 call    add_0x1000AC
+LOAD:0000000000400ED5                 push    rax             ; rax = 0x400ee3
+LOAD:0000000000400ED6                 retn                    ; jmp 400ee3
+LOAD:0000000000400ED6 plus_0x20edac   endp ; sp-analysis failed
+LOAD:0000000000400ED6
+LOAD:0000000000400ED6 ; ------------------------------------------------------------------
+LOAD:0000000000400ED7                 db 0AAh
+LOAD:0000000000400ED8                 db 0B7h
+LOAD:0000000000400ED9                 db 91h, 5, 6, 17h, 82h, 19h, 0C7h
+LOAD:0000000000400EE0                 db 0DDh, 0AAh, 0
+LOAD:0000000000400EE3 ; ------------------------------------------------------------------
+LOAD:0000000000400EE3                 mov     rdi, rbx
+LOAD:0000000000400EE6                 call    add_0x1000AC
+LOAD:0000000000400EEB                 add     rax, 10ED00h    ; rax = arg + 0x20edac
+LOAD:0000000000400EF1                 pop     rbx
+LOAD:0000000000400EF2                 pop     rbp
+LOAD:0000000000400EF3                 retn
+
+LOAD:0000000000400EA7 add_0x1000AC    proc near
+LOAD:0000000000400EA7                                         ; LOAD:0000000000400EE6↓p
+LOAD:0000000000400EA7
+LOAD:0000000000400EA7 var_8           = qword ptr -8
+LOAD:0000000000400EA7
+LOAD:0000000000400EA7                 push    rbp
+LOAD:0000000000400EA8                 mov     rbp, rsp
+LOAD:0000000000400EAB                 mov     [rbp+var_8], rdi
+LOAD:0000000000400EAF                 mov     eax, cs:dword_6020B8 ; eax = 0x1000AC
+LOAD:0000000000400EB5                 movsxd  rdx, eax
+LOAD:0000000000400EB8                 mov     rax, [rbp+var_8]
+LOAD:0000000000400EBC                 add     rax, rdx
+LOAD:0000000000400EBF                 pop     rbp
+LOAD:0000000000400EC0                 retn
+LOAD:0000000000400EC0 add_0x1000AC    endp
+```
+
+This is a kind of obsfucation technique, in which the program `push xxx; retn` to implement a `jmp xxx`, so IDA will just fail the stack frame analysis.
+
+Thus, actually, the main function should be like this (after replacing some useless instructions with `nop`)
+
+```assembly
+LOAD:0000000000401221                 lea     rax, cs:1F2498h
+LOAD:0000000000401228                 mov     rdi, rax
+LOAD:000000000040122B                 call    plus_0x20edac
+LOAD:0000000000401230                 mov     qword ptr [rbp+stat_loc+4], rax
+LOAD:0000000000401234                 nop
+LOAD:0000000000401235                 nop
+LOAD:0000000000401236                 nop
+LOAD:0000000000401237                 nop                     ; jmp 0x401244
+LOAD:0000000000401238
+LOAD:0000000000401238 loc_401238:
+LOAD:0000000000401238                 nop
+LOAD:0000000000401239                 nop
+LOAD:000000000040123A                 nop
+LOAD:000000000040123B                 nop
+LOAD:000000000040123C                 nop
+LOAD:000000000040123D                 nop
+LOAD:000000000040123E                 nop
+LOAD:000000000040123F                 nop
+LOAD:0000000000401240                 nop
+LOAD:0000000000401241                 nop
+LOAD:0000000000401242                 nop
+LOAD:0000000000401243                 nop
+LOAD:0000000000401244                 lea     rdx, [rbp+var_1A0]
+```
+
+Originally there was a obsfucated `jmp`, but now I simply `nop` them and the replace the code that should have been `jmp`, which should have same effect. F5 decompile:
+
+ ```c
+//...
+    plus_0x20edac();
+    *(int **)((char *)&stat_loc.__iptr + 4) = v3;
+    ptrace(PTRACE_GETSIGINFO, v12, 0LL, &v5);
+    if ( v5 == SIGTRAP )
+    {
+      ptrace(PTRACE_GETREGS, v12, 0LL, flag);
+      v8 = sub_400FB1;
+      ptrace(PTRACE_SETREGS, v12, 0LL, flag);
+    }
+    ptrace(PTRACE_CONT, v12, 0LL, 0LL);
+  }
+}
+//...
+ ```
+
+The `ptrace` seems to process flag in some way, but I could not understand it. :) Why does the program put the register context into the flag buffer? Also, the function `sub_400FB1` is strange - it is referenced and assigned to a local variable, but never used. If we have a look at it:
+
+```assembly
+LOAD:0000000000400FB1 sub_400FB1      proc near               ; DATA XREF: main+214↓o
+LOAD:0000000000400FB1                 push    rbp
+LOAD:0000000000400FB2                 mov     rbp, rsp
+LOAD:0000000000400FB5                 sub     rsp, 20h
+LOAD:0000000000400FB9                 lea     rax, cs:1F2230h
+LOAD:0000000000400FC0                 mov     rdi, rax
+LOAD:0000000000400FC3                 call    plus_0x20edac
+LOAD:0000000000400FC8                 mov     [rbp+var_10], rax
+LOAD:0000000000400FCC                 push    qword ptr [rbp-10h]
+LOAD:0000000000400FCF                 retn
+```
+
+Same technique as above. After `nop`, the function `sub_400FB1` decompiles to this code:
+
+```c
+void __noreturn sub_400FB1()
+{
+  __int64 v0; // rax
+  char s; // [rsp+1h] [rbp-1Fh]
+  char v2; // [rsp+2h] [rbp-1Eh]
+  char v3; // [rsp+3h] [rbp-1Dh]
+  char v4; // [rsp+4h] [rbp-1Ch]
+  char v5; // [rsp+5h] [rbp-1Bh]
+  char v6; // [rsp+6h] [rbp-1Ah]
+  char v7; // [rsp+7h] [rbp-19h]
+  _BOOL8 (__fastcall *v8)(unsigned int *); // [rsp+8h] [rbp-18h]
+  __int64 v9; // [rsp+10h] [rbp-10h]
+  unsigned __int64 i; // [rsp+18h] [rbp-8h]
+
+  plus_0x20edac();
+  v9 = v0;
+  v8 = real_check;
+  s = 'R';
+  v2 = 'i';
+  v3 = 'g';
+  v4 = 'h';
+  v5 = 't';
+  v6 = '!';
+  v7 = 0;
+  for ( i = 0LL; i < 354; ++i )
+    *((_BYTE *)v8 + i) ^= 0x28u;//xor SMC, use same xor_decode IDA python code to decode
+  if ( (unsigned __int8)real_check((unsigned int *)::flag) )
+    puts(&s);
+  if ( pid )
+    kill(pid, 9);
+  exit(0);
+}
+
+_BOOL8 __fastcall real_check(unsigned int *flag)
+{
+  unsigned int result[6]; // [rsp+8h] [rbp-40h]
+  unsigned int mult[6]; // [rsp+28h] [rbp-20h]
+  int v5; // [rsp+40h] [rbp-8h]
+  int i; // [rsp+44h] [rbp-4h]
+
+  mult[0] = 0x556E4969;
+  mult[1] = 0x2E775361;
+  mult[2] = 0x893DAE7;
+  mult[3] = 0x96990423;
+  mult[4] = 0x6CF9D3E9;
+  mult[5] = 0xA505531F;
+  result[0] = 0x54A0B9BD;
+  result[1] = 0x4B818640;
+  result[2] = 0x8EB63387;
+  result[3] = 0xA9EABEFD;
+  result[4] = 0xB8CDF96B;
+  result[5] = 0x113C3052;
+  for ( i = 0; i <= 5; ++i )
+  {
+    if ( mult[i] * flag[i] != result[i] )
+      return 0LL;
+  }
+  if ( (unsigned int)sub_400EF4(flag[6], *((unsigned __int16 *)flag + 14), 0xF64BB17D) != 0x6F82C8DC
+    || (unsigned int)sub_400F5B(*((_WORD *)flag + 14), *((_WORD *)flag + 15)) != 0xA496 )
+  {
+    return 0LL;
+  }
+  v5 = 0;
+  for ( i = 24; i <= 31; ++i )
+    v5 ^= *((char *)flag + i);
+  return v5 == 22 && *((_BYTE *)flag + 32) == 's';
+}
+```
+
+After XOR decoding again, we can see the `real_check` function that examines the flag, although I don't know how this will be called :D The first 24 bytes are easy, considering the overflow that might happen when doing multiplication, we use bruteforce approach.
+
+```c
+int main1(int argc, char const *argv[])
+{
+	unsigned long long mult[6];
+	unsigned long long result[6];
+	mult[0] = 0x556E4969;
+	mult[1] = 0x2E775361;
+	mult[2] = 0x893DAE7;
+	mult[3] = 0x96990423;
+	mult[4] = 0x6CF9D3E9;
+	mult[5] = 0xA505531F;
+	result[0] = 0x54A0B9BD;
+	result[1] = 0x4B818640;
+	result[2] = 0x8EB63387;
+	result[3] = 0xA9EABEFD;
+	result[4] = 0xB8CDF96B;
+	result[5] = 0x113C3052;
+	for (int i = 0; i < 6; ++i)
+	{
+		for (unsigned long long x = 0L; x < 0x100000000L; ++x)
+		{
+			if ((x & 0xfffffffL) == 0)
+			{
+				printf("%llx\n", x);
+			}
+			if (((x * mult[i]) & 0xffffffffL)  == result[i])
+			{
+				printf("%s\n", (char*)&x);
+			}
+		}
+	}
+	return 0;
+}
+```
+
+`5o_M@ny_an7i_Rev3rsing_T`
+
+> Note: these are linear congruences again and could more quickly be solved with the same method as in [babyre2](#444-reverse--babyre2).
+
+However, the next 2 checks are harder:
+
+```c
+unsigned __int64 __fastcall sub_400EF4(unsigned int a1, unsigned int a2, unsigned int a3_0xF64BB17D)
+{
+  unsigned int flag2; // [rsp+4h] [rbp-18h]
+  unsigned __int64 v5; // [rsp+Ch] [rbp-10h]
+  unsigned __int64 v6; // [rsp+14h] [rbp-8h]
+
+  flag2 = a2;
+  v6 = 1LL;
+  v5 = a1;
+  while ( flag2 )
+  {
+    if ( flag2 & 1 )
+      v6 = v5 * v6 % a3_0xF64BB17D;
+    v5 = v5 * v5 % a3_0xF64BB17D;
+    flag2 >>= 1;
+  }
+  return v6; // need 0x6F82C8DC
+}
+
+__int64 __fastcall sub_400F5B(unsigned __int16 a1, unsigned __int16 a2)
+{
+  unsigned __int16 v2; // ST16_2
+  unsigned __int16 i; // [rsp+0h] [rbp-18h]
+  unsigned __int16 v5; // [rsp+4h] [rbp-14h]
+
+  v5 = a1;
+  for ( i = a2; i & v5; i = 2 * (i & v2) )
+  {
+    v2 = v5;
+    v5 ^= i;
+  }
+  return (unsigned __int16)(i | v5); // need 0xA496
+}
+```
+
+So the flag looks like `5o_M@ny_an7i_Rev3rsing_T11112233s`, where `1111` and `22` will be the input for the first check; `22` and `33` will be the input for the second check. Additionally, there is a XOR checksum that must be satisfied.
+
+### The last 8 bytes ###
+
+Given the challenge so far and the flag, it was obvious that the flag would say something like `5o_M@ny_an7i_Rev3rsing_Techniques` - the word fit exactly in the 8 bytes we had. However, just like with the other words, some letters would be replaced with numbers or their uppercase variants. The first thing I tried right away was just to check for these few possibilities:
+
+    ['e', 'E', '3']
+    ['c', 'C']
+    ['h', 'H']
+    ['n', 'N']
+    ['i', 'I', '1', '|']
+    ['q', 'Q']
+    ['u', 'U']
+    ['e', 'E', '3']
+
+But no luck. In hindsight, it was a simple oversight. Can you tell which character I missed?
+
+Well, without much success here I turned to actually look at the two check functions. The second check (`sub_400F5B`, checking for `2233`) looks like some sort of XOR stream? But clearly with two 16-bit integer inputs there are only 2^32 possible inputs, which is not a huge number. After brute-forcing and constraining answers to ASCII bytes, there were only 7917 possible solutions.
+
+The first check (`sub_400EF4`) seemed more complex to me at the time. For the write-up though, it is very clear. Suppose we take `a2 = 25 = 0b11001`. Then the steps taken in the while loop are:
+
+| v5 | a2 & 1 | v6 |
+| --- | --- | --- |
+| | | 1 |
+| a1^1 | 1 | 1 * a1^1 |
+| a1^2 | 0 | 1 * a1^1 |
+| a1^4 | 0 | 1 * a1^1 |
+| a1^8 | 1 | 1 * a1^1 * a1^8 |
+| a1^16 | 1 | 1 * a1^1 * a1^8 * a1^16 |
+
+So the final value of `v6 = 1 * a1^1 * a1^8 * a1^16 = a1^(1 + 8 + 16) = a1^a2`. These operations work across the modulo application. In other words, we know the modulus `m` (`0xF64BB17D`), we know the required result `r` to pass the check (`0x6F82C8DC`), and we need to find out two numbers such that one to the power of the other modulo `m` is `r`:
+
+    a^b = r mod m
+
+This is very common in encryption, [RSA](https://en.wikipedia.org/wiki/RSA_(cryptosystem)#Operation) specifically.
+
+### However! ###
+
+During the CTF I was a bit too dumb to realise, and the clock was ticking. So, a bruteforce method was employed, and executed on a beefy 64-core system.
+
+([here is the shameful bruteforcer](scripts/simplere-brute.c))
+
+And the flag is:
+
+`5o_M@ny_an7i_Rev3rsing_Techn!qu3s`
+
+So I was right about the guess, `echn` matched exactly, but I did not think of `!` as a replacement for the letter `i`. Annoying, but we got the flag so oh well!
 
 ## 444 Reverse / babyre2 ###
 
@@ -956,478 +1479,3 @@ These would take too long to brute-force (2^64-ish possibilities for each entry 
 And after decoding:
 
 `flag{stay_prime_stay_invertible_away_from_bruteforce}`
-
-### magic
-
-todo, answer in my windows computer, didn't bring it to uni
-
-### simplere
-
-**1. unpack**
-
-Actually this is my first time to deal with linux packed executables, but the machanism is actually similar to that on Windows.
-
-Open the executable in ida. ida says \.GOT\.PLT cannot be found, which suggests it may be packed; also, it says the entry  point of program is invalid, this won't happen even if the program is packed, so let's see what is going on.
-
-Firstly, the entry point is 0x4018C8 specified in ELF header, but it is red (invalid)
-
-![elfheader](simplereELFheader.png)
-
-IDA says such address is not in loadable section, and if we go to that address in IDA, it is not shown either.
-
-However, if we load this in gdb and breakpoint at 0x4018c8, it would work
-
-The problem is the at PHT entry, the size is only 0x18c8, which excludes the entry point
-
-![simplerePHT](simplerePHT.png)
-
-so, patch the 18C8h to 2000h, IDA analysis will be normal
-
-```assembly
-public start
-start           proc near               ; DATA XREF: LOAD:0000000000400018↑o
-; start+7↓o
-mov     rbp, offset _init_proc
-mov     r9, offset start
-loc_4018D6:     ; CODE XREF: start+23↓j
-mov     r8, 0CCh
-xor     qword ptr [rbp], r8
-mov     r8, [rbp+0]
-inc     rbp
-cmp     rbp, r9
-jl      short loc_4018D6
-mov     rbp, offset _start
-jmp     rbp
-start           endp
-```
-
-This codes decode the \.text segment using xor, so we can write a IDA python to decode
-
-```python
-def xor_decode(start, end, key):
-	for p in xrange(start, end):
-		PatchByte(p, Byte(p) ^ key)
-#xor_decode(0x400958, 0x4018C8, 0xCC)
-```
-
-then apply the patch to the file, and reopen the file, the executable is unpacked
-
-**2. first attempt**
-
-```c
-//we can see following codes in main function
-  puts("input flag:");
-  read(0, ::flag, 0x21uLL);
-  flag[0] = ::flag[0];
-  flag[1] = ::flag[1];
-  flag[2] = ::flag[2];
-  flag[3] = ::flag[3];
-  v7 = word_602100;
-  v9[0] = 0x67452301;
-  v9[1] = 0xEFCDAB89;
-  v9[2] = 0x98BADCFE;
-  v9[3] = 0x10325476;
-  length = (unsigned int)strlen((const char *)flag) >> 2;
-  if ( length && return_true((unsigned int *)flag, length, v9) )
-    puts("Right!");
-  kill(pid, 9);
-  return 0LL;
-//There are actually other codes in previous part, which calls APIs like fork, wait, ptrace. Initially I thought this is just anti-debug technique and is not useful for obtaining the flag.
-```
-
-where return\_true is
-
-```c
-// length == 8
-bool __fastcall return_true(unsigned int *input, int length, unsigned int *key)
-{
-  unsigned int next; // ST2C_4
-  unsigned int v4; // ST34_4
-  unsigned int hash_gen_2bits; // [rsp+28h] [rbp-18h]
-  int i_1; // [rsp+30h] [rbp-10h]
-  unsigned int prev; // [rsp+34h] [rbp-Ch]
-  int i; // [rsp+38h] [rbp-8h]
-  unsigned int hash_gen; // [rsp+3Ch] [rbp-4h]
-
-  hash_gen = 0;
-  for ( i = 52 / length + 6; i; --i )
-  {
-    prev = input[length - 1];
-    i_1 = 0;
-    hash_gen -= 0x61C88647;
-    hash_gen_2bits = (hash_gen >> 2) & 3;
-    while ( length - 1 > i_1 )
-    {
-      next = input[i_1 + 1];
-      input[i_1] += ((next ^ hash_gen) + (prev ^ key[hash_gen_2bits ^ i_1 & 3])) ^ ((4 * next ^ (prev >> 5)) + ((next >> 3) ^ 16 * prev));
-      prev = input[i_1++];
-    }
-    input[length - 1] += ((*input ^ hash_gen) + (prev ^ key[hash_gen_2bits ^ i_1 & 3])) ^ ((4 * *input ^ (prev >> 5)) + ((*input >> 3) ^ 16 * prev));
-    v4 = input[length - 1];
-  }
-  __debugbreak();
-  return memcmp(input, "quehsj_kcneop_amneuf_ieha_ehdhde", 0x20uLL) == 0;
-}
-```
-
-Firstly search magic number 0x61C88647, it seems that it is a magic number used for hashing algorithm.
-
-This seems like a hashing algorithm, input is added according to the previous element and next element(for the first element and last element, they use the last element as the previous element and first element as next element, like a circle), and this will be executed 52 / length + 6 times, with hash\_gen being changed in each iteration. However, the \[0\] (first element) element will use \[len-1\] and \[1\], which are unecoded; the \[i\] element where 0\<i\<len\-1 will use \[i\-1\]\(encoded\) and \[i\+1\]\(unencoded\); the \[len-1\] element will use \[len\-2\] and \[0\], which are **encoded**. Therefore, we can recover the last element given the result of the hashing, and in turns recover all of the previous elements by a reverse loop, as shown.
-
-```c
-#include <stdint.h>
-#include <stdio.h>
-#include <memory.h>
-#include <sys/ptrace.h>
-
-#define LEN 8
-unsigned char buf[33] = "quehsj_kcneop_amneuf_ieha_ehdhde";
-unsigned int* test = (unsigned int*)testbufin;
-unsigned int* flag = (unsigned int*)buf;
-
-uint32_t key[4]={
- 0x67452301
-,0xEFCDAB89
-,0x98BADCFE
-,0x10325476};
-
-void print_hex(unsigned char* buf, size_t len)
-{
-  for (int i = 0; i < len; ++i)
-  {
-    printf("\\x%.2x", buf[i]);
-  }
-  printf("\n");
-}
-
-unsigned int hash_gens[13];
-
-void init_hash_gens()
-{
-  unsigned int hash_gen = 0;
-  for (int i = 0; i < 12; ++i)
-  {
-    hash_gen -= 0x61C88647;
-    hash_gens[i] = hash_gen;
-  }
-}
-
-void one_iteration(unsigned int* flag, int i)
-{
-  unsigned int hash_gen_2bits = (hash_gens[i] >> 2) & 3;
-  flag[LEN - 1] -= ((*flag ^ hash_gens[i]) +
-        (flag[LEN - 2] ^ key[hash_gen_2bits ^ ((LEN - 1) & 3)]))
-        ^ ((4 * *flag ^ (flag[LEN - 2] >> 5))
-        + ((*flag >> 3) ^ 16 * flag[LEN - 2]));
-  //now flag[LEN - 1] has been recovered
-  for (int j = LEN - 2; j >= 1; --j)
-  {
-    flag[j] -= ((flag[j + 1] ^ hash_gens[i]) + (flag[j - 1] ^ key[hash_gen_2bits ^ (j & 3)])) ^ ((4 * flag[j + 1] ^ (flag[j - 1] >> 5)) + ((flag[j + 1] >> 3) ^ 16 * flag[j - 1]));
-  }
-  flag[0] -= ((flag[1] ^ hash_gens[i]) + (flag[LEN - 1] ^ key[hash_gen_2bits ^ (0 & 3)])) ^ ((4 * flag[1] ^ (flag[LEN - 1] >> 5)) + ((flag[1] >> 3) ^ 16 * flag[LEN - 1]));
-}
-
-int main()
-{
-  init_hash_gens();
-  printf("recover:\n");
-  for (int i = 52 / LEN + 6; i; i--)
-  {
-    one_iteration(flag, i - 1/*damn it, stuck for 2 hours!!!!!!!*/);
-    print_hex(buf, 33);
-    printf("%s\n", buf);
-  }
-}
-```
-
-However, the result is not readable, and indeed, if we nop the fork and ignore all previous codes, and redirect the result unreadable bytes in to stdin of the program, it will work, but this is certainly not the flag, so it must has something to do with the previous part of code.
-
-```
-./simplere_unpacked_nofork < flag.txt 
-input flag:
-Right!
-```
-
-**3. second attempt**
-
-Then I looked at the previous codes, which does not seems like checking, but I found something interesting.
-
-```assembly
-;in main function
-loc_401221: ; CODE XREF: main+136↑j
-lea     rax, cs:1F2498h
-mov     rdi, rax
-call    plus_0x20edac
-mov     [rbp+var_18], rax
-push    [rbp+var_18]
-retn    ; jmp 0x401244
-
-
-LOAD:0000000000400EC1 plus_0x20edac   proc near               ; CODE XREF: sub_400FB1+12↓p
-LOAD:0000000000400EC1                                         ; main+1AA↓p
-LOAD:0000000000400EC1                 push    rbp
-LOAD:0000000000400EC2                 mov     rbp, rsp
-LOAD:0000000000400EC5                 push    rbx
-LOAD:0000000000400EC6                 mov     rbx, rdi        ; rbx = arg
-LOAD:0000000000400EC9                 lea     rdi, cs:300E37h
-LOAD:0000000000400ED0                 call    add_0x1000AC
-LOAD:0000000000400ED5                 push    rax             ; rax = 0x400ee3
-LOAD:0000000000400ED6                 retn                    ; jmp 400ee3
-LOAD:0000000000400ED6 plus_0x20edac   endp ; sp-analysis failed
-LOAD:0000000000400ED6
-LOAD:0000000000400ED6 ; ------------------------------------------------------------------
-LOAD:0000000000400ED7                 db 0AAh
-LOAD:0000000000400ED8                 db 0B7h
-LOAD:0000000000400ED9                 db 91h, 5, 6, 17h, 82h, 19h, 0C7h
-LOAD:0000000000400EE0                 db 0DDh, 0AAh, 0
-LOAD:0000000000400EE3 ; ------------------------------------------------------------------
-LOAD:0000000000400EE3                 mov     rdi, rbx
-LOAD:0000000000400EE6                 call    add_0x1000AC
-LOAD:0000000000400EEB                 add     rax, 10ED00h    ; rax = arg + 0x20edac
-LOAD:0000000000400EF1                 pop     rbx
-LOAD:0000000000400EF2                 pop     rbp
-LOAD:0000000000400EF3                 retn
-
-LOAD:0000000000400EA7 add_0x1000AC    proc near
-LOAD:0000000000400EA7                                         ; LOAD:0000000000400EE6↓p
-LOAD:0000000000400EA7
-LOAD:0000000000400EA7 var_8           = qword ptr -8
-LOAD:0000000000400EA7
-LOAD:0000000000400EA7                 push    rbp
-LOAD:0000000000400EA8                 mov     rbp, rsp
-LOAD:0000000000400EAB                 mov     [rbp+var_8], rdi
-LOAD:0000000000400EAF                 mov     eax, cs:dword_6020B8 ; eax = 0x1000AC
-LOAD:0000000000400EB5                 movsxd  rdx, eax
-LOAD:0000000000400EB8                 mov     rax, [rbp+var_8]
-LOAD:0000000000400EBC                 add     rax, rdx
-LOAD:0000000000400EBF                 pop     rbp
-LOAD:0000000000400EC0                 retn
-LOAD:0000000000400EC0 add_0x1000AC    endp
-```
-
-This is a kind of obsfucation technique, in which program "push xxx; retn" to implement a jmp xxx, so IDA will just fail the stack frame analysis.
-
-Thus, actually, the main function should be like this (after nop some useless codes)
-
-```assembly
-LOAD:0000000000401221                 lea     rax, cs:1F2498h
-LOAD:0000000000401228                 mov     rdi, rax
-LOAD:000000000040122B                 call    plus_0x20edac
-LOAD:0000000000401230                 mov     qword ptr [rbp+stat_loc+4], rax
-LOAD:0000000000401234                 nop
-LOAD:0000000000401235                 nop
-LOAD:0000000000401236                 nop
-LOAD:0000000000401237                 nop                     ; jmp 0x401244
-LOAD:0000000000401238
-LOAD:0000000000401238 loc_401238:
-LOAD:0000000000401238                 nop
-LOAD:0000000000401239                 nop
-LOAD:000000000040123A                 nop
-LOAD:000000000040123B                 nop
-LOAD:000000000040123C                 nop
-LOAD:000000000040123D                 nop
-LOAD:000000000040123E                 nop
-LOAD:000000000040123F                 nop
-LOAD:0000000000401240                 nop
-LOAD:0000000000401241                 nop
-LOAD:0000000000401242                 nop
-LOAD:0000000000401243                 nop
-LOAD:0000000000401244                 lea     rdx, [rbp+var_1A0]
-```
-
-originally there is a obsfucation "jmp", but now I simply nop them and the codes that should have been jmp, which should have same effect.
-
-F5 decompile:
-
- ```c
-//...
-      plus_0x20edac();
-      *(int **)((char *)&stat_loc.__iptr + 4) = v3;
-      ptrace(PTRACE_GETSIGINFO, v12, 0LL, &v5);
-      if ( v5 == SIGTRAP )
-      {
-        ptrace(PTRACE_GETREGS, v12, 0LL, flag);
-        v8 = sub_400FB1;
-        ptrace(PTRACE_SETREGS, v12, 0LL, flag);
-      }
-      ptrace(PTRACE_CONT, v12, 0LL, 0LL);
-    }
-  }
-  //...
- ```
-
-The ptrace seems process flag in someway, but I could not understand it\. :\) Why does the program put register context into flag buffer?
-
-Also, the function sub\_400FB1 is strange, it is referenced and assigned to a local variable, but never used. If we have a look about it,
-
-```assembly
-LOAD:0000000000400FB1 sub_400FB1      proc near               ; DATA XREF: main+214↓o
-LOAD:0000000000400FB1                 push    rbp
-LOAD:0000000000400FB2                 mov     rbp, rsp
-LOAD:0000000000400FB5                 sub     rsp, 20h
-LOAD:0000000000400FB9                 lea     rax, cs:1F2230h
-LOAD:0000000000400FC0                 mov     rdi, rax
-LOAD:0000000000400FC3                 call    plus_0x20edac
-LOAD:0000000000400FC8                 mov     [rbp+var_10], rax
-LOAD:0000000000400FCC                 push    qword ptr [rbp-10h]
-LOAD:0000000000400FCF                 retn
-```
-
-same technique as above, so I would not talk about it again. After nop, the function sub\_400FB1 decompile to the code as shown
-
-```c
-void __noreturn sub_400FB1()
-{
-  __int64 v0; // rax
-  char s; // [rsp+1h] [rbp-1Fh]
-  char v2; // [rsp+2h] [rbp-1Eh]
-  char v3; // [rsp+3h] [rbp-1Dh]
-  char v4; // [rsp+4h] [rbp-1Ch]
-  char v5; // [rsp+5h] [rbp-1Bh]
-  char v6; // [rsp+6h] [rbp-1Ah]
-  char v7; // [rsp+7h] [rbp-19h]
-  _BOOL8 (__fastcall *v8)(unsigned int *); // [rsp+8h] [rbp-18h]
-  __int64 v9; // [rsp+10h] [rbp-10h]
-  unsigned __int64 i; // [rsp+18h] [rbp-8h]
-
-  plus_0x20edac();
-  v9 = v0;
-  v8 = real_check;
-  s = 'R';
-  v2 = 'i';
-  v3 = 'g';
-  v4 = 'h';
-  v5 = 't';
-  v6 = '!';
-  v7 = 0;
-  for ( i = 0LL; i < 354; ++i )
-    *((_BYTE *)v8 + i) ^= 0x28u;//xor SMC, use same xor_decode IDA python code to decode
-  if ( (unsigned __int8)real_check((unsigned int *)::flag) )
-    puts(&s);
-  if ( pid )
-    kill(pid, 9);
-  exit(0);
-}
-
-_BOOL8 __fastcall real_check(unsigned int *flag)
-{
-  unsigned int result[6]; // [rsp+8h] [rbp-40h]
-  unsigned int mult[6]; // [rsp+28h] [rbp-20h]
-  int v5; // [rsp+40h] [rbp-8h]
-  int i; // [rsp+44h] [rbp-4h]
-
-  mult[0] = 0x556E4969;
-  mult[1] = 0x2E775361;
-  mult[2] = 0x893DAE7;
-  mult[3] = 0x96990423;
-  mult[4] = 0x6CF9D3E9;
-  mult[5] = 0xA505531F;
-  result[0] = 0x54A0B9BD;
-  result[1] = 0x4B818640;
-  result[2] = 0x8EB63387;
-  result[3] = 0xA9EABEFD;
-  result[4] = 0xB8CDF96B;
-  result[5] = 0x113C3052;
-  for ( i = 0; i <= 5; ++i )
-  {
-    if ( mult[i] * flag[i] != result[i] )
-      return 0LL;
-  }
-  if ( (unsigned int)sub_400EF4(flag[6], *((unsigned __int16 *)flag + 14), 0xF64BB17D) != 0x6F82C8DC
-    || (unsigned int)sub_400F5B(*((_WORD *)flag + 14), *((_WORD *)flag + 15)) != 0xA496 )
-  {
-    return 0LL;
-  }
-  v5 = 0;
-  for ( i = 24; i <= 31; ++i )
-    v5 ^= *((char *)flag + i);
-  return v5 == 22 && *((_BYTE *)flag + 32) == 's';
-}
-```
-
-
-
-so, after xor decode again, we can see the real\_check function that examine the flag, although I don't know how this will be called :D
-
-The first 24 bytes are easy, considering the overflow that might happen when doing multiplication, we use bruteforce approach.
-
-```c
-int main1(int argc, char const *argv[])
-{
-	unsigned long long mult[6];
-	unsigned long long result[6];
-	mult[0] = 0x556E4969;
-	mult[1] = 0x2E775361;
-	mult[2] = 0x893DAE7;
-	mult[3] = 0x96990423;
-	mult[4] = 0x6CF9D3E9;
-	mult[5] = 0xA505531F;
-	result[0] = 0x54A0B9BD;
-	result[1] = 0x4B818640;
-	result[2] = 0x8EB63387;
-	result[3] = 0xA9EABEFD;
-	result[4] = 0xB8CDF96B;
-	result[5] = 0x113C3052;
-	for (int i = 0; i < 6; ++i)
-	{
-		for (unsigned long long x = 0L; x < 0x100000000L; ++x)
-		{
-			if ((x & 0xfffffffL) == 0)
-			{
-				printf("%llx\n", x);
-			}
-			if (((x * mult[i]) & 0xffffffffL)  == result[i])
-			{
-				printf("%s\n", (char*)&x);
-			}
-		}
-	}//5o_M@ny_an7i_Rev3rsing_T
-	return 0;
-}
-```
-
-However, the next 2 checks are harder
-
-```c
-unsigned __int64 __fastcall sub_400EF4(unsigned int a1, unsigned int a2, unsigned int a3_0xF64BB17D)
-{
-  unsigned int flag2; // [rsp+4h] [rbp-18h]
-  unsigned __int64 v5; // [rsp+Ch] [rbp-10h]
-  unsigned __int64 v6; // [rsp+14h] [rbp-8h]
-
-  flag2 = a2;
-  v6 = 1LL;
-  v5 = a1;
-  while ( flag2 )
-  {
-    if ( flag2 & 1 )
-      v6 = v5 * v6 % a3_0xF64BB17D;
-    v5 = v5 * v5 % a3_0xF64BB17D;
-    flag2 >>= 1;
-  }
-  return v6;                                    // need 0x6F82C8DC
-}
-
-__int64 __fastcall sub_400F5B(unsigned __int16 a1, unsigned __int16 a2)
-{
-  unsigned __int16 v2; // ST16_2
-  unsigned __int16 i; // [rsp+0h] [rbp-18h]
-  unsigned __int16 v5; // [rsp+4h] [rbp-14h]
-
-  v5 = a1;
-  for ( i = a2; i & v5; i = 2 * (i & v2) )
-  {
-    v2 = v5;
-    v5 ^= i;
-  }
-  return (unsigned __int16)(i | v5);
-}
-```
-
-so the flag is like 5o\_M@ny\_an7i\_Rev3rsing\_T11112233s, where 1111 and 22 will be putted into first check, and 22 and 33 will be putted into second check, also there is a xor checksum that must be satisfied.
-
-Although we think there should be an math method that can solve it, we could not find that and instead used a bruteforce approach.
-
-**4. bruteforce part**
-
-todo
