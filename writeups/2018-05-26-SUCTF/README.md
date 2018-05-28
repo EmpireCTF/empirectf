@@ -9,11 +9,11 @@
 ### Reverse ###
 
  - [ ] 800 Python大法好?!
- - [x] 606 Enigma
+ - [x] [606 Enigma (in Chinese)](https://github.com/Mem2019/Mem2019.github.io/tree/master/writeups/suctf2018#enigma)
  - [ ] 952 RubberDucky
  - [ ] 425 RoughLike与期末大作业
- - [x] 312 babyre
- - [x] 434 simpleformat
+ - [x] [312 babyre (in Chinese)](https://github.com/Mem2019/Mem2019.github.io/tree/master/writeups/suctf2018#babyre)
+ - [x] [434 simpleformat (in Chinese)](https://github.com/Mem2019/Mem2019.github.io/tree/master/writeups/suctf2018#simpleformat)
 
 ### Crypto ###
 
@@ -35,9 +35,9 @@
 ### Pwn ###
 
  - [ ] 1000 Heapprint
- - [x] 689 lock2
+ - [x] [689 lock2 (in Chinese)](https://github.com/Mem2019/Mem2019.github.io/tree/master/writeups/suctf2018#lock2)
  - [ ] 952 Noend
- - [x] 689 Heap
+ - [x] [689 Heap (in Chinese)](https://github.com/Mem2019/Mem2019.github.io/tree/master/writeups/suctf2018#heap)
  - [ ] 540 Note
 
 ### Web ###
@@ -50,7 +50,8 @@
 
 ---
 
-## Pwn & Reverse (In Chinese)
+## Pwn & Reverse (in Chinese) ##
+
 [https://github.com/Mem2019/Mem2019.github.io/tree/master/writeups/suctf2018](https://github.com/Mem2019/Mem2019.github.io/tree/master/writeups/suctf2018)
 
 ## 512 Crypto / Rsa ##
