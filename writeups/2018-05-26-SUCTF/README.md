@@ -20,17 +20,17 @@
  - [ ] 625 Magic
  - [ ] 909 Pass
  - [ ] 625 Enjoy
- - [x] 512 Rsa
- - [x] 333 Rsa good
+ - [x] [512 Rsa](#512-crypto--rsa)
+ - [x] [333 Rsa good](#333-crypto--rsa-good)
 
 ### Misc ###
 
- - [x] 222 SandGame
- - [x] 465 Cycle
- - [x] 740 TNT
- - [ ] 540 Game (partial)
+ - [x] [222 SandGame](#222-misc--sand-game)
+ - [x] [465 Cycle](#465-misc--cycle)
+ - [x] [740 TNT](#740-misc--tnt)
+ - [ ] [540 Game (partial)](#540-misc--game-partial)
  - [ ] 833 Padding的秘密
- - [x] 89 签到
+ - [x] [89 签到](#89-misc--签到)
 
 ### Pwn ###
 
