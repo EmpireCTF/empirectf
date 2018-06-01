@@ -120,7 +120,7 @@ in function `main`
       v3 = (void (__fastcall *)(char *, _QWORD))*(&off_2030A0 + v4[1]);
       //will access a function pointer that can be manipulated by input if negative
       v3(++endptr, 0LL);
-      //++endptr will point to the address just after the null terminator if input
+      //++endptr will point to the address just after the null terminator of input
     }
     print_choice();
 ```
@@ -150,7 +150,7 @@ from pwn import *
 g_local=False
 #context.log_level='debug'
 if g_local:
-	sh =process('./bowrain')#env={'LD_PRELOAD':'./libc.so.6'}
+	sh = process('./bowrain')#env={'LD_PRELOAD':'./libc.so.6'}
 	gdb.attach(sh)
 else:
 	sh = remote("159.65.80.92", 54321)
