@@ -97,7 +97,7 @@ Back to looking at the file in a hex editor, we can first notice that it starts 
 
 Some of the numbers don't match. So let's finally reverse the file and unzip it again. And indeed, there is another image, but this time showing the flag!
 
-![](zion2.png)
+![](screens/zion2.png)
 
 `sctf{m41nfr4m3_4cc3ss_c0d3_1337_4lw4s}`
 
