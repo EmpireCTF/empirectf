@@ -390,7 +390,7 @@ $ echo "g1Mm3Th3r3D1" > /proc/bluepill
 $ cat flag
 ```
 
-## 261 Pwn / Bluepill ##
+## 261 Pwn / Bowrain ##
 
 **Description**
 
