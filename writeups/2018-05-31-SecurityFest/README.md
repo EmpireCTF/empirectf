@@ -39,7 +39,7 @@
 
  - [ ] 51 Screensavers
  - [ ] 314 Pongdom
- - [x] 51 Excesss
+ - [x] [51 Excesss](#51-web--excess)
  - [ ] 499 Excesss ii
 
 ---
@@ -919,3 +919,43 @@ Reformatted:
 > The Oracle
 
 `sctf{W1ll_U_571ll_du_4ll_0f_7h1s_1f_1_h4d_n07_s41d_4ny7h1ng?}`
+
+## 51 Web / Excesss ##
+
+**Description**
+
+> This is some kind of reverse captcha to tell if the visitor is indeed a robot. Can you complete it?
+> 
+> Service: http://xss1.alieni.se:2999/
+
+**No files given**
+
+**Solution**
+
+We are presented with a simple challenge:
+
+![](screens/excesss.png)
+
+If we follow the `?xss=hello` link, we can see this in the source code:
+
+    <script>var x ='hello'; var y = `hello`; var z = "hello";</script>
+
+The `xss` parameter gets injected into three differently-quoted Javascript strings verbatim. We can use any one of them since our characters are not filtered. So, choosing the first one, we first inject a `'` to escape the string, then a `;` to allow us to run arbitrary code, and after our code, we put `//` to comment out the rest (to stop the browser from complaining about syntax errors).
+
+    ';alert(1);//
+    URL:
+    http://xss1.alieni.se:2999/?xss=%27;alert(1);//
+
+But if we do this, we get a text prompt instead. There is another script included on the website, which overrides `window.alert`. Unfortunately, it seems `window` doesn't have a usable `prototype`, at least not in the current Chrome version. If we try `delete window.alert;`, the default `alert` function does not get restored.
+
+Searching around for how to restore overridden functions, we find a simple technique: create an `<iframe>` and use its `window`'s `alert` function.
+
+    var iframe = document.createElement("iframe");
+    document.documentElement.appendChild(iframe);
+    iframe.contentWindow.alert(1);
+    URL (shorter version):
+    http://xss1.alieni.se:2999/?xss=%27;document.documentElement.appendChild(f=document.createElement(%27iframe%27));f.contentWindow.alert(1);//
+
+And if we submit this URL, we get the flag.
+
+`sctf{cr0ss_s1te_n0scr1ptinG}`
