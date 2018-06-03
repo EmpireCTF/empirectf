@@ -1,6 +1,6 @@
 # 2018-05-31-SecurityFest #
 
-[CTFTime link](https://ctftime.org/event/622) | [Website](https://securityfest.ctf.rocks/dashboard) | [Challenge Writer Wrie-ups](https://klondike.es/klog/2018/06/03/challenge-writer-write-up-security-fest-2018-ctf-challs/)
+[CTFTime link](https://ctftime.org/event/622) | [Website](https://securityfest.ctf.rocks/dashboard) | [Challenge Writer Write-ups](https://klondike.es/klog/2018/06/03/challenge-writer-write-up-security-fest-2018-ctf-challs/)
 
 ---
 
