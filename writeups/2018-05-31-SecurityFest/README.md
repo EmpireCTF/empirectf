@@ -1,6 +1,6 @@
 # 2018-05-31-SecurityFest #
 
-[CTFTime link](https://ctftime.org/event/622) | [Website](https://securityfest.ctf.rocks/dashboard)
+[CTFTime link](https://ctftime.org/event/622) | [Website](https://securityfest.ctf.rocks/dashboard) | [Challenge Writer Wrie-ups](https://klondike.es/klog/2018/06/03/challenge-writer-write-up-security-fest-2018-ctf-challs/)
 
 ---
 
@@ -66,7 +66,7 @@ Login to Freenode, `/join #securityfest-ctf`, `/topic`:
 
 **Files provided**
 
- - `zion.tar.gz` - archive:
+ - [`zion.tar.gz`](files/zion.tar.gz) - archive:
    - `YouKnow`
 
 **Solution**
@@ -109,7 +109,7 @@ Some of the numbers don't match. So let's finally reverse the file and unzip it 
 
 **Files provided**
 
- - `allthekeys.tar.gz`
+ - [`allthekeys.tar.gz`](files/allthekeys.tar.gz)
 
 **Solution**
 
@@ -229,7 +229,7 @@ And indeed, we are flooded with HTML. After opening this, we see a nice ASCII ar
 
 **Files provided**
 
- - `everywhere.tar.gz` - containing `everywhere`, a JPEG file
+ - [`everywhere.tar.gz`](files/everywhere.tar.gz) - containing `everywhere`, a JPEG file
 
 **Solution**
 
@@ -253,7 +253,7 @@ How about the Internet? Using a reverse image search, we can search for the pict
 
 **Files provided**
 
- - `mrreagan.tar.gz` - containing `mrreagan`, a disk image
+ - `mrreagan.tar.gz` - containing `mrreagan`, a 50 MiB disk image
 
 **Solution**
 
@@ -288,7 +288,7 @@ And now it works. The problem was that the Base64 data first needed to be concat
 
 **Files given**
 
- - `bluepill.tar.gz` - archive containing
+ - [`bluepill.tar.gz`](files/bluepill.tar.gz) - archive containing
    - `bluepill.ko`
    - `init`
    - `run.sh`
