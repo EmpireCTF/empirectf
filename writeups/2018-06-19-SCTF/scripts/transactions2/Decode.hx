@@ -1,3 +1,7 @@
+// haxe -main Decode -neko d.n
+// neko d.n
+// with data.csv in the cwd
+
 using StringTools;
 
 class Decode {
