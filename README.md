@@ -11,3 +11,4 @@ Repository for our team's CTF write-ups. Coming soon, video materials, hopefully
  - [2018-05-26-SUCTF](writeups/2018-05-26-SUCTF/README.md)
  - [2018-05-31-SecurityFest](writeups/2018-05-31-SecurityFest/README.md)
  - [2018-06-19-SCTF](writeups/2018-06-19-SCTF/README.md)
+ - [2018-06-23-Google-CTF-Quals](writeups/2018-06-23-Google-CTF-Quals/README.md)
