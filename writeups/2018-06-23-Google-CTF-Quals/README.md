@@ -43,7 +43,7 @@
  - [ ] 453 BBS
  - [ ] 210 Cat Chat
  - [ ] 326 gCalc
- - [x] [121 JS Safe 2.0](#121-web--js-safe-2.0)
+ - [x] [121 JS Safe 2.0](#121-web--js-safe-20)
  - [ ] 246 Translate
 
 ---
@@ -745,7 +745,7 @@ It is not perfect, but it is close. `A` got misread as `S` in the word `FLAG`, a
 
 ## 293 RE / Back to the Basics ##
 
-**Description**£
+**Description**
 
 > You won't find any assembly in this challenge, only C64 BASIC. Once you get the password, the flag is CTF{password}. P.S. The challenge has been tested on the VICE emulator.
 
