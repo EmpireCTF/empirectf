@@ -612,6 +612,8 @@ We have the flag, but let's decrypt the full user interaction:
 
 **Description**
 
+> We have a photo and a CSV file. NOTE: The flag does not follow the CTF{...} format, but is clearly marked as the flag. Please add the CTF{...} around the flag manually when submitting.
+
 **Files provided**
 
  - [a ZIP file](files/wired-csv.zip) containing:
