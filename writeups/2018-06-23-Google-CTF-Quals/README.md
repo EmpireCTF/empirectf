@@ -214,13 +214,13 @@ In fact, we can repeat this process. If we multiply the flag by `4` (or better, 
 
       x = decrypt(c * cf)
         = 4p
-    If x < n, then
+    If      x <  n, then
       LSB of x mod n is 0! (a left shift of two)
-    If n ≤ x < 2x, then
+    If  n ≤ x < 2n, then
       LSB of x mod n is 1! (because n is odd)
-    If 2n ≤ x < 3x, then
+    If 2n ≤ x < 3n, then
       LSB of x mod n is 0! (because n is odd and subtracted from `x` twice)
-    If x ≥ 3x, then
+    If 3n ≤ x     , then
       LSB of x mod n is 1! (because n is odd and subtracted from `x` thrice)
 
 If we combine the last two results, we know in which "quadrant" of the modulus space `p` is in. That is, if we were to separate the range of all of its possible values, we know in which quarter of this range it lies in.
