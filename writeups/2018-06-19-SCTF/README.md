@@ -16,7 +16,7 @@
 
 ### Misc ###
 
- - [x] [46 Welcome to SCTF 2018](#46 -misc--welcome-to-sctf-2018)
+ - [x] [46 Welcome to SCTF 2018](#46-misc--welcome-to-sctf-2018)
  - [x] [129 神奇的Modbus](#129-misc--神奇的modbus) (Magical Modbus)
  - [x] [434 神秘的交易](#434-misc--神秘的交易) (Mysterious transactions)
  - [x] [285 肥宅快乐题](#285-misc--肥宅快乐题) (Fat house happy questions)
