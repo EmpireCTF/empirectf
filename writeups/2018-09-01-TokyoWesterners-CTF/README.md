@@ -14,9 +14,9 @@
 
 ### Misc ###
 
- - [x] [95 mondai.zip](#95-misc--mondai.zip)
+ - [x] [95 mondai.zip](#95-misc--mondaizip)
  - [x] [126 vimshell](#126-misc--vimshell)
- - [x] [121 + 126 pysandbox](#121-+-126-misc--pysandbox)
+ - [x] [121 + 126 pysandbox](#121--126-misc--pysandbox)
 
 ### Pwnable ###
 
@@ -39,7 +39,7 @@
 
 ### Warmup ##
 
-- [x] [28 Welcome!!](#28-warmup--welcome!!)
+- [x] [28 Welcome!!](#28-warmup--welcome)
 
 ### Web ###
 
