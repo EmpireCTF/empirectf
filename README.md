@@ -13,3 +13,4 @@ Repository for our team's CTF write-ups. Coming soon, video materials, hopefully
  - [2018-06-19-SCTF](writeups/2018-06-19-SCTF/README.md)
  - [2018-06-23-Google-CTF-Quals](writeups/2018-06-23-Google-CTF-Quals/README.md)
  - [2018-07-28-Real-World-CTF-Quals](writeups/2018-07-28-Real-World-CTF-Quals/README.md)
+ - [2018-09-01-TokyoWesterners-CTF](writeups/2018-09-01-TokyoWesterners-CTF/README.md)
