@@ -770,4 +770,4 @@ sh.send("1\n")
 sh.interactive()
 ```
 
-However, the flag is `flag{D0n1_4lw4ys_trU5t_CALLOC_1ts_w3ird_lol}`. However, I think my solution also works with `malloc`, so I've got unexpected solution for all 3 heap pwns XD
+However, the flag is `flag{D0n1_4lw4ys_trU5t_CALLOC_1ts_w3ird_lol}`, but I think my solution also works with `malloc`, so I've got unexpected solution for all 3 heap pwns XD
