@@ -507,7 +507,7 @@ def replace_jmps(start,end):
 
 There are only 4 conditional `jmp`, so analyze them by hand. Also, edit the function to extend it, so that the analysis in IDA will be easier.
 
-After some reversing, we found that the program is a Radix Tree. It will encode the input into the path going from root node to the corresponding leaf node, but in reversed order(which makes decoding very hard, since the ambiguity exists).
+After some reversing, we found that the program is a Huffman Tree. It will encode the input into the path going from root node to the corresponding leaf node, but in reversed order(which makes decoding very hard, since the ambiguity exists).
 
 I got stucked in the algorithm for 3 hours, will add more details later if I have time.
 
