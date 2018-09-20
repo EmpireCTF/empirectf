@@ -1,4 +1,4 @@
-# 2018-09-14-CSAW-CTF #
+# 2018-09-14-CSAW-CTF-Quals #
 
 [CTFTime link](https://ctftime.org/event/633) | [Website](https://ctf.csaw.io/)
 
