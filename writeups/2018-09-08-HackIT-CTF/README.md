@@ -78,75 +78,75 @@ uint32_t data1[DATA1_NUM];
 uint32_t data2[DATA2_NUM];
 void load1()
 {
-	FILE* f = fopen("./re1", "rb");
-	fseek(f, DATA1_OFF, SEEK_SET);
-	fread(data1, sizeof(uint32_t), DATA1_NUM, f);
-	fclose(f);
+  FILE* f = fopen("./re1", "rb");
+  fseek(f, DATA1_OFF, SEEK_SET);
+  fread(data1, sizeof(uint32_t), DATA1_NUM, f);
+  fclose(f);
 }
 
 void load2()
 {
-	FILE* f = fopen("./re1", "rb");
-	fseek(f, DATA2_OFF, SEEK_SET);
-	fread(data2, sizeof(uint32_t), DATA2_NUM, f);
-	fclose(f);
+  FILE* f = fopen("./re1", "rb");
+  fseek(f, DATA2_OFF, SEEK_SET);
+  fread(data2, sizeof(uint32_t), DATA2_NUM, f);
+  fclose(f);
 }
 
 void show_matrix()
 {
-	signed int i;
-	signed int j;
-	signed int k;
-	signed int l;
-	signed int m;
-	signed int n;
-	signed int ii;
+  signed int i;
+  signed int j;
+  signed int k;
+  signed int l;
+  signed int m;
+  signed int n;
+  signed int ii;
 
-	for ( i = 0; i <= 6; ++i )
-	{
-		for ( j = 0; j <= 8; ++j )
-		{
-			for ( k = 0; k <= 2; ++k )
-			{
-				for ( l = 0; l <= 4; ++l )
-				{
-					for ( m = 0; m <= 1; ++m )
-					{
-						for ( n = 0; n <= 3; ++n )
-						{
-							printf("[");
-							for ( ii = 0; ii <= 19; ++ii )
-							{
-								int idx = 0x50LL * m + 0x5460LL * i + 
-                                    0x960LL * j + 0x14LL * n + 0xA0LL * l + 
-                                    0x320LL * k + ii;
-								if (idx >= DATA1_NUM)
-								{
-									printf("out of bound\n");
-								}
-								printf("%u, ", data1[idx]);
-							}
-							printf("],");
-							int idx = 4 * (2 * (15LL * j + 
-                                                135LL * i + 5LL * k + l) + m) + n;
-							if (idx >= DATA2_NUM)
-							{
-								printf("out of bound\n");
-							}
-							printf(" %u\n", data2[idx]);
-						}
-					}
-				}
-			}
-		}
-	}
+  for ( i = 0; i <= 6; ++i )
+  {
+    for ( j = 0; j <= 8; ++j )
+    {
+      for ( k = 0; k <= 2; ++k )
+      {
+        for ( l = 0; l <= 4; ++l )
+        {
+          for ( m = 0; m <= 1; ++m )
+          {
+            for ( n = 0; n <= 3; ++n )
+            {
+              printf("[");
+              for ( ii = 0; ii <= 19; ++ii )
+              {
+                int idx = 0x50LL * m + 0x5460LL * i + 
+                          0x960LL * j + 0x14LL * n + 0xA0LL * l + 
+                          0x320LL * k + ii;
+                if (idx >= DATA1_NUM)
+                {
+                  printf("out of bound\n");
+                }
+                printf("%u, ", data1[idx]);
+              }
+              printf("],");
+              int idx = 4 * (2 * (15LL * j + 
+                                  135LL * i + 5LL * k + l) + m) + n;
+              if (idx >= DATA2_NUM)
+              {
+                printf("out of bound\n");
+              }
+              printf(" %u\n", data2[idx]);
+            }
+          }
+        }
+      }
+    }
+  }
 }
 int main()
 {
-	load1();
-	load2();
-	show_matrix();
-	return 0;
+  load1();
+  load2();
+  show_matrix();
+  return 0;
 }
 ```
 
@@ -197,6 +197,8 @@ x = linalg.solve(a, b)
 print x
 print ''.join(map(chr,[ 109,101, 32, 99, 97,110, 32,104, 97,122, 32,117,114, 32,102,108, 97,103,122, 63]))
 ```
+
+`me can haz ur flagz?`
 
 ## 997 Misc / Magician's spells ##
 
