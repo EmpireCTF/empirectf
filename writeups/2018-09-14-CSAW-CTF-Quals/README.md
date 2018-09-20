@@ -17,7 +17,7 @@
 ### Forensics ###
 
  - [x] [150 simple_recovery](#150-forensics--simple_recovery)
- - [x] [200 🐼 Rewind](#200-forensics--🐼-rewind)
+ - [x] [200 🐼 Rewind](#200-forensics---rewind)
  - [x] [300 mcgriddle](#300-forensics--mcgriddle)
  - [x] [300 whyOS](#300-forensics--whyos)
 
@@ -32,8 +32,8 @@
 ### Pwn ###
 
  - [x] [25 bigboy](#25-pwn--bigboy)
- - [x] [50 get it?](#50-pwn--get-it?)
- - [x] [100 shell->code](#100-pwn--shell->code)
+ - [x] [50 get it?](#50-pwn--get-it)
+ - [x] [100 shell->code](#100-pwn--shell-code)
  - [x] [200 doubletrouble](#200-pwn--doubletrouble)
  - [x] [250 turtles](#250-pwn--turtles)
  - [x] [300 PLC](#300-pwn--plc)
@@ -664,7 +664,7 @@ All the quarters are actually tiled the same way, as `n - 1`, just turned differ
 
 `flag{m@n_that_was_sup3r_hard_i_sh0uld_have_just_taken_the_L}`
 
-## 25 Pwn / bigboi ##
+## 25 Pwn / bigboy ##
 
 **Description**
 
