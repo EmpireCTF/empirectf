@@ -125,9 +125,9 @@ __int64 *__fastcall find_from_hashtable(unsigned __int8 *a1)
 }
 ```
 
-Since we can let `bits` equal to the heap address, we can traverse all bits, and do the test. If `"No such entry!"` is shown, it is suggested that the corresponding bits are 0, otherwise it will be 1.
+Since we can let `bits[60:62]` equal to the heap address, we can traverse all bits, and do the bit testing. If `"No such entry!"` is shown, it is suggested that the corresponding bit is 0, otherwise it will be 1.
 
-It will be easier to find the `name` such that `tea_hash` equal to `60` or `61`, and their other 2 hashes are same, so we can do the traversing easier.
+It will be easier to find the `name` such that `tea_hash` equal to `60` or `61`, and their other 2 hashes are same, so we can test only 1 bit at the time and do the traversing easier.
 
 The C code to find such name:
 
@@ -329,4 +329,180 @@ edit(int_min_hash, p64(libc_addr + ONE_GADGET_OFF))
 
 sh.interactive()
 ```
+
+## oldskull
+
+The program is written in classical win32 API, which is covered in the book "Windows Programming", and I will not detail this programming part.
+
+The program asked us to input 4 16-bit hex number, and they will then be processed in this way:
+
+```c
+  a1 = (char *)trans_input(::a1, 0x4C8Eu, inputs[0]);
+  if ( a1 )
+  {
+    v17 = (char *)trans_input(a1, 0x4C6Eu, inputs[1]);
+    if ( v17 )
+    {
+      v16 = (char *)trans_input(v17, 0x4C4Eu, inputs[2]);
+      if ( v16 )
+      {
+        v15 = trans_input(v16, 0x4C2Eu, inputs[3]);
+        if ( v15 )
+        {
+            //we need to go here!
+        }
+      }
+    }
+  }
+```
+
+The `trans_input` function, `0x004016E4`
+
+```c
+void *__cdecl trans_input(char *a1, size_t size, unsigned int a3)
+{
+  unsigned __int16 input; // [esp+1Ch] [ebp-3Ch]
+  char hash[40]; // [esp+20h] [ebp-38h]
+  char *ret; // [esp+48h] [ebp-10h]
+  size_t i; // [esp+4Ch] [ebp-Ch]
+
+  input = a3;
+  ret = (char *)malloc(size);
+  memset(ret, 0, size);
+  for ( i = 0; i < size; ++i )
+  {
+    ret[i] = (a1[i] ^ input) - HIBYTE(input);
+    input *= 0x62F3;
+  }//decode the data using the key given
+  memset(hash, 0, sizeof(hash));
+  md5(ret, size - 32, hash);//found this is a md5 by debugging
+    //result will be putted as hex string
+  if ( !memcmp(hash, &ret[size - 32], 0x20u) )
+    return ret;//last 0x20 bytes must be md5 hashes of previous bytes
+  free(ret);
+  return 0;
+}
+```
+
+Initially, I would like to bruteforce the md5. However, what we need to do is to test all `0x10000` possibilities, and print the value if the last `0x20` bytes are hex string. This is already enough to get the value.
+
+The code is quite ugly, since this is a CTF instead of a software engineering design.
+
+```c
+#include <stdio.h>
+char data[19616];
+void getdata()
+{
+	FILE* f = fopen("oldskull.exe", "rb");
+	fseek(f, 0x4020, 0);
+	fread(data,sizeof(data),1,f);
+	fclose(f);
+}
+
+char* trans_input(char *a1, size_t size, unsigned int a3)
+{
+	unsigned short input; // [esp+1Ch] [ebp-3Ch]
+	char *ret; // [esp+48h] [ebp-10h]
+	size_t i; // [esp+4Ch] [ebp-Ch]
+
+	input = a3;
+	ret = (char *)malloc(size);
+	memset(ret, 0, size);
+	for ( i = 0; i < size; ++i )
+	{
+		ret[i] = (a1[i] ^ input) - (input >> 8);
+		input *= 0x62F3;
+	}
+	return ret;
+}
+
+int ismd5(char* buf)
+{
+	for (int i = 0; i < 0x20; ++i)
+	{
+		char c = buf[i];
+		if (!(c >= '0' && c <= '9' || c >= 'a' && c <= 'f'))
+		{
+			return 0;
+		}
+	}
+	return 1;
+}
+
+int main(int argc, char const *argv[])
+{
+	getdata();
+	char* ret;
+	for (unsigned int i = 0; i < 0x10000; ++i)
+	{
+		ret = trans_input(data, 0x4C8E, i);
+		if (ismd5(ret + 0x4C8E - 0x20))
+		{
+			printf("%x\n", i);
+			memcpy(data, ret, 0x4c8E);
+		}
+		free(ret);
+	}
+	for (unsigned int i = 0; i < 0x10000; ++i)
+	{
+		ret = trans_input(data, 0x4C8E - 0x20, i);
+		if (ismd5(ret + 0x4C8E - 0x20 * 2))
+		{
+			printf("%x\n", i);
+			memcpy(data, ret, 0x4c8E);
+		}
+		free(ret);
+	}
+	for (unsigned int i = 0; i < 0x10000; ++i)
+	{
+		ret = trans_input(data, 0x4C8E - 0x20 * 2, i);
+		if (ismd5(ret + 0x4C8E - 0x20 * 3))
+		{
+			printf("%x\n", i);
+			memcpy(data, ret, 0x4c8E);
+		}
+		free(ret);
+	}
+	for (unsigned int i = 0; i < 0x10000; ++i)
+	{
+		ret = trans_input(data, 0x4C8E - 0x20 * 3, i);
+		if (ismd5(ret + 0x4C8E - 0x20 * 4))
+		{
+			printf("%x\n", i);
+			memcpy(data, ret, 0x4c8E);
+		}
+		free(ret);
+	}
+	return 0;
+}
+```
+
+After we obtain the 4 magic numbers, put them into the program, and we found that we can already enter into the branch we want.
+
+Many windows APIs are involved, what they do is writing the result data obtained above into temporary directory, and execute it with the flag input as the first argument. Thus, find the executable in the temporary directory, open it with IDA.
+
+```c
+int __cdecl main(int argc, const char **argv, const char **envp)
+{
+  const char *v4; // [esp+18h] [ebp-8h]
+  unsigned int i; // [esp+1Ch] [ebp-4h]
+
+  sub_402B90();
+  if ( argc != 2 )
+    return 1;
+  v4 = argv[1];
+  if ( strlen(argv[1]) != 20 )
+    return 2;
+  for ( i = 0; i <= 0x13; ++i )
+  {
+    if ( v4[i] != (byte_404008[i] ^ 0x8F) )
+      return 3;
+  }
+  return 0;
+}
+```
+
+Easy xor decryption! we can get the flag easily. 
+
+`''.join((map(lambda x : chr(ord(x) ^ 0x8f), get_bytes(0x404008,20))))`
 
