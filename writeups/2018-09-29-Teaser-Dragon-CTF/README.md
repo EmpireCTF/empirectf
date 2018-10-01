@@ -209,7 +209,7 @@ xor_add_61 = {7:0x00094f,
 
 Because there will be null pointer access if the entry is not found, we need to add the entries first.
 
-The exploit is 
+### exploit
 
 ```python
 from pwn import *
