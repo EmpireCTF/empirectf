@@ -1,6 +1,225 @@
-## Fast Storage
+# 2018-09-29-Teaser-Dragon-CTF #
 
-The program is something like a hash table, and my teammate told me that this is actually a [bloom filters](https://en.wikipedia.org/wiki/Bloom_filter) after the contest. 
+[CTFTime link](https://ctftime.org/event/648) | [Website](https://ctf.dragonsector.pl/)
+
+---
+
+## Challenges ##
+
+ - [ ] 219 Cryptography / AES-128-TSB
+ - [x] [176 RE / Brutal Oldskull](#176-re--brutal-oldskull)
+ - [ ] 391 RE / Chains of Trust
+ - [ ] 432 Cryptography / cryptovm
+ - [x] [400 Pwning / Fast Storage](#400-pwning--fast-storage)
+ - [ ] 330 Web / Nodepad
+ - [ ] 343 Pwning / Production
+ - [x] 78 Miscellaneous / Sanity check
+ - [x] [278 Web / 3NTERPRISE solution](#278-web--3nterprise-solution)
+ 
+---
+
+## 176 RE / Brutal Oldskull ##
+
+**Description**
+
+> The '90s called and wanted their crackme back. It's basically a walk in a park.
+
+**Files provided**
+
+ - [`oldskull.exe`](files/oldskull.exe)
+
+**Solution** (by [Mem2019](https://github.com/Mem2019))
+
+The program is written in classical win32 API, which is covered in the book "Windows Programming", and I will not detail this programming part.
+
+The program asked us to input 4 16-bit hex number, and they will then be processed in this way:
+
+```c
+  a1 = (char *)trans_input(::a1, 0x4C8Eu, inputs[0]);
+  if ( a1 )
+  {
+    v17 = (char *)trans_input(a1, 0x4C6Eu, inputs[1]);
+    if ( v17 )
+    {
+      v16 = (char *)trans_input(v17, 0x4C4Eu, inputs[2]);
+      if ( v16 )
+      {
+        v15 = trans_input(v16, 0x4C2Eu, inputs[3]);
+        if ( v15 )
+        {
+            //we need to go here!
+        }
+      }
+    }
+  }
+```
+
+The `trans_input` function, `0x004016E4`
+
+```c
+void *__cdecl trans_input(char *a1, size_t size, unsigned int a3)
+{
+  unsigned __int16 input; // [esp+1Ch] [ebp-3Ch]
+  char hash[40]; // [esp+20h] [ebp-38h]
+  char *ret; // [esp+48h] [ebp-10h]
+  size_t i; // [esp+4Ch] [ebp-Ch]
+
+  input = a3;
+  ret = (char *)malloc(size);
+  memset(ret, 0, size);
+  for ( i = 0; i < size; ++i )
+  {
+    ret[i] = (a1[i] ^ input) - HIBYTE(input);
+    input *= 0x62F3;
+  }//decode the data using the key given
+  memset(hash, 0, sizeof(hash));
+  md5(ret, size - 32, hash);//found this is a md5 by debugging
+    //result will be putted as hex string
+  if ( !memcmp(hash, &ret[size - 32], 0x20u) )
+    return ret;//last 0x20 bytes must be md5 hashes of previous bytes
+  free(ret);
+  return 0;
+}
+```
+
+Initially, I would like to bruteforce the md5. However, what we need to do is to test all `0x10000` possibilities, and print the value if the last `0x20` bytes are hex string. This is already enough to get the value.
+
+The code is quite ugly, since this is a CTF instead of a software engineering design.
+
+```c
+#include <stdio.h>
+char data[19616];
+void getdata()
+{
+	FILE* f = fopen("oldskull.exe", "rb");
+	fseek(f, 0x4020, 0);
+	fread(data,sizeof(data),1,f);
+	fclose(f);
+}
+
+char* trans_input(char *a1, size_t size, unsigned int a3)
+{
+	unsigned short input; // [esp+1Ch] [ebp-3Ch]
+	char *ret; // [esp+48h] [ebp-10h]
+	size_t i; // [esp+4Ch] [ebp-Ch]
+
+	input = a3;
+	ret = (char *)malloc(size);
+	memset(ret, 0, size);
+	for ( i = 0; i < size; ++i )
+	{
+		ret[i] = (a1[i] ^ input) - (input >> 8);
+		input *= 0x62F3;
+	}
+	return ret;
+}
+
+int ismd5(char* buf)
+{
+	for (int i = 0; i < 0x20; ++i)
+	{
+		char c = buf[i];
+		if (!(c >= '0' && c <= '9' || c >= 'a' && c <= 'f'))
+		{
+			return 0;
+		}
+	}
+	return 1;
+}
+
+int main(int argc, char const *argv[])
+{
+	getdata();
+	char* ret;
+	for (unsigned int i = 0; i < 0x10000; ++i)
+	{
+		ret = trans_input(data, 0x4C8E, i);
+		if (ismd5(ret + 0x4C8E - 0x20))
+		{
+			printf("%x\n", i);
+			memcpy(data, ret, 0x4c8E);
+		}
+		free(ret);
+	}
+	for (unsigned int i = 0; i < 0x10000; ++i)
+	{
+		ret = trans_input(data, 0x4C8E - 0x20, i);
+		if (ismd5(ret + 0x4C8E - 0x20 * 2))
+		{
+			printf("%x\n", i);
+			memcpy(data, ret, 0x4c8E);
+		}
+		free(ret);
+	}
+	for (unsigned int i = 0; i < 0x10000; ++i)
+	{
+		ret = trans_input(data, 0x4C8E - 0x20 * 2, i);
+		if (ismd5(ret + 0x4C8E - 0x20 * 3))
+		{
+			printf("%x\n", i);
+			memcpy(data, ret, 0x4c8E);
+		}
+		free(ret);
+	}
+	for (unsigned int i = 0; i < 0x10000; ++i)
+	{
+		ret = trans_input(data, 0x4C8E - 0x20 * 3, i);
+		if (ismd5(ret + 0x4C8E - 0x20 * 4))
+		{
+			printf("%x\n", i);
+			memcpy(data, ret, 0x4c8E);
+		}
+		free(ret);
+	}
+	return 0;
+}
+```
+
+After we obtain the 4 magic numbers, put them into the program, and we found that we can already enter into the branch we want.
+
+Many windows APIs are involved, what they do is writing the result data obtained above into temporary directory, and execute it with the flag input as the first argument. Thus, find the executable in the temporary directory, open it with IDA.
+
+```c
+int __cdecl main(int argc, const char **argv, const char **envp)
+{
+  const char *v4; // [esp+18h] [ebp-8h]
+  unsigned int i; // [esp+1Ch] [ebp-4h]
+
+  sub_402B90();
+  if ( argc != 2 )
+    return 1;
+  v4 = argv[1];
+  if ( strlen(argv[1]) != 20 )
+    return 2;
+  for ( i = 0; i <= 0x13; ++i )
+  {
+    if ( v4[i] != (byte_404008[i] ^ 0x8F) )
+      return 3;
+  }
+  return 0;
+}
+```
+
+Easy xor decryption! we can get the flag easily. 
+
+`''.join((map(lambda x : chr(ord(x) ^ 0x8f), get_bytes(0x404008,20))))`
+
+## 400 Pwning / Fast Storage ##
+
+**Description**
+
+> Fast(tm) string => binary blob storage
+> 
+> nc faststorage.hackable.software 1337
+
+**Files provided**
+
+ - [`faststorage`](files/faststorage)
+ - [`libc.so.6`](files/libc.so.6)
+
+**Solution** (by [Mem2019](https://github.com/Mem2019))
+
+The program is something like a hash table, and my teammate told me that this is actually a [bloom filter](https://en.wikipedia.org/wiki/Bloom_filter) after the contest. 
 
 The program provides 3 operation: add, print and edit.
 
@@ -330,179 +549,154 @@ edit(int_min_hash, p64(libc_addr + ONE_GADGET_OFF))
 sh.interactive()
 ```
 
-## oldskull
+## 278 Web / 3NTERPRISE solution ##
 
-The program is written in classical win32 API, which is covered in the book "Windows Programming", and I will not detail this programming part.
+**Description**
 
-The program asked us to input 4 16-bit hex number, and they will then be processed in this way:
+> Dear all
+> 
+> Welcome to our new enterprise solution.
+> You can leave your business notes here.
+> Data is safe - cause we use strong encryption !
+> It is soooo safe, that even I am using this system.
+> You even can audit the code [here](files/webapp.py)
+> Plz DO NOT hax this - cause it is impossible !1111
+> 
+> Regards
+> 
+> Martin, the Webmaster 
+> 
+> URL: http://solution.hackable.software:8080
 
-```c
-  a1 = (char *)trans_input(::a1, 0x4C8Eu, inputs[0]);
-  if ( a1 )
-  {
-    v17 = (char *)trans_input(a1, 0x4C6Eu, inputs[1]);
-    if ( v17 )
-    {
-      v16 = (char *)trans_input(v17, 0x4C4Eu, inputs[2]);
-      if ( v16 )
-      {
-        v15 = trans_input(v16, 0x4C2Eu, inputs[3]);
-        if ( v15 )
-        {
-            //we need to go here!
-        }
-      }
-    }
-  }
+**Files provided**
+
+ - [`webapp.py`](files/webapp.py)
+
+**Solution** (by [Aurel300](https://github.com/Aurel300))
+
+On our first visit to the webpage, we can only login or register. We can find out that the server is running Flask, although this is immediately obvious from the source code given.
+
+The registration is normal enough:
+
+![](screens/3nterprise-1.png)
+
+The login is slightly unusual though, it emulates a 2FA system:
+
+![](screens/3nterprise-2.png)
+
+(No screenshot for the second form or anything else after, because the challenge is not working anymore. The form asks for the password and a 2FA token that is not actually implemented.)
+
+Once we login, we can add notes, list all of our notes, and show specific notes. Whenever we look at a note, the browser first shows it encrypted, then it obtains our encryption key via AJAX, then proceeds to animate XOR-decryption of the note.
+
+Even without looking at the source code, we can spot the first vulnerability: consecutive, non-encrypted IDs for notes. If we change the URL to `/note/show/0`, we get to see a note added by `admin`:
+
+    07D8B68CDB92A687DFC74217C9D7F47E84540A3C97BA3D2B8B5B3E1C110A4C54F09392
+    ADC910461BF61AA4AC6D921591556D1AAFCB8495144C27748369FC101847D7C2A9508F
+    6534FFB7BCF859FD3ED8863611400F9ECB56064C20EDF0B6F6B1BF1CBB522A91F0C9B2
+
+The browser still animates XOR-decryption, but it uses our own key instead of `admin`'s, so the decrypted data is just garbage.
+
+The note is 105 bytes, and our own key is only 20 bytes - perhaps this cipher could be broken? Well, after some playing around it is clear that the key is not 20 bytes, and is at least 100 bytes long. The simplest possible explanation is that the admin note is actually encrypted using proper [OTP](https://en.wikipedia.org/wiki/One-time_pad), unlike our own notes.
+
+Now let's finally have a look at the source code. Most of it is basic Flask stuff. The `@loginzone` decorator is applied consistently, and it explains why `/note/show/0` was accessible to us - it simply checks IF whe are logged in, not WHO we are.
+
+The one strange thing is in the bit that seemed unusual before - namely the two-step authentication process:
+
+```python
+# first part of authentication
+@app.route('/login/user', methods=['POST'])
+def do_login_user_post():
+  username = get_required_params("POST", ['login'])['login']
+  backend.cache_save(
+    sid=flask.session.sid,
+    value=backend.get_key_for_user(username)
+  )
+  state = backend.check_user_state(username)
+  if state > 0:
+    add_msg("user has {} state code ;/ contact backend admin ... ".format(state))
+    return do_render()
+  flask.session[K_LOGGED_IN] = False
+  flask.session[K_AUTH_USER] = username
+  return do_302("/login/auth")
+
+#second part of authentication
+@app.route("/login/auth", methods=['POST'])
+def do_auth_post():
+  flask.session[K_LOGGED_IN] = False
+  username = flask.session.get(K_AUTH_USER)
+  params = get_required_params("POST", ["password", "token"])
+  hashed = backend.password_hash(params['password'])
+  record = sql_session.query(model.Users).filter_by(
+    username=username,
+    password=hashed,
+  ).first()
+  if record is None:
+    add_msg("Fail to login. Bad user or password :-( ", style="warning")
+    return do_render()
+  # well .. not implemented yet
+  if 1 == 0 and not backend.check_token(username, token=1):
+    add_msg("Fail to verify 2FA !")
+    return do_render()
+  flask.session[K_LOGGED_IN] = True
+  flask.session[K_LOGGED_USER] = record.username
+  return do_302("/home/")
 ```
 
-The `trans_input` function, `0x004016E4`
+The `backend.cache_save(...)` call is odd. Even before we are properly logged in, the cache contains the encryption key for that username, if it exists. (Also note that the challenge is probably called `3NTERPRISE` because caching becomes relevant with large-scale projects.) We cannot simply call the first step and get the encryption key, however, since the `getkey` API endpoint does not rely on the cache, not to mention that it requires a full login (`@loginzone`).
 
-```c
-void *__cdecl trans_input(char *a1, size_t size, unsigned int a3)
-{
-  unsigned __int16 input; // [esp+1Ch] [ebp-3Ch]
-  char hash[40]; // [esp+20h] [ebp-38h]
-  char *ret; // [esp+48h] [ebp-10h]
-  size_t i; // [esp+4Ch] [ebp-Ch]
-
-  input = a3;
-  ret = (char *)malloc(size);
-  memset(ret, 0, size);
-  for ( i = 0; i < size; ++i )
-  {
-    ret[i] = (a1[i] ^ input) - HIBYTE(input);
-    input *= 0x62F3;
-  }//decode the data using the key given
-  memset(hash, 0, sizeof(hash));
-  md5(ret, size - 32, hash);//found this is a md5 by debugging
-    //result will be putted as hex string
-  if ( !memcmp(hash, &ret[size - 32], 0x20u) )
-    return ret;//last 0x20 bytes must be md5 hashes of previous bytes
-  free(ret);
-  return 0;
-}
+```python
+@app.route("/note/getkey")
+@loginzone
+def do_note_getkey():
+  return flask.jsonify(dict(
+    key=backend.get_key_for_user(flask.session.get(K_AUTH_USER))
+  ))
 ```
 
-Initially, I would like to bruteforce the md5. However, what we need to do is to test all `0x10000` possibilities, and print the value if the last `0x20` bytes are hex string. This is already enough to get the value.
+But there is a place where the cached key is used:
 
-The code is quite ugly, since this is a CTF instead of a software engineering design.
-
-```c
-#include <stdio.h>
-char data[19616];
-void getdata()
-{
-	FILE* f = fopen("oldskull.exe", "rb");
-	fseek(f, 0x4020, 0);
-	fread(data,sizeof(data),1,f);
-	fclose(f);
-}
-
-char* trans_input(char *a1, size_t size, unsigned int a3)
-{
-	unsigned short input; // [esp+1Ch] [ebp-3Ch]
-	char *ret; // [esp+48h] [ebp-10h]
-	size_t i; // [esp+4Ch] [ebp-Ch]
-
-	input = a3;
-	ret = (char *)malloc(size);
-	memset(ret, 0, size);
-	for ( i = 0; i < size; ++i )
-	{
-		ret[i] = (a1[i] ^ input) - (input >> 8);
-		input *= 0x62F3;
-	}
-	return ret;
-}
-
-int ismd5(char* buf)
-{
-	for (int i = 0; i < 0x20; ++i)
-	{
-		char c = buf[i];
-		if (!(c >= '0' && c <= '9' || c >= 'a' && c <= 'f'))
-		{
-			return 0;
-		}
-	}
-	return 1;
-}
-
-int main(int argc, char const *argv[])
-{
-	getdata();
-	char* ret;
-	for (unsigned int i = 0; i < 0x10000; ++i)
-	{
-		ret = trans_input(data, 0x4C8E, i);
-		if (ismd5(ret + 0x4C8E - 0x20))
-		{
-			printf("%x\n", i);
-			memcpy(data, ret, 0x4c8E);
-		}
-		free(ret);
-	}
-	for (unsigned int i = 0; i < 0x10000; ++i)
-	{
-		ret = trans_input(data, 0x4C8E - 0x20, i);
-		if (ismd5(ret + 0x4C8E - 0x20 * 2))
-		{
-			printf("%x\n", i);
-			memcpy(data, ret, 0x4c8E);
-		}
-		free(ret);
-	}
-	for (unsigned int i = 0; i < 0x10000; ++i)
-	{
-		ret = trans_input(data, 0x4C8E - 0x20 * 2, i);
-		if (ismd5(ret + 0x4C8E - 0x20 * 3))
-		{
-			printf("%x\n", i);
-			memcpy(data, ret, 0x4c8E);
-		}
-		free(ret);
-	}
-	for (unsigned int i = 0; i < 0x10000; ++i)
-	{
-		ret = trans_input(data, 0x4C8E - 0x20 * 3, i);
-		if (ismd5(ret + 0x4C8E - 0x20 * 4))
-		{
-			printf("%x\n", i);
-			memcpy(data, ret, 0x4c8E);
-		}
-		free(ret);
-	}
-	return 0;
-}
+```python
+@app.route("/note/add", methods=['POST'])
+@loginzone
+def do_note_add_post():
+  text = get_required_params("POST", ["text"])["text"]
+  key = backend.cache_load(flask.session.sid)
+  if key is None:
+    raise WebException("Cached key")
+  text = backend.xor_1337_encrypt(
+    data=text,
+    key=key,
+  )
+  note = model.Notes(
+    username=flask.session[K_LOGGED_USER],
+    message=backend.hex_encode(text),
+  )
+  sql_session.add(note)
+  sql_session.commit()
+  add_msg("Done !")
+  return do_render()
 ```
 
-After we obtain the 4 magic numbers, put them into the program, and we found that we can already enter into the branch we want.
+So whichever key is in the cache (which may not be the one for our username!) will be used to encrypt the notes we submit. Since the encryption method is XOR, submitting a known plaintext will allow us to recover an unknown key.
 
-Many windows APIs are involved, what they do is writing the result data obtained above into temporary directory, and execute it with the flag input as the first argument. Thus, find the executable in the temporary directory, open it with IDA.
+But how to ensure a different key is cached?
 
-```c
-int __cdecl main(int argc, const char **argv, const char **envp)
-{
-  const char *v4; // [esp+18h] [ebp-8h]
-  unsigned int i; // [esp+1Ch] [ebp-4h]
+The reason caching can be problematic is because there is a lot of things that can go wrong. The wrong user can be served personal details of another. Old information may be shown to the user, misinforming them. In the case of this challenge, the problem is time-based: there exists a race condition between the note adding (using the cached key) and the first step of the authentication (setting the cached key).
 
-  sub_402B90();
-  if ( argc != 2 )
-    return 1;
-  v4 = argv[1];
-  if ( strlen(argv[1]) != 20 )
-    return 2;
-  for ( i = 0; i <= 0x13; ++i )
-  {
-    if ( v4[i] != (byte_404008[i] ^ 0x8F) )
-      return 3;
-  }
-  return 0;
-}
-```
+The first step of authentication is supposed to log out the user, which would prevent us from submitting notes and using the cached key. But before it logs us out, it puts the encryption key into the cached, and then does a state check of some sort, presumably a slow database operation.
 
-Easy xor decryption! we can get the flag easily. 
+So the plan is:
 
-`''.join((map(lambda x : chr(ord(x) ^ 0x8f), get_bytes(0x404008,20))))`
+ 1. Login completely as our own user (`/login/user`, then `/login/auth`)
+ 2. Do the first step of authentication as `admin` (`/login/user` again)
+ 3. Create a known-plaintext note (`/note/add`)
 
+The key is that 3 needs to happen a very short time after 2.
+
+([Full exploit here](scripts/3nterprise.sh))
+
+During the CTF, there were some issues with the server being very slow (10+ seconds for a page load), so I didn't even try to exploit this. After some maintenance downtime, the service was slightly faster, though a page could still take up to 5 seconds to load, so I was somewhat sceptical. Much to my surprise, the exploit worked on the first try - there was a note encrypted with the admin key in the list of notes for our user. Then simply XORing that note with `aaa`... (which was the known plaintext) revealed the `admin` key, and XORing the `admin` key with the `admin` note revealed:
+
+    Hi. I wish U luck. Only I can posses flag: DrgnS{L0l!_U_h4z_bR4ak_that_5upr_w33b4pp!Gratz!} ... he he he 
+
+`DrgnS{L0l!_U_h4z_bR4ak_that_5upr_w33b4pp!Gratz!}`
