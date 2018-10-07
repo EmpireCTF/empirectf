@@ -17,3 +17,4 @@ Repository for our team's CTF write-ups. Coming soon, video materials, hopefully
  - [2018-09-08-HackIT-CTF](writeups/2018-09-08-HackIT-CTF/README.md)
  - [2018-09-14-CSAW-CTF-Quals](writeups/2018-09-14-CSAW-CTF-Quals/README.md)
  - [2018-09-29-Teaser-Dragon-CTF](writeups/2018-09-29-Teaser-Dragon-CTF/README.md)
+ - [2018-10-05-Hackover-CTF](writeups/2018-10-05-Hackover-CTF/README.md)
