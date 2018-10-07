@@ -40,7 +40,7 @@
 
 ### Misc ###
 
- - [x] [100 Hummel Hummel - Fart Fart](#100-misc--hummel-hummel--fart-fart)
+ - [x] [100 Hummel Hummel - Fart Fart](#100-misc--hummel-hummel---fart-fart)
  
 ---
 
