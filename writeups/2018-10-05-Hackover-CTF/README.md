@@ -88,35 +88,7 @@ if (choice == 1) {
 
 Registration is achieved by inserting values with `table.insert_keyvalue`, and logging in by checking with `table.lookup_keyvalue`. We are not allowed to register a(nother) user with `name == "root"`, so if the program had no other vulnerabilities, we would only be able to log in as `root` if we already knew the flag, which is the password to the `root` account.
 
-An important thing to note is that `lookup_keyvalue` does not return a boolean!
-
-```cpp
-enum auth_result {
-  AUTH_FAILURE,
-  AUTH_SUCCESS,
-  AUTH_TIMEOUT,
-};
-
-auth_result lookup_keyvalue(const std::string& name, const std::string& password);
-```
-
-And since by default, `0` is assigned to the first value of an enum, `1` to the second, and so on, `AUTH_SUCCESS` and `AUTH_TIMEOUT` are both truthy results, and both will sucessfully let us log in. The timeout is not difficult to trigger either:
-
-```cpp
-size_t iterations = 0;
-size_t MAX_ITERATIONS = 1000;
-
-while (it != end) {
-  if (*it++ == digest)
-    return AUTH_SUCCESS;
-
-  // Avoid DoS attacks by fixing upper time limit.
-  if (iterations++ >= MAX_ITERATIONS)
-    return AUTH_TIMEOUT;
-}
-```
-
-Whenever the program has to look through more than `1000` values that all fall into the same bucket of the `std::unordered_set`, it will give up and let us log in. The bucket used is determined based on some SHA-512 digest:
+Whenever the program stores / looks for credentials in the `std::unordered_set`, it will choose the bucket to use on some sort of SHA-512 digest:
 
 ```cpp
 std::string digest = sha512sum(name, password);
@@ -151,7 +123,7 @@ This means that with `name == "foo"` and `password == "bar"`, the digest gets up
 
 The same result can be achieved with e.g `name == "fo"` and `password = "obar"`, and so these two sets of credentials will result in the same digest and therefore the same bucket in the `std::unordered_set`.
 
-Now we have everything needed to exploit the program. We start by adding 1000 users with `name == "ro"` and `password == "ot1"`, then simply attempt a login with `name == "root"` and `password == "1"` (the `1` was used because neither field could be empty). All of these credentials (duplicates are not checked, but simply inserted again and again) have the same digest and so they end up in the same bucket.
+Now we have everything needed to exploit the program. We register a user with `name == "ro"` and `password == "ot1"`, then simply attempt a login with `name == "root"` and `password == "1"` (the `1` was used because neither field could be empty). These two sets of credentials have the same digest and so they end up in the same bucket.
 
 ([Full exploit script here](scripts/secure_hash.sh))
 
