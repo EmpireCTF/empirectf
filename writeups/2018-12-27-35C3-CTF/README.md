@@ -482,7 +482,7 @@ relavant data structures
 00000118 CollectionObj   ends
 ```
 
-`record` stores the key which is a string, and the type of value correspond to that key; and the `handler` stores a list of records, which is the type information of a specific dictionary. In the `CollectionObj`, which is the `PyObject` of `Collection`, we have a pointer to the `handler`, and we also have the array that stores the `PyObject` of values in dictionary, except for the integer type we just store it as long type in C. When `getTypeHandler` is called, it will return a previous handler if the handler already exists, **even if the order of entries in the dictionary is different**.
+`record` stores the key which is a string, and the type of value correspond to that key; and the `handler` stores a list of records, which is the type information of a specific dictionary. In the `CollectionObj`, which is the `PyObject` of `Collection`, we have a pointer to the `handler`, and we also have the array that stores the `PyObject` of values in dictionary, except for the integer type we just store it as long type in C. The order in handler linked list and the order in array in `CollectionObj` should have been matched exactly to each other. However, when `getTypeHandler` is called, it will return a previous handler if the handler already exists, **even if the order of entries in the dictionary is different**.
 
 Here is where the vulnerability comes, type confusion. The PoC that cause the crash is simple:
 
