@@ -224,6 +224,6 @@ ssize_t memcpy_kernel_page(char* src)
 }
 ```
 
-The way to escalate privilege is to write `cred`. Firstly we can find the `cred` by brute force `comm`. The approach is same as the technique used in [stringIPC](https://poppopret.org/2015/11/16/csaw-ctf-2015-kernel-exploitation-challenge/). However, here is where I failed to solve the challenge in CTF: the maximum string length for `comm` is `15` instead of `16`, with a `\x00` added at `index 15`, but I used string length of `16`, which will cause the last byte to be unmatched when using `memmem` to scan the memory!!! :\(
+The way to escalate privilege is to write `cred`. Firstly we can find the `cred` by brute force `comm`. The approach is same as the technique used in [stringIPC](https://poppopret.org/2015/11/16/csaw-ctf-2015-kernel-exploitation-challenge/). However, here is where I failed to solve the challenge in CTF: the maximum string length for `comm` is `15` instead of `16`, with a `\x00` added at `index 15`, but I used string with length of `16`, which will cause the last byte to be truncated thus unmatched when using `memmem(page, PAGE_SIZE, COMM, 16)` to scan the memory!!! :\(
 
 Here is the final [exploit](exp.c).
