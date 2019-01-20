@@ -61,7 +61,7 @@ Then here is the difficult part. Since we can only control `0xf` bytes in stack 
 
 Then, I found a permanent way to always restart the program: hook the `_fini_array` function table, the functions inside which will be called when `exit` function is called, and the `exit` function will be called after `main` function returns. Thus, If we can change the one of the functions into `_start`, can we alway restart the program after it exits? Unfortunately no. It seems that when the `__libc_start_main` is called second time, a segmentation fault will be created in subroutine `dl_relocate_static_pie`.
 
-Well, if we cannot return to `_start` to restart everything, why not hook `_fini_array` into function like `do_overwrite`? Actually this turns out to be the correct(but not necessarily intended?) method. However, the `exit` function will not be called after the subroutine function returns, so we cannot restart again. Luckily, there are 2 entries in `_fini_array`, which will be called in the reverse order. If we can change both of the 2 entries to `do_overwrite`, we can use the first one to rewrite return address to `__libc_csu_fini`(The function that calls the functions in the `_fini_array`) and use the second one to construct ROP, so after then we can return to `__libc_csu_fini` again and do the same thing next time.
+Well, if we cannot return to `_start` to restart everything, why not hook `_fini_array` into function like `do_overwrite`? Actually this turns out to be the correct(but not necessarily intended?) method. However, the `exit` function will not be called after the subroutine function returns, so we cannot restart again directly. Luckily, there are 2 entries in `_fini_array`, which will be called in the reverse order. If we can change both of the 2 entries to `do_overwrite`, we can use the first one to rewrite return address to `__libc_csu_fini`(The function that calls the functions in the `_fini_array`) and use the second one to construct ROP, so after then we can return to `__libc_csu_fini` again and do the same thing next time.
 
 I chose to construct ROP below the current `rsp` because there are many gadgets like `add rsp,xxx; ret`. Finally, I used an `add rsp, 0xd0; pop xxx; ret` to pivot the `rsp` onto ROP.
 
@@ -156,4 +156,18 @@ sh.interactive()
 
 ## 1118daysober
 
-//todo
+Searching for `CVE-2015-8966`, we can find the patch for this vulnerability [here](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=76cc404bfdc0d419c720de4daaf2584542734f42). So this is a 32-bit ARM Linux kernel privilege escalation challenge. A `qemu` environment is given. If you want to learn more about kernel exploitation environment configuration, you can read it [here](https://mem2019.github.io/jekyll/update/2019/01/11/Linux-Kernel-Pwn-Basics.html); the only difference is that this article is about `x86-64` Linux kernel exploitation. After reading and comparing the codes before patch and codes after patch, we can find the only difference: for case `F_OFD_GETLK`,`F_OFD_SETLK` and `F_OFD_SETLKW`, the `fs` is not set back after calling `set_fs(KERNEL_DS)`. So what does this function do? What I've found is this
+
+> The original role of `set_fs()` was to set the `x86` processor's `FS` segment register which, in the early days, was used to control the range of virtual addresses that could be accessed by unprivileged code. The kernel has, of course, long since stopped using `x86` segments this way. In current kernels, `set_fs()` works by setting a global variable called `addr_limit`, but the intended functionality is the same: unprivileged code is only allowed to dereference addresses that are below `addr_limit`. The kernel's `access_ok()` function, used to validate user-space accesses throughout the kernel, is a simple check against `addr_limit`, with the rest of the protection being handled by the processor's memory-management unit. 
+>
+> [https://lwn.net/Articles/722267/](https://lwn.net/Articles/722267/)
+
+What it means is that if `set_fs(KERNEL_DS)` is called and not set back, we can use `read` and `write` to access kernel memory.
+
+Then I tried to use `fcntl` to trigger the vulnerability, but it fails and the breakpoint on `sys_oabi_fcntl64` does not work. Then I found `fcntl` and `fcntl64` are 2 different `syscall`.
+
+![1548009270898](5C1548009270898.png)
+
+But after checking the binary, the `syscall number` is indeed `0xdd`, which got me confused.
+
+Finally, I found the way to trigger the vulnerability [here](https://bbs.pediy.com/thread-214585.htm)\(content in Chinese\). After then, we can use `read` and `write` to access the kernel memory. But note, we cannot use direct access since that is handled by `MMU`. Then we can use//todo
