@@ -28,3 +28,5 @@ Repository for our team's CTF write-ups. Coming soon, video materials, hopefully
  - [2018-10-20-HITCON-CTF](writeups/2018-10-20-HITCON-CTF/README.md)
  - [2018-10-26-P-W-N-CTF](writeups/2018-10-26-P-W-N-CTF/README.md)
  - [2018-12-27-35C3-CTF](writeups/2018-12-27-35C3-CTF/README.md)
+ - [2019-01-19-Insomni-Hack-Teaser](writeups/2019-01-19-Insomni-Hack-Teaser/README.md)
+
