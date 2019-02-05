@@ -589,7 +589,7 @@ After generating the assembly codes of this VM, we found that it would use some 
 
 Note: we need to change all these things:
 
-1. switch statement, which is useless
+1. `switch` instruction, which is useless
 2. all arithmetic operation must have a `%0x100` after it
 3. all memory read/write to array accessing
 4. all conditional jumps to print negation of the condition
