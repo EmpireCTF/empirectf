@@ -585,4 +585,63 @@ Then it takes some time to write a [disassembler](disasm.py), and after then we 
 
 ### VM Program Analysis
 
-//..todo
+After generating the assembly codes of this VM, we found that it would use some operations to produce a specific constant, because the only possible immediate numbers in this instruction set are `0-3`. It will produce `200` at the beginning, which is the address of our input, and then store it at address `0` for further usage. After analyzing a few characters of the input, I found the pattern that it will load the input character into register, minus it by a particular number, and compare it with zero. The program will stop if the result is not zero. My approach is to translate the assembly into Python, and set the inputs to zero. When comparing the input with zero, we output the negation of the character, which is the correct input. Here is the translated [script](1.py).
+
+Note: we need to change all these things:
+
+1. switch statement, which is useless
+2. all arithmetic operation must have a `%0x100` after it
+3. all memory read/write to array accessing
+4. all conditional jumps to print negation of the condition
+
+```
+accessing 200
+w
+accessing 0
+accessing 204
+1
+accessing 0
+accessing 213
+t
+accessing 0
+accessing 201
+h
+accessing 0
+accessing 207
+D
+accessing 0
+accessing 203
+N
+accessing 0
+accessing 210
+k
+accessing 0
+accessing 205
+T
+accessing 0
+accessing 211
+----------86
+`
+accessing 1
+256
+accessing 0
+accessing 206
+s
+accessing 0
+accessing 212
+u
+accessing 0
+accessing 202
+3
+accessing 0
+accessing 208
+4
+```
+
+
+
+Then just inspect the output and reconstruct the flag.
+
+But, except character at `[11]`, is `[11] * 2 - 86 == 10`. Since it multiplies the character by 2, the previous method does not work, so we must solve this manually, which is `'0'`. This actually takes me some time.
+
+So the final flag is `wh3N1TsD4?k0ut`, while the `?` seems to be any character.
