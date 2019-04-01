@@ -7,8 +7,6 @@
 ### Crypto ###
 
  - [x] [500 s3cr3t c0d3z](500-crypto--s3cr3t-c0d3z)
-   - [x] Flag 1
-   - [x] Flag 2
  - [ ] [800 Flag Generator 5000](800-crypto--flag-generator-5000)
  - [x] [2500 I LOVE BASS!!!](2500-crypto--i-love-bass)
  - [x] [2000 Send^Receive](2000-crypto--sendreceive)
@@ -17,39 +15,20 @@
 ### Exploit ###
 
  - [ ] [2700 Vulnerable](2700-exploit--vulnerable)
-   - [ ] Flag 1
-   - [ ] Flag 2
- - [ ] [4300 Imjur](4300-exploit--imjur)
-   - [x] Flag 1
-   - [x] Flag 2
-   - [ ] Flag 3
-   - [ ] Flag 4
+ - [x] [4300 Imjur](4300-exploit--imjur) (partially solved)
 
 ### Forensics ###
 
- - [ ] [4800 SD Card](4800-forensics--sd-card)
-   - [x]  Flag 1
-   - [x]  Flag 2
-   - [ ]  Flag 3
-   - [ ]  Flag 4
-   - [ ]  Flag 5
+ - [ ] [4800 SD Card](4800-forensics--sd-card) (partially solved)
  - [ ] [1200 Can you hear me?](1200-forensics--can-you-hear-me)
  - [ ] [6000 Data Leak](6000-forensics--data-leak)
-   - [ ] Flag 1
-   - [ ] Flag 2
 
 ### Miscellaneous ###
 
  - [x] [1000 Hacking the air](1000-miscellaneous--hacking-the-air)
  - [x] [1500 Language Matters (Palo Alto)](1500-miscellaneous--language-matters-palo-alto)
- - [x] [PreCTF](1000-miscellaneous--prectf)
-   - [x] Flag 1
-   - [x] Flag 2
-   - [x] Flag 3
-   - [x] Flag 4
+ - [x] [2200 PreCTF](2200-miscellaneous--prectf)
  - [ ] [4800 Kiosk](4800-miscellaneous--kiosk)
-   - [ ] Flag 1
-   - [ ] Flag 2
 
 ### Networking ###
 
@@ -62,16 +41,11 @@
  - [ ] [1500 Miner](1500-networking--miner)
  - [ ] [3000 Flappy Boot](3000-networking--flappy-boot)
  - [ ] [5400 SecurEmessage 9000](5400-networking--securemessage-9000)
-   - [ ] Flag 1
-   - [ ] Flag 2
 
 ### Physical ###
 
  - [x] [3000 NFC](3000-physical--nfc)
  - [x] [5300 Broken Codes](5300-physical--broken-codes)
-   - [x] Flag 1
-   - [x] Flag 2
-   - [x] Flag 3
 
 ### Programming ###
 
@@ -91,12 +65,7 @@
 
  - [ ] [500 Subdomain](500-web--subdomain)
  - [x] [2500 Internet.zip](2500-web--internetzip)
- - [ ] [12000 The Donald](12000-web--the-donald)
-   - [x] Flag 1
-   - [x] Flag 2
-   - [ ] Flag 3
-   - [ ] Flag 4
-   - [ ] Flag 5
+ - [ ] [12000 The Donald](12000-web--the-donald) (partially solved)
 
 ---
 
@@ -104,30 +73,43 @@
 
 **Description**
  
-> Here's sum cOd3z, can u crak them? 
->
+> Here's sum cOd3z, can u crak them?
+> 
 > `ZmxhZ3t3b3dfc3VjaF9jaGFsbGVuZ2VfbWFueV9oYXJken0K`
 > 
-> `fhpuNEbggraPunyyratr` 
->
-> Difficulty: Super Easy 
+> `fhpuNEbggraPunyyratr`
+> 
+> Difficulty: Super Easy
 
 **Solution**
 
-(TODO)
+The first cipher is [Base-64](https://en.wikipedia.org/wiki/Base64):
+
+```bash
+$ base64 -D <<<"ZmxhZ3t3b3dfc3VjaF9jaGFsbGVuZ2VfbWFueV9oYXJken0K"
+flag{wow_such_challenge_many_hardz}
+```
+
+The second cipher is [Rot13](http://rot13.org/):
+
+```bash
+$ tr a-zA-Z n-za-mN-ZA-M <<<"fhpuNEbggraPunyyratr"
+suchARottenChallenge
+```
 
 ## 800 Crypto / Flag Generator 5000 ##
 
 **Description**
 
-> Flag Generator 5000 
+> Flag Generator 5000
 > 
-> https://content.hecc.io/FlagGen5000/Flag%20Generator%205000 
+> https://content.hecc.io/FlagGen5000/Flag%20Generator%205000
 > 
-> Difficulty: Easy 
+> Difficulty: Easy
 
 **Files provided**
-- [Flag Generator 5000](files/Flag&#32;Generator&#32;5000)
+
+- [Flag Generator 5000](files/FlagGenerator5000)
 
 **Solution**
 
@@ -137,13 +119,13 @@ N/A
 
 **Description**
 
-> I LOVE BASS!!! 
+> I LOVE BASS!!!
 > 
-> Wubwubwubwubwubwub 
+> Wubwubwubwubwubwub
 > 
-> https://content.hecc.io/ILOVEBASS/bassline.wav 
+> https://content.hecc.io/ILOVEBASS/bassline.wav
 > 
->  Difficulty: Medium 
+> Difficulty: Medium
 
 **Files provided**
 - [bassline.wav](files/bassline.wav)
@@ -166,13 +148,13 @@ In fact, the default parameters used in the blog post suffice to decode the flag
 
 **Description**
 
-> Send^Receive 
+> Send^Receive
 > 
-> There's something on this box that's replying with some weird data... 
+> There's something on this box that's replying with some weird data...
 > 
-> `send-receive.hecc.io `
+> `send-receive.hecc.io`
 > 
-> Difficulty: Medium 
+> Difficulty: Medium
 
 **Solution**
 
@@ -182,13 +164,13 @@ The server sends back as many bytes as we give it. Given the challenge descripti
 
 **Description**
 
-> Seeded Sequence 
->  
-> This program will give you a flag if it sees 'fig' in binary in its output. Can you figure out what you need to give it? 
+> Seeded Sequence
+> 
+> This program will give you a flag if it sees 'fig' in binary in its output. Can you figure out what you need to give it?
 > 
 > `seeded-sequence.hecc.io:8124`
 > 
-> Difficulty: Hard 
+> Difficulty: Hard
 
 **Solution**
 
@@ -200,7 +182,7 @@ The server sends back as many bytes as we give it. Given the challenge descripti
 
 > `vulnerable.hecc.io`
 > 
-> Difficulty: Medium 
+> Difficulty: Medium
 
 **Solution**
 
@@ -210,11 +192,11 @@ N/A
 
 **Description**
 
-> Imjur 
+> Imjur
 > 
 > There's a cool new website under construction at http://imjur.hecc.io and I don't think it's very secure.
 > 
-> Difficulty: Hard 
+> Difficulty: Hard
 
 **Solution**
 
@@ -224,13 +206,13 @@ N/A
 
 **Description**
 
-> Ah shit, I deleted some of the files off my SD card. Can you recover them? Just don't look too closely at them... 
+> Ah shit, I deleted some of the files off my SD card. Can you recover them? Just don't look too closely at them...
 > 
-> https://content.heccio/Forensics/PHOTOS.img 
+> https://content.heccio/Forensics/PHOTOS.img
 > 
-> Alternate: https://content.heccio/Forensics/PHOTOS.001 
+> Alternate: https://content.heccio/Forensics/PHOTOS.001
 > 
-> Difficulty: Medium 
+> Difficulty: Medium
 
 **Files provided**
 
@@ -244,20 +226,18 @@ N/A
 
 **Description**
 
-> Can you hear me? X 
+> Hello? Can you hear me?
 > 
-> Hello? Can you hear me? 
+> https://content.hecc.io/Can-you-hear-me/canyouhear_me.wav
 > 
-> https://content.hecc.io/Can-you-hear-me/canyouhear_me.wav 
+> https://content.hecc.io/Can-you-hear-me/flags.zip
 > 
-> https://content.hecc.io/Can-you-hear-me/flags.zip 
-> 
-> Difficulty: Hard 
+> Difficulty: Hard
 
 **Files provided**
 
-- [flags.zip](files/flags.zip)
-- [canyouhear_me.wav](files/)
+ - [flags.zip](files/flags.zip)
+ - [canyouhear_me.wav](files/)
 
 **Solution**
 
@@ -267,11 +247,11 @@ N/A
 
 **Description**
 
-> One of our boxes is leaking out extremely sensitive flag data from multiple places, can you find out the contents of the leaks? 
->
-> `dataleak.hecc.io` 
->
-> Username: user Password: password 
+> One of our boxes is leaking out extremely sensitive flag data from multiple places, can you find out the contents of the leaks?
+> 
+> `dataleak.hecc.io`
+> 
+> Username: user Password: password
 > 
 > Difficulty: Super Hard
 
@@ -283,7 +263,7 @@ N/A
 
 **Description**
 
-> The wifi HECC ME looks like it could be cracked quite easily. 
+> The wifi HECC ME looks like it could be cracked quite easily.
 > 
 > Flag is the password!
 > 
@@ -411,14 +391,15 @@ With this we can also decrypt the whole flag:
 
 `Oh_no_it_is_ArmagHEADdon!!!`
 
-## Miscellaneous / PreCTF ##
+## 2200 Miscellaneous / PreCTF ##
 
 **Description**
 
-> 
+> (This file was sent to the participants two weeks before the actual CTF, allowing us to solve it in our free time, then submit the flags during the CTF for points.)
 
 **Files provided**
 
+ - [prectf.pcap](files/prectf.pcap)
 
 **Solution**
 
@@ -428,9 +409,9 @@ With this we can also decrypt the whole flag:
 
 **Description**
 
-> You've encountered a wild kiosk in the real world! Perhaps there's something else on it's local network... 
+> You've encountered a wild kiosk in the real world! Perhaps there's something else on it's local network...
 > 
-> To do this challenge you will need VMWare Remote Console installed. 
+> To do this challenge you will need VMWare Remote Console installed.
 > 
 > Please then proceed to `https://kiosk.hecc.io/` for further instructions.
 >  
@@ -508,7 +489,7 @@ N/A
 
 **Solution**
 
-(TODO)
+N/A
 
 ## 1500 Networking / Miner ##
 
@@ -522,53 +503,53 @@ N/A
 
 **Solution**
 
-(TODO)
+N/A
 
 ## 3000 Networking / Flappy Boot ##
 
 **Description**
 
 > We used to use this box a lot for booting our machines, but something seems to have gone rather wrong with it.
->
+> 
 > `flappy-boot.hecc.io`
 > 
 > Difficulty: Hard
 
 **Solution**
 
-(TODO)
+N/A
 
 ## 5400 Networking / SecurEmessage 9000 ##
 
 **Description**
 
-> Hi Derek, 
+> Hi Derek,
 > 
-> I recently finished writing a super secure new voicemail system. This system uses secure claim codes which let you hear messages just once before they are deleted. 
+> I recently finished writing a super secure new voicemail system. This system uses secure claim codes which let you hear messages just once before they are deleted.
 > 
 > Just dial `901` from any office phone, and enter your claim code to hear your secret message. I left one for you to test it out - claim it with `99*97*116*32*109*49`.
 >  
 > It's really been designed with security at heart, there's no way anyone can read any messages that aren't for them, let alone other files on the system! I hope we can push this to production ASAP.
 >  
-> Dave 
+> Dave
 > 
-> Hint: You'll need to connect to the SIP Server at: 
+> Hint: You'll need to connect to the SIP Server at:
 > 
-> host:`asterisk.hecc.io` 
-> user: `1234` 
-> password: `supersecret` 
-> Difficulty: Super Hard 
+> host:`asterisk.hecc.io`
+> user: `1234`
+> password: `supersecret`
+> Difficulty: Super Hard
 
 **Solution**
 
-(TODO)
+N/A
 
 ## 3000 Physical / NFC ##
 
 **Description**
 
 > What are those small tags on everyone's name badges? Could they hold a secret code?
->
+> 
 > Difficulty: Hard
 
 **No files provided**
@@ -656,25 +637,35 @@ flag{but-wait-this-is-in-the-real-world!}
 **Description**
 
 > You may have seen some broken QR codes around the place, can you fix them?
->
+> 
 > Difficulty: Hard
 
-**Files provided**
-
-- QR1.jpg - Unavailable :(
-- [QR2.jpg](files/QR2.jpg)
-- [QR3.jpg](files/QR3.jpg)
+**No files provided**
 
 **Solution**
 
-(TODO)
+Three partially-censored QR codes could be seen around the venue.
+
+![](files/QR1.jpg)
+
+The first scanned successfully without modifications.
+
+![](files/QR2.jpg)
+
+![](files/QR3.jpg)
+
+The other two had to be clean in Photoshop:
+
+![](files/QR2-fix.jpg)
+
+![](files/QR3-fix.jpg)
 
 ## 1000 Programming / Hulk Smash!! ##
 
 **Description**
 
 > Hulk SMASH? ANGRY, PASSWORD WRONG
->
+> 
 > `hulk-smash.hecc.io`
 > 
 > Difficulty: Easy
@@ -801,7 +792,7 @@ Another, simpler solution (not used during the CTF) would be to replace `exec` w
 **Description**
 
 > Defuse the Bomb!
->
+> 
 > IT"S GOING TO GO OFF!!
 > 
 > https://content/hecc.io/Defuse
@@ -829,16 +820,17 @@ Another, simpler solution (not used during the CTF) would be to replace `exec` w
 
 **Files provided**
 
+ - [SharpCrypt.exe](files/SharpCrypt.exe)
 
 **Solution**
 
-(TODO)
+N/A
 
 ## 2500 Reverse-Engineering / Something's Missing ##
 
 **Description**
 
-> I can't quite place my finger on it, but something seems to be missing in the bash session on 
+> I can't quite place my finger on it, but something seems to be missing in the bash session on
 > `somethings-missing.hecc.io`
 > 
 > Username: `user`
@@ -849,16 +841,32 @@ Another, simpler solution (not used during the CTF) would be to replace `exec` w
 
 **Solution**
 
-(TODO)
+Upon connecting to the server, we can `ls` our file, but see a strange gap in the listing:
+
+```bash
+> ls
+cat.jpg
+
+someotherfile
+> 
+```
+
+Looking around the server more, we can see what shell is given to us on login in `/etc/passwd`. The "shell" turns out to be a simple wrapper for a regular shell, but it seems to be missing a line if we simply `cat` it.
+
+We can easily read parts of the shell script with `head` and `tail`. It turns out the shell script filters out any lines containing the string `flag`.
+
+With this knowledge we can tell that the misssing file in `ls` contains the word `flag`. We can use `cat *fla*` to read the file, but since it contains a flag in the format `flag{...}`, it will be filtered out. So, we use the `tail` trick again: `tail -c +4 *fla*`
+
+`flag{a9cd2896-4820-403b-b882-6c1d56698336}`
 
 ## 2000 Reverse-Engineering / Treasure Island ##
 
 **Description**
 
 > YARRRRR!
->
+> 
 > https://content.hecc.io/Treasure-Island/
->
+> 
 > _NOTE: Binaries have the same function. Windows version is not fully tested._
 > 
 > Difficulty: Medium
@@ -883,10 +891,11 @@ Another, simpler solution (not used during the CTF) would be to replace `exec` w
 
 **Files provided**
 
+ - `Overflowing`
 
 **Solution**
 
-(TODO)
+N/A
 
 ## 6000 Reverse-Engineering / WinDoge ##
 
@@ -898,7 +907,7 @@ Another, simpler solution (not used during the CTF) would be to replace `exec` w
 > 
 > https://content.hecc.io/WinDoge/victim2/exe
 > 
-> Try running your code against: `user@windoge.hecc.io` 
+> Try running your code against: `user@windoge.hecc.io`
 > 
 > `password: password`
 > 
@@ -906,10 +915,11 @@ Another, simpler solution (not used during the CTF) would be to replace `exec` w
 
 **Files provided**
 
+ - WinDoge.exe
 
 **Solution**
 
-(TODO)
+N/A
 
 ## 500 Web / Subdomain ##
 
@@ -973,7 +983,7 @@ flag{I_think_I_need_a_bigger_hdd}
 
 > "Make America great again!"
 > 
-> I'm sure there's lots of ways to achieve that but I think starting here might be a good idea... 
+> I'm sure there's lots of ways to achieve that but I think starting here might be a good idea...
 > 
 > http://the-donald.hecc.io
 > 
