@@ -1,118 +1,110 @@
 # 2019-03-09-HECCTF #
 
-[website](https://hecc.io)
-
+[Website](https://hecc.io)
 
 ## Challenges  ##
 
-
 ### Crypto ###
 
-- [x] 500 s3cr3t c0d3z
-  - [x] Flag 1
-  - [x] Flag 2
-- [ ] 800 Flag Generator 5000
-- [x] 2500 I LOVE BASS!!!
-- [x] 2000 Send^Receive
-- [x] 3000 Seeded Sequence
-
+ - [x] 500 s3cr3t c0d3z
+   - [x] Flag 1
+   - [x] Flag 2
+ - [ ] 800 Flag Generator 5000
+ - [x] 2500 I LOVE BASS!!!
+ - [x] 2000 Send^Receive
+ - [x] 3000 Seeded Sequence
 
 ### Exploit ###
 
-- [ ] 2700 Vulnerable
-  - [ ] Flag 1
-  - [ ] Flag 2
-- [ ] 4300 Imjur
-  - [x] Flag 1
-  - [x] Flag 2
-  - [ ] Flag 3
-  - [ ] Flag 4
+ - [ ] 2700 Vulnerable
+   - [ ] Flag 1
+   - [ ] Flag 2
+ - [ ] 4300 Imjur
+   - [x] Flag 1
+   - [x] Flag 2
+   - [ ] Flag 3
+   - [ ] Flag 4
 
 ### Forensics ###
-- [ ]  4800 SD Card
-  - [x]  Flag 1
-  - [x]  Flag 2
-  - [ ]  Flag 3
-  - [ ]  Flag 4
-  - [ ]  Flag 5
-- [ ] 1200 Can you hear me?
-- [ ] 6000 Data Leak
-  - [ ] Flag 1
-  - [ ] Flag 2
+
+ - [ ] 4800 SD Card
+   - [x]  Flag 1
+   - [x]  Flag 2
+   - [ ]  Flag 3
+   - [ ]  Flag 4
+   - [ ]  Flag 5
+ - [ ] 1200 Can you hear me?
+ - [ ] 6000 Data Leak
+   - [ ] Flag 1
+   - [ ] Flag 2
 
 ### Miscellaneous ###
 
-- [x] 1000 Hacking the air
-- [x] 1500 Language Matters [PALO ALTO]
-- [x] PreCTF
-  - [x] Flag 1
-  - [x] Flag 2
-  - [x] Flag 3
-  - [x] Flag 4
-- [ ] 4800 Kiosk
-  - [ ] Flag 1
-  - [ ] Flag 2
-
+ - [x] 1000 Hacking the air
+ - [x] 1500 Language Matters (Palo Alto)
+ - [x] PreCTF
+   - [x] Flag 1
+   - [x] Flag 2
+   - [x] Flag 3
+   - [x] Flag 4
+ - [ ] 4800 Kiosk
+   - [ ] Flag 1
+   - [ ] Flag 2
 
 ### Networking ###
-- [x] 400 Digging for Gold
-- [x] 800 Free Token
-- [x] 800 Say please
-- [x] 800 TAG! You're it!
-- [x] 800 All of the lights!
-- [ ] 2500 Pick up the phone!
-- [ ] 1500 Miner
-- [ ] 3000 Flappy Boot
-- [ ] 5400 SecurEmessage 9000
-  - [ ] Flag 1
-  - [ ] Flag 2
+
+ - [x] 400 Digging for Gold
+ - [x] 800 Free Token
+ - [x] 800 Say please
+ - [x] 800 TAG! You're it!
+ - [x] 800 All of the lights!
+ - [ ] 2500 Pick up the phone!
+ - [ ] 1500 Miner
+ - [ ] 3000 Flappy Boot
+ - [ ] 5400 SecurEmessage 9000
+   - [ ] Flag 1
+   - [ ] Flag 2
 
 ### Physical ###
 
-- [x] 3000 NFC
-- [x] 5300 Broken Codes
-  - [x] Flag 1
-  - [x] Flag 2
-  - [x] Flag 3
-
+ - [x] 3000 NFC
+ - [x] 5300 Broken Codes
+   - [x] Flag 1
+   - [x] Flag 2
+   - [x] Flag 3
 
 ### Programming ###
-- [x] 1000 Hulk Smash!!
-- [x] 2500 Recursive [PALO ALTO]
 
-
+ - [x] 1000 Hulk Smash!!
+ - [x] 2500 Recursive (Palo Alto)
 
 ### Reverse-Engineering ###
 
-- [x] 1800 Defuse the Bomb!
-- [ ] 3000 SharpCrypt
-- [x] 2500 Something's Missing
-- [x] 2000 Treasure Island
-- [ ] 3500 Overflowing
-- [ ] 6000 WinDoge
-
+ - [x] 1800 Defuse the Bomb!
+ - [ ] 3000 SharpCrypt
+ - [x] 2500 Something's Missing
+ - [x] 2000 Treasure Island
+ - [ ] 3500 Overflowing
+ - [ ] 6000 WinDoge
 
 ### Web ###
 
-- [ ] 500 Subdomain
-- [x] 2500 Internet.zip
-- [ ] 12000 The Donald
-  - [x] Flag 1
-  - [x] Flag 2
-  - [ ] Flag 3
-  - [ ] Flag 4
-  - [ ] Flag 5
-
+ - [ ] 500 Subdomain
+ - [x] 2500 Internet.zip
+ - [ ] 12000 The Donald
+   - [x] Flag 1
+   - [x] Flag 2
+   - [ ] Flag 3
+   - [ ] Flag 4
+   - [ ] Flag 5
 
 ---
 
 ## 500 Crypto / s3cr3t c0d3z ##
 
 **Description**
-
->s3cr3t cOd3z 
-> 
->Here's sum cOd3z, can u crak them? 
+ 
+> Here's sum cOd3z, can u crak them? 
 >
 > `ZmxhZ3t3b3dfc3VjaF9jaGFsbGVuZ2VfbWFueV9oYXJken0K`
 > 
@@ -124,7 +116,6 @@
 
 (TODO)
 
-
 ## 800 Crypto / Flag Generator 5000 ##
 
 **Description**
@@ -135,8 +126,6 @@
 > 
 > Difficulty: Easy 
 
-
-
 **Files provided**
 - [Flag Generator 5000](files/Flag&#32;Generator&#32;5000)
 
@@ -144,9 +133,7 @@
 
 N/A
 
-
 ## 2500 Crypto / I LOVE BASS!!! ##
-
 
 **Description**
 
@@ -158,14 +145,12 @@ N/A
 > 
 >  Difficulty: Medium 
 
-
 **Files provided**
 - [bassline.wav](files/bassline.wav)
 
 **Solution**
 
 (TODO)
-
 
 ## 2000 Crypto / Send^Receive ##
 
@@ -183,7 +168,6 @@ N/A
 
 (TODO)
 
-
 ## 3000 Crypto / Seeded Sequence ##
 
 **Description**
@@ -200,15 +184,10 @@ N/A
 
 (TODO)
 
----
-
 ## 2700 Exploit / Vulnerable ##
-
 
 **Description**
 
-> Vulnerable 
-> 
 > `vulnerable.hecc.io`
 > 
 > Difficulty: Medium 
@@ -216,7 +195,6 @@ N/A
 **Solution**
 
 N/A
-
 
 ## 4300 Exploit / Imjur ##
 
@@ -232,13 +210,10 @@ N/A
 
 (TODO)
 
----
-
 ## 4800 Forensics / SD Card ##
 
 **Description**
 
-> SD Card 
 > Ah shit, I deleted some of the files off my SD card. Can you recover them? Just don't look too closely at them... 
 > 
 > https://content.heccio/Forensics/PHOTOS.img 
@@ -247,17 +222,13 @@ N/A
 > 
 > Difficulty: Medium 
 
-
-
 **Files provided**
 
 - [PHOTOS.img](files/PHOTOS.img.zip)
 
-
 **Solution**
 
 (TODO)
-
 
 ## 1200 Forensics / Can you hear me? ##
 
@@ -276,8 +247,7 @@ N/A
 **Files provided**
 
 - [flags.zip](files/flags.zip)
-- [canyouhear_me.wav]
-
+- [canyouhear_me.wav](files/)
 
 **Solution**
 
@@ -287,7 +257,6 @@ N/A
 
 **Description**
 
-> Data Leak 
 > One of our boxes is leaking out extremely sensitive flag data from multiple places, can you find out the contents of the leaks? 
 >
 > `dataleak.hecc.io` 
@@ -300,31 +269,26 @@ N/A
 
 N/A
 
----
- 
- ## 1000 Miscellaneous / Hacking the air ##
+## 1000 Miscellaneous / Hacking the air ##
 
- **Description**
+**Description**
 
-> Hacking in the air
->  
 > The wifi HECC ME looks like it could be cracked quite easily. 
 > 
-> Flag is the password! 
+> Flag is the password!
+> 
 > Difficulty: Easy
 
 **Solution**
 
 (TODO)
 
- ## 1500 Miscellaneous / Language Matters [PALO ALTO] ##
+## 1500 Miscellaneous / Language Matters [PALO ALTO] ##
 
- **Description**
+**Description**
 
-> Language Matters [PALO ALTO] 
-> 
 > `https://content.hecc.io/Language-Matters/challenge.doc`
->  
+> 
 > Difficulty: Easy
 
 **Files provided**
@@ -335,9 +299,9 @@ N/A
 
 (TODO)
 
- ## Miscellaneous / PreCTF ##
+## Miscellaneous / PreCTF ##
 
- **Description**
+**Description**
 
 > 
 
@@ -348,12 +312,10 @@ N/A
 
 (TODO)
 
- ## 4800 Miscellaneous / Kiosk ##
+## 4800 Miscellaneous / Kiosk ##
 
- **Description**
+**Description**
 
-> Kiosk 
-> 
 > You've encountered a wild kiosk in the real world! Perhaps there's something else on it's local network... 
 > 
 > To do this challenge you will need VMWare Remote Console installed. 
@@ -366,14 +328,10 @@ N/A
 
 N/A
 
- ---
+## 400 Networking / Digging for Gold ##
 
- ## 400 Networking / Digging for Gold ##
+**Description**
 
- **Description**
-
-> Digging for Gold
-> 
 > Can you find anything interesting in the DNS of `hecc.io`
 > 
 > Difficulty : Super Easy
@@ -382,12 +340,10 @@ N/A
 
 (TODO)
 
- ## 800 Networking / Free Token ##
+## 800 Networking / Free Token ##
 
- **Description**
+**Description**
 
-> Free Token
-> 
 > You were given a flag when you joined the network.
 > 
 > Difficulty: Easy
@@ -396,12 +352,10 @@ N/A
 
 (TODO)
 
- ## 800 Networking / Say please ##
+## 800 Networking / Say please ##
 
- **Description**
+**Description**
 
-> Say please
-> 
 > Sometimes our DNS server breaks. Good thing we have `ns69.hecc.io` as a backup!
 > 
 > Difficulty : Easy
@@ -410,24 +364,20 @@ N/A
 
 (TODO)
 
- ## 800 Networking / TAG! You're it! ##
+## 800 Networking / TAG! You're it! ##
 
- **Description**
+**Description**
 
->  TAG! You're it!
-> 
 > Difficulty: Easy
 
 **Solution**
 
 (TODO)
 
- ## 800 Networking / All of the lights! ##
+## 800 Networking / All of the lights! ##
 
- **Description**
+**Description**
 
-> All of the lights
-> 
 > If you listen carefully, you can hear the sounds of lights turning on and off.
 > 
 > Difficulty: Medium
@@ -436,12 +386,10 @@ N/A
 
 (TODO)
 
- ## 2500 Networking /  Pick up the phone! ##
+## 2500 Networking /  Pick up the phone! ##
 
- **Description**
+**Description**
 
-> Pick up the phone!
-> 
 > Ring ring, Is that you on the phone? Why is nobody answering my calls :'(
 > 
 > Difficulty: Medium
@@ -450,12 +398,10 @@ N/A
 
 (TODO)
 
- ## 1500 Networking / Miner ##
+## 1500 Networking / Miner ##
 
- **Description**
+**Description**
 
-> Miner
-> 
 > Our mining box is seeing even higher CPU usage than normal, and it's taken over all the ports... Can you find out what's going on?
 > 
 > `miner.hecc.io`
@@ -466,9 +412,9 @@ N/A
 
 (TODO)
 
- ## 3000 Networking / Flappy Boot ##
+## 3000 Networking / Flappy Boot ##
 
- **Description**
+**Description**
 
 > We used to use this box a lot for booting our machines, but something seems to have gone rather wrong with it.
 >
@@ -480,12 +426,10 @@ N/A
 
 (TODO)
 
- ## 5400 Networking / SecurEmessage 9000 ##
+## 5400 Networking / SecurEmessage 9000 ##
 
- **Description**
+**Description**
 
-> SecurEmessage 9000 
-> 
 > Hi Derek, 
 > 
 > I recently finished writing a super secure new voicemail system. This system uses secure claim codes which let you hear messages just once before they are deleted. 
@@ -507,14 +451,10 @@ N/A
 
 (TODO)
 
----
-
 ## 3000 Physical / NFC ##
 
 **Description**
 
-> NFC
-> 
 > What are those small tags on everyone's name badges? Could they hold a secret code?
 >
 > Difficulty: Hard
@@ -536,12 +476,9 @@ N/A
 
 **Description**
 
-> Broken Codes
-> 
 > You may have seen some broken QR codes around the place, can you fix them?
 >
 > Difficulty: Hard
-
 
 **Files provided**
 
@@ -553,13 +490,10 @@ N/A
 
 (TODO)
 
----
-
 ## 1000 Programming / Hulk Smash!! ##
 
 **Description**
 
-> Hulk Smash!!
 > Hulk SMASH? ANGRY, PASSWORD WRONG
 >
 > `hulk-smash.hecc.io`
@@ -589,8 +523,6 @@ N/A
 **Solution**
 
 (TODO)
-
---- 
 
 ## 1800 Reverse-Engineering / Defuse the Bomb! ##
 
@@ -634,8 +566,6 @@ N/A
 
 **Description**
 
-> Something's Missing
-> 
 > I can't quite place my finger on it, but something seems to be missing in the bash session on 
 > `somethings-missing.hecc.io`
 > 
@@ -653,8 +583,6 @@ N/A
 
 **Description**
 
-> Treasure Island
-> 
 > YARRRRR!
 >
 > https://content.hecc.io/Treasure-Island/
@@ -671,8 +599,6 @@ N/A
 
 **Description**
 
-> Overflowing
-> 
 > This box is practically _overflowing_
 > 
 > `user@sh3llcod3.hecc.io`
@@ -694,8 +620,6 @@ N/A
 
 **Description**
 
-> WindDoge
-> 
 > Our mad professor Denis has put together a spooky windows challenge. Can you figure out how to do it? We can't.
 > 
 > A copy of the executable can be found here (without the flag):
@@ -714,8 +638,6 @@ N/A
 **Solution**
 
 (TODO)
-
----
 
 ## 500 Web / Subdomain ##
 
@@ -736,8 +658,6 @@ N/A
 
 **Description**
 
-> Internet.zip
-> 
 > Wait, you saved the _ENTIRE_ internet?!
 > 
 > https://interent-zip.hecc.io/download.php
@@ -752,8 +672,6 @@ N/A
 
 **Description**
 
-> The Donald
-> 
 > "Make America great again!"
 > 
 > I'm sure there's lots of ways to achieve that but I think starting here might be a good idea... 
