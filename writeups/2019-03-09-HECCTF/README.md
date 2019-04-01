@@ -6,66 +6,66 @@
 
 ### Crypto ###
 
- - [x] [500 s3cr3t c0d3z](500-crypto--s3cr3t-c0d3z)
- - [ ] [800 Flag Generator 5000](800-crypto--flag-generator-5000)
- - [x] [2500 I LOVE BASS!!!](2500-crypto--i-love-bass)
- - [x] [2000 Send^Receive](2000-crypto--sendreceive)
- - [x] [3000 Seeded Sequence](3000-crypto--seeded-sequence)
+ - [x] [500 s3cr3t c0d3z](#500-crypto--s3cr3t-c0d3z)
+ - [ ] [800 Flag Generator 5000](#800-crypto--flag-generator-5000)
+ - [x] [2500 I LOVE BASS!!!](#2500-crypto--i-love-bass)
+ - [x] [2000 Send^Receive](#2000-crypto--sendreceive)
+ - [x] [3000 Seeded Sequence](#3000-crypto--seeded-sequence)
 
 ### Exploit ###
 
- - [ ] [2700 Vulnerable](2700-exploit--vulnerable)
- - [x] [4300 Imjur](4300-exploit--imjur) (partially solved)
+ - [ ] [2700 Vulnerable](#2700-exploit--vulnerable)
+ - [x] [4300 Imjur](#4300-exploit--imjur) (partially solved)
 
 ### Forensics ###
 
- - [ ] [4800 SD Card](4800-forensics--sd-card) (partially solved)
- - [ ] [1200 Can you hear me?](1200-forensics--can-you-hear-me)
- - [ ] [6000 Data Leak](6000-forensics--data-leak)
+ - [ ] [4800 SD Card](#4800-forensics--sd-card) (partially solved)
+ - [ ] [1200 Can you hear me?](#1200-forensics--can-you-hear-me)
+ - [ ] [6000 Data Leak](#6000-forensics--data-leak)
 
 ### Miscellaneous ###
 
- - [x] [1000 Hacking the air](1000-miscellaneous--hacking-the-air)
- - [x] [1500 Language Matters (Palo Alto)](1500-miscellaneous--language-matters-palo-alto)
- - [x] [2200 PreCTF](2200-miscellaneous--prectf)
- - [ ] [4800 Kiosk](4800-miscellaneous--kiosk)
+ - [x] [1000 Hacking the air](#1000-miscellaneous--hacking-the-air)
+ - [x] [1500 Language Matters (Palo Alto)](#1500-miscellaneous--language-matters-palo-alto)
+ - [x] [2200 PreCTF](#2200-miscellaneous--prectf)
+ - [ ] [4800 Kiosk](#4800-miscellaneous--kiosk)
 
 ### Networking ###
 
- - [x] [400 Digging for Gold](400-networking--digging-for-gold)
- - [x] [800 Free Token](800-networking--free-token)
- - [x] [800 Say please](800-networking--say-please)
- - [x] [800 TAG! You're it!](800-networking--tag-youre-it)
- - [x] [800 All of the lights!](800-networking--all-of-the-lights)
- - [ ] [2500 Pick up the phone!](2500-networking---pick-up-the-phone)
- - [ ] [1500 Miner](1500-networking--miner)
- - [ ] [3000 Flappy Boot](3000-networking--flappy-boot)
- - [ ] [5400 SecurEmessage 9000](5400-networking--securemessage-9000)
+ - [x] [400 Digging for Gold](#400-networking--digging-for-gold)
+ - [x] [800 Free Token](#800-networking--free-token)
+ - [x] [800 Say please](#800-networking--say-please)
+ - [x] [800 TAG! You're it!](#800-networking--tag-youre-it)
+ - [x] [800 All of the lights!](#800-networking--all-of-the-lights)
+ - [ ] [2500 Pick up the phone!](#2500-networking---pick-up-the-phone)
+ - [ ] [1500 Miner](#1500-networking--miner)
+ - [ ] [3000 Flappy Boot](#3000-networking--flappy-boot)
+ - [ ] [5400 SecurEmessage 9000](#5400-networking--securemessage-9000)
 
 ### Physical ###
 
- - [x] [3000 NFC](3000-physical--nfc)
- - [x] [5300 Broken Codes](5300-physical--broken-codes)
+ - [x] [3000 NFC](#3000-physical--nfc)
+ - [x] [5300 Broken Codes](#5300-physical--broken-codes)
 
 ### Programming ###
 
- - [x] [1000 Hulk Smash!!](1000-programming--hulk-smash)
- - [x] [2500 Recursive (Palo Alto)](2500-programming--recursive-palo-alto)
+ - [x] [1000 Hulk Smash!!](#1000-programming--hulk-smash)
+ - [x] [2500 Recursive (Palo Alto)](#2500-programming--recursive-palo-alto)
 
 ### Reverse-Engineering ###
 
- - [x] [1800 Defuse the Bomb!](1800-reverse-engineering--defuse-the-bomb)
- - [ ] [3000 SharpCrypt](3000-reverse-engineering--sharpcrypt)
- - [x] [2500 Something's Missing](2500-reverse-engineering--somethings-missing)
- - [x] [2000 Treasure Island](2000-reverse-engineering--treasure-island)
- - [ ] [3500 Overflowing](3500-reverse-engineering--overflowing)
- - [ ] [6000 WinDoge](6000-reverse-engineering--windoge)
+ - [x] [1800 Defuse the Bomb!](#1800-reverse-engineering--defuse-the-bomb)
+ - [ ] [3000 SharpCrypt](#3000-reverse-engineering--sharpcrypt)
+ - [x] [2500 Something's Missing](#2500-reverse-engineering--somethings-missing)
+ - [x] [2000 Treasure Island](#2000-reverse-engineering--treasure-island)
+ - [ ] [3500 Overflowing](#3500-reverse-engineering--overflowing)
+ - [ ] [6000 WinDoge](#6000-reverse-engineering--windoge)
 
 ### Web ###
 
- - [ ] [500 Subdomain](500-web--subdomain)
- - [x] [2500 Internet.zip](2500-web--internetzip)
- - [ ] [12000 The Donald](12000-web--the-donald) (partially solved)
+ - [ ] [500 Subdomain](#500-web--subdomain)
+ - [x] [2500 Internet.zip](#2500-web--internetzip)
+ - [ ] [12000 The Donald](#12000-web--the-donald) (partially solved)
 
 ---
 
