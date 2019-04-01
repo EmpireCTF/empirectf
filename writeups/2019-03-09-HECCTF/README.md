@@ -6,20 +6,20 @@
 
 ### Crypto ###
 
- - [x] 500 s3cr3t c0d3z
+ - [x] [500 s3cr3t c0d3z](500-crypto--s3cr3t-c0d3z)
    - [x] Flag 1
    - [x] Flag 2
- - [ ] 800 Flag Generator 5000
- - [x] 2500 I LOVE BASS!!!
- - [x] 2000 Send^Receive
- - [x] 3000 Seeded Sequence
+ - [ ] [800 Flag Generator 5000](800-crypto--flag-generator-5000)
+ - [x] [2500 I LOVE BASS!!!](2500-crypto--i-love-bass)
+ - [x] [2000 Send^Receive](2000-crypto--sendreceive)
+ - [x] [3000 Seeded Sequence](3000-crypto--seeded-sequence)
 
 ### Exploit ###
 
- - [ ] 2700 Vulnerable
+ - [ ] [2700 Vulnerable](2700-exploit--vulnerable)
    - [ ] Flag 1
    - [ ] Flag 2
- - [ ] 4300 Imjur
+ - [ ] [4300 Imjur](4300-exploit--imjur)
    - [x] Flag 1
    - [x] Flag 2
    - [ ] Flag 3
@@ -27,71 +27,71 @@
 
 ### Forensics ###
 
- - [ ] 4800 SD Card
+ - [ ] [4800 SD Card](4800-forensics--sd-card)
    - [x]  Flag 1
    - [x]  Flag 2
    - [ ]  Flag 3
    - [ ]  Flag 4
    - [ ]  Flag 5
- - [ ] 1200 Can you hear me?
- - [ ] 6000 Data Leak
+ - [ ] [1200 Can you hear me?](1200-forensics--can-you-hear-me)
+ - [ ] [6000 Data Leak](6000-forensics--data-leak)
    - [ ] Flag 1
    - [ ] Flag 2
 
 ### Miscellaneous ###
 
- - [x] 1000 Hacking the air
- - [x] 1500 Language Matters (Palo Alto)
- - [x] PreCTF
+ - [x] [1000 Hacking the air](1000-miscellaneous--hacking-the-air)
+ - [x] [1500 Language Matters (Palo Alto)](1500-miscellaneous--language-matters-palo-alto)
+ - [x] [PreCTF](1000-miscellaneous--prectf)
    - [x] Flag 1
    - [x] Flag 2
    - [x] Flag 3
    - [x] Flag 4
- - [ ] 4800 Kiosk
+ - [ ] [4800 Kiosk](4800-miscellaneous--kiosk)
    - [ ] Flag 1
    - [ ] Flag 2
 
 ### Networking ###
 
- - [x] 400 Digging for Gold
- - [x] 800 Free Token
- - [x] 800 Say please
- - [x] 800 TAG! You're it!
- - [x] 800 All of the lights!
- - [ ] 2500 Pick up the phone!
- - [ ] 1500 Miner
- - [ ] 3000 Flappy Boot
- - [ ] 5400 SecurEmessage 9000
+ - [x] [400 Digging for Gold](400-networking--digging-for-gold)
+ - [x] [800 Free Token](800-networking--free-token)
+ - [x] [800 Say please](800-networking--say-please)
+ - [x] [800 TAG! You're it!](800-networking--tag-youre-it)
+ - [x] [800 All of the lights!](800-networking--all-of-the-lights)
+ - [ ] [2500 Pick up the phone!](2500-networking---pick-up-the-phone)
+ - [ ] [1500 Miner](1500-networking--miner)
+ - [ ] [3000 Flappy Boot](3000-networking--flappy-boot)
+ - [ ] [5400 SecurEmessage 9000](5400-networking--securemessage-9000)
    - [ ] Flag 1
    - [ ] Flag 2
 
 ### Physical ###
 
- - [x] 3000 NFC
- - [x] 5300 Broken Codes
+ - [x] [3000 NFC](3000-physical--nfc)
+ - [x] [5300 Broken Codes](5300-physical--broken-codes)
    - [x] Flag 1
    - [x] Flag 2
    - [x] Flag 3
 
 ### Programming ###
 
- - [x] 1000 Hulk Smash!!
- - [x] 2500 Recursive (Palo Alto)
+ - [x] [1000 Hulk Smash!!](1000-programming--hulk-smash)
+ - [x] [2500 Recursive (Palo Alto)](2500-programming--recursive-palo-alto)
 
 ### Reverse-Engineering ###
 
- - [x] 1800 Defuse the Bomb!
- - [ ] 3000 SharpCrypt
- - [x] 2500 Something's Missing
- - [x] 2000 Treasure Island
- - [ ] 3500 Overflowing
- - [ ] 6000 WinDoge
+ - [x] [1800 Defuse the Bomb!](1800-reverse-engineering--defuse-the-bomb)
+ - [ ] [3000 SharpCrypt](3000-reverse-engineering--sharpcrypt)
+ - [x] [2500 Something's Missing](2500-reverse-engineering--somethings-missing)
+ - [x] [2000 Treasure Island](2000-reverse-engineering--treasure-island)
+ - [ ] [3500 Overflowing](3500-reverse-engineering--overflowing)
+ - [ ] [6000 WinDoge](6000-reverse-engineering--windoge)
 
 ### Web ###
 
- - [ ] 500 Subdomain
- - [x] 2500 Internet.zip
- - [ ] 12000 The Donald
+ - [ ] [500 Subdomain](500-web--subdomain)
+ - [x] [2500 Internet.zip](2500-web--internetzip)
+ - [ ] [12000 The Donald](12000-web--the-donald)
    - [x] Flag 1
    - [x] Flag 2
    - [ ] Flag 3
@@ -150,7 +150,17 @@ N/A
 
 **Solution**
 
-(TODO)
+We can open the file in any sound editor and see that the left channel seems to oscillate up and down strangely:
+
+![](screens/bassline.png)
+
+In fact, ignoring the oscillations representing the actual song, there are only two positions for the left channel. Up and down, or 1 and 0. It is a binary encoding and we can easily tell roughly what the length of one bit is.
+
+The technique for both encryption and decryption is described [here](https://blog.benjojo.co.uk/post/encoding-data-into-dubstep-drops).
+
+In fact, the default parameters used in the blog post suffice to decode the flag:
+
+`flag{fd3dc9-e4e7-375bda7}`
 
 ## 2000 Crypto / Send^Receive ##
 
@@ -166,7 +176,7 @@ N/A
 
 **Solution**
 
-(TODO)
+The server sends back as many bytes as we give it. Given the challenge description (`Send^Receive`, i.e. `Send XOR Receive`), we can see that it XOR's its output stream with our input stream. This means we can simply send it a lot of zero bytes to get the original output (since `x XOR 0 = x` for any `x`).
 
 ## 3000 Crypto / Seeded Sequence ##
 
@@ -283,7 +293,7 @@ N/A
 
 (TODO)
 
-## 1500 Miscellaneous / Language Matters [PALO ALTO] ##
+## 1500 Miscellaneous / Language Matters (Palo Alto) ##
 
 **Description**
 
@@ -297,7 +307,109 @@ N/A
 
 **Solution**
 
-(TODO)
+Opening the file in Word doesn't reveal much except for:
+
+![](screens/what-you-got.png)
+
+If we scroll further down, there is some 1pt white text hidden in the document as well:
+
+```
+-----BEGIN CERTIFICATE-----
+elVNCn5Ya15eb11EbllHb3BCWVFWeHFxdVRbXhARFQ==
+-----END CERTIFICATE-----
+```
+
+Word also immediately asks whether macros should be enabled. Well of course, what could go wrong!
+
+And that triggers an error, but also conveniently reveals the macro source code. A couple of the functions in the code are just to trigger another function called `a` upon opening the file:
+
+```vba
+Sub Workbook_Open()
+    a
+End Sub
+
+Sub AutoOpen()
+    a
+End Sub
+```
+
+There is also a `Base64Decode` function which is interesting but it really does what its name would suggest, so there is not much need to look into it.
+
+Then there is a `Blah` function:
+
+```vba
+Function Blah(ByVal sData As String, ByVal sKey As String) As String
+    Dim l As Long, i As Long, byIn() As Byte, byOut() As Byte, byKey() As Byte
+    byIn = sData
+    byOut = sData
+    byKey = sKey
+    l = LBound(byKey)
+    For i = LBound(byIn) To UBound(byIn) - 1 Step 2
+        byOut(i) = (byIn(i) Xor byKey(l))
+        l = l + 2
+        If l > UBound(byKey) Then l = LBound(byKey)
+    Next i
+    XorC = byOut
+End Function
+```
+
+It takes some `data` and a `key`, both strings. The `key` is repeated over the length of the input `data`, and the output is just `data` XOR'd with the `key`. This is a simple XOR decryption function. The `l = l + 2` line suggests that the key characters are not used in the same order as they are given to the function, but this is misleading – Windows systems store strings using a wide character encoding, i.e. each character is 2 bytes. Assuming the `key` and `data` are not high Unicode characters, only XOR'ing the first byte of each wide character suffices for decryption. Additionally, the last line would suggest the function was originally called `XorC`, then renamed to `Blah`.
+
+Finally, the actual `a` function, which is called upon opening the document:
+
+```vba
+Sub a()
+    Dim s As String
+    x2 = Application.LanguageSettings.LanguageID(msoLanguageIDUI)
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    s = ActiveDocument.Content.Text
+    x = "-----BEGIN CERTIFICATE-----"
+    y = "-----END CERTIFICATE-----"
+    Z = InStr(s, x)
+    If Z > 0 Then
+        s = Mid(s, Z + Len(x))
+        s = Mid(s, 1, InStr(s, y) - 1)
+        s = Replace(s, "-", vbNullString)
+        s = Replace(s, vbCr, vbNullString)
+        s = Replace(s, vbLf, vbNullString)
+        
+        b1 = Base64Decode(s)
+        b2 = Blah(b1, x2)
+        
+        If InStr(1, b2, "Key:") = 1 Then
+            MsgBox b2
+        End If
+    End If
+End Sub
+```
+
+The `LanguageID` call ([`LanguageSettings.LanguageID`](https://docs.microsoft.com/en-us/office/vba/api/office.languagesettings.languageid)) returns the language code identifier (LCID) of the user interface. The title of the challenge is "language matters", so we can assume this is an unknown..
+
+Most of the lines in the function then deal with getting the text content of the document, finding the hidden "certificate" bit, then extracting only the line between the two guards. This data (`elVNCn5Ya15eb11EbllHb3BCWVFWeHFxdVRbXhARFQ==`) is then Base-64 decoded, XOR decoded using the LCID obtained earlier. If the beginning of the result is `"Key:"`, a message box is displayed.
+
+At this point we can simply assume the LCID is 4 characters long (since the function checks only 4 bytes for successful decryption). Due to the symmetry of the XOR cipher, we simply XOR the first 4 bytes of the ciphertext with the known plaintext to obtain the key:
+
+```bash
+$ echo "elVNCn5Ya15eb11EbllHb3BCWVFWeHFxdVRbXhARFQ==" | base64 -D | xxd
+0000000: 7a55 4d0a 7e58 6b5e 5e6f 5d44 6e59 476f  zUM.~Xk^^o]DnYGo
+0000010: 7042 5951 5678 7171 7554 5b5e 1011 15    pBYQVxqquT[^...
+```
+
+```python
+>>> "".join([ chr(ord(x) ^ y) for x, y in zip("Key:", [0x7a, 0x55, 0x4d, 0x0a]) ])
+'1040'
+```
+
+So the required LCID was `1040` ([corresponding to `0x410`, Italian](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-lcid/70feba9f-294e-491e-b6eb-56532684c37f) probably).
+
+With this we can also decrypt the whole flag:
+
+```python
+>>> "".join([ chr(ord(x) ^ y) for x, y in zip("10401040104010401040104010401040", base64.b64decode("elVNCn5Ya15eb11EbllHb3BCWVFWeHFxdVRbXhARFQ==")) ])
+'Key:Oh_no_it_is_ArmagHEADdon!!!'
+```
+
+`Oh_no_it_is_ArmagHEADdon!!!`
 
 ## Miscellaneous / PreCTF ##
 
@@ -459,18 +571,85 @@ N/A
 >
 > Difficulty: Hard
 
-**Files provided**
-
-- 1: [!+[]+!+[]+!+[]]+[+[]]+[!+[]+!+[]+!+[]+!+[]+!+[]+!+[]]+[!+[]+!+[]+!+[]+!+[]+!+[]+!+[]+!+[]+!+[]]+[!+
-- 2: []+!+[]]+(!![]+[])[!+[]+!+[]+!+[]]+[!+[]+!+[]+!+[]+!+[]+!+[]+!+[]]+[!+[]+!+[]+!+[]+!+[]+!+[]+!+[]+!+
-- 3: []+!+[]]+[!+[]+!+[]+!+[]+!+[]+!+[]+!+[]]+[!+[]+!+[]+!+[]+!+[]+!+[]]+[!+[]+!+[]+!+[]+!+[]+!+[]+!+[]]+
-- 4: [!+[]+!+[]+!+[]]+[!+[]+!+[]+!+[]+!+[]+!+[]+!+[]]+[!+[]+!+[]+!+[]]+[!+[]+!+[]]+(!![]+[])[!+[]+!+[]+!+
-- 5: []]+[!+[]+!+[]+!+[]+!+[]+!+[]+!+[]]+[!+[]+!+[]+!+[]+!+[]+!+[]+!+[]+!+[]+!+[]+!+[]]+[!+[]+!+[]+!+[]+!
-- 6: +[]+!+[]+!+[]]+(![]+[])[+[]]
+**No files provided**
 
 **Solution**
 
-(TODO)
+Each participant at the event was given a lanyard with a nametag. The back side of the tag had a small NFC chip. The contents of the NFC tags varied across nametags, but each university seemed to have the same variants. The context were printable text (although not really readable). Each variant started with a number.
+
+In total, there were 6 versions, obtained by tag trading:
+
+```
+1 [!+[]+!+[]+!+[]]+[+[]]+[!+[]+!+[]+!+[]+!+[]+!+[]+!+[]]+[!+[]+!+[]+!+[]+!+[]+!+[]+!+[]+!+[]+!+[]]+[!+
+2 []+!+[]]+(!![]+[])[!+[]+!+[]+!+[]]+[!+[]+!+[]+!+[]+!+[]+!+[]+!+[]]+[!+[]+!+[]+!+[]+!+[]+!+[]+!+[]+!+
+3 []+!+[]]+[!+[]+!+[]+!+[]+!+[]+!+[]+!+[]]+[!+[]+!+[]+!+[]+!+[]+!+[]]+[!+[]+!+[]+!+[]+!+[]+!+[]+!+[]]+
+4 [!+[]+!+[]+!+[]]+[!+[]+!+[]+!+[]+!+[]+!+[]+!+[]]+[!+[]+!+[]+!+[]]+[!+[]+!+[]]+(!![]+[])[!+[]+!+[]+!+
+5 []]+[!+[]+!+[]+!+[]+!+[]+!+[]+!+[]]+[!+[]+!+[]+!+[]+!+[]+!+[]+!+[]+!+[]+!+[]+!+[]]+[!+[]+!+[]+!+[]+!
+6 +[]+!+[]+!+[]]+(![]+[])[+[]]
+```
+
+Removing the numbers and concatenating the code:
+
+```javascript
+[!+[]+!+[]+!+[]]+[+[]]+[!+[]+!+[]+!+[]+!+[]+!+[]+!+[]]+[!+[]+!+[]+!+[]+!+[]+!+[]+!+[]+!+[]+!+[]]+[!+[]+!+[]]+(!![]+[])[!+[]+!+[]+!+[]]+[!+[]+!+[]+!+[]+!+[]+!+[]+!+[]]+[!+[]+!+[]+!+[]+!+[]+!+[]+!+[]+!+[]+!+[]]+[!+[]+!+[]+!+[]+!+[]+!+[]+!+[]]+[!+[]+!+[]+!+[]+!+[]+!+[]]+[!+[]+!+[]+!+[]+!+[]+!+[]+!+[]]+[!+[]+!+[]+!+[]]+[!+[]+!+[]+!+[]+!+[]+!+[]+!+[]]+[!+[]+!+[]+!+[]]+[!+[]+!+[]]+(!![]+[])[!+[]+!+[]+!+[]]+[!+[]+!+[]+!+[]+!+[]+!+[]+!+[]]+[!+[]+!+[]+!+[]+!+[]+!+[]+!+[]+!+[]+!+[]+!+[]]+[!+[]+!+[]+!+[]+!+[]+!+[]+!+[]]+(![]+[])[+[]]
+```
+
+This is actually obfuscated Javascript, obfuscated by a technique similar to [JSFuck](http://www.jsfuck.com/). The code can be executed as-is to produce the next part, but to understand it better, here it is reformatted a little bit:
+
+```javascript
+  [!+[]+!+[]+!+[]]
++ [+[]]
++ [!+[]+!+[]+!+[]+!+[]+!+[]+!+[]]
++ [!+[]+!+[]+!+[]+!+[]+!+[]+!+[]+!+[]+!+[]]
++ [!+[]+!+[]]
++ (!![]+[])[!+[]+!+[]+!+[]]
++ [!+[]+!+[]+!+[]+!+[]+!+[]+!+[]]
++ [!+[]+!+[]+!+[]+!+[]+!+[]+!+[]+!+[]+!+[]]
++ [!+[]+!+[]+!+[]+!+[]+!+[]+!+[]]
++ [!+[]+!+[]+!+[]+!+[]+!+[]]
++ [!+[]+!+[]+!+[]+!+[]+!+[]+!+[]]
++ [!+[]+!+[]+!+[]]
++ [!+[]+!+[]+!+[]+!+[]+!+[]+!+[]]
++ [!+[]+!+[]+!+[]]
++ [!+[]+!+[]]
++ (!![]+[])[!+[]+!+[]+!+[]]
++ [!+[]+!+[]+!+[]+!+[]+!+[]+!+[]]
++ [!+[]+!+[]+!+[]+!+[]+!+[]+!+[]+!+[]+!+[]+!+[]]
++ [!+[]+!+[]+!+[]+!+[]+!+[]+!+[]]
++ (![]+[])[+[]]
+```
+
+The code is a sequence of string concatenations (`+` operators in the first column above). The majority of the component strings are simply numbers. These are formed using the `[!+[]+!+[]...]` sequences (or just `[+[]]` for `0`):
+
+```javascript
+[+[]] => [ 0 ]
+[!+[]+!+[]+!+[]] => [ 3 ]
+```
+
+(Stringification of one-element arrays simply stringifies the contained element.)
+
+There are also a couple of letters, taken from the strings `'true'` and `'false'`, obtained with:
+
+```javascript
+(!![]+[]) => 'true'
+(![]+[]) => 'false'
+```
+
+So the entire code evaluates to:
+
+`30682e686563632e696f`
+
+This is in hexadecimal, decoded it reads:
+
+`0h.hecc.io`
+
+After navigating to the website, we were presented with a dancing crab video and a set of GPS coordinates, which turned out to be very close to the venue. After arriving at the location, another NFC tag was found with the content:
+
+```
+Well done! Hope you've enjoyed meeting new people!
+
+flag{but-wait-this-is-in-the-real-world!}
+```
 
 ## 5300 Physical / Broken Codes ##
 
@@ -502,9 +681,43 @@ N/A
 
 **Solution**
 
-(TODO)
+Connecting to the server, we can see that sending it almost anything results in it replying with `INCORRECT` and disconnecting:
 
-## 2500 Programming / Recursive [PALO ALTO] ##
+```bash
+$ nc Hulk-Smash.hecc.io 8124
+foobar
+INCORRECT
+```
+
+We can quickly do a manual check to see what happens when we send the server each character of the alphabet. For `a` through `e`, it replies with `INCORRECT` as expected, but when we send it `f` (and a newline), it doesn't reply at all. It only says `INCORRECT` once we send another character.
+
+So from this it seems quite clear the server-side script accepts characters one-by-one, then closes the connection only when the last accepted character does not fit. This means we can "brute force" out the correct password, one character at a time, i.e. roughly 31 guesses per character on average (`26` lowercase letters, `26` uppercase letters, `10` digits, `1` underscore, average guess takes half the total number of characters if uniformly distributed).
+
+```bash
+#!/bin/bash
+
+flag="flag{"
+while [[ true ]]; do
+    found=0
+    for char in _ {0..9} {a..z} {A..Z}; do
+        check="$flag$char"
+        echo "$check?"
+        (printf "$check"; sleep 0.5) | nc Hulk-Smash.hecc.io 8124 | grep "INCORRECT" >/dev/null
+        if [[ "$?" -eq 1 ]]; then
+            found=1
+            flag="$check"
+            echo "$flag"
+            break
+        fi
+    done
+    if [[ "$found" -eq 0 ]]; then
+        echo "over?"
+        break
+    fi
+done
+```
+
+## 2500 Programming / Recursive (Palo Alto) ##
 
 **Description**
 
@@ -522,7 +735,66 @@ N/A
 
 **Solution**
 
-(TODO)
+**Files provided**
+
+ - [recursive.py](files/recursive.py)
+
+**Note:** the file is unfortunately incomplete. It is missing a basic XOR encryption function, called `gasfewfesafds`.
+
+**Solution**
+
+The script is fairly simple, except for a very long string in the middle:
+
+```python
+c0sns5mkcgvoebss = lambda c, e, f: c.decrypt(gasfewfesafds(bqetl6jxsj.b64decode(e), f))
+uylbditv = s6khpxxhxp.new("w6jxaeu7vnqozxnilyebatlimsaaiwq2")
+c8p6a1=c0sns5mkcgvoebss(uylbditv, "[REALLY LONG STRING HERE]", "mgvpqxkz")
+exec(c8p6a1)
+```
+
+The sequence of commands creates a new AES-256 decryption object, then gives it a Base-64-encoded + XOR-encrypted ciphertext. The result of the decryption is then executed using `exec`. As it turns out, simply replacing `exec` with `print` reveals that the encrypted script is basically the same as the original one, though it has different (garbage) variable names, and naturally the hidden string is slightly shorter.
+
+With the title of the challenge and the general layout of the challenge it is easy to guess that the script we are actually looking for is nested in many layers of identical encryption.
+
+We can write a script to match on the structure of the script as a string using regular expressions and perform the same decryption as long as possible:
+
+```python
+import re
+from Crypto.Cipher import AES
+import base64
+
+def xor(message, key):
+    return bytes([ message[i] ^ ord(key[i % len(key)]) for i in range(len(message)) ])
+
+ereg = re.compile(r"""[^ ]+ = lambda c, e, f: c\.decrypt\(gasfewfesafds\(bqetl6jxsj\.b64decode\(e\), f\)\)
+[^ ]+ = s6khpxxhxp\.new\("([^"]+)"\)
+[^=]+=[^\(]+\([^,]+, "([^"]+)", "([^"]+)"\)
+exec\([^\)]+\)
+		""")
+
+result = ereg.match(open("recursive.py", "r").read())
+while result:
+    print(result)
+
+    aesKey = result.group(1)
+    b64Data = result.group(2)
+    xorKey = result.group(3)
+
+    aesInput = xor(base64.b64decode(b64Data), xorKey)
+    aesDec = AES.new(bytes(aesKey, "utf-8"), AES.MODE_ECB).decrypt(aesInput)
+    result = ereg.match(aesDec.decode("utf-8"))
+```
+
+And the final script is:
+
+```python
+exec("""if 1==2: print "Key: wubba_lubba_dub_dub "\nelse: print "You fell into a pit and died... of dysentery."
+""")
+```
+
+Another, simpler solution (not used during the CTF) would be to replace `exec` with a function which prints its input and then executes it.
+
+`wubba_lubba_dub_dub`
 
 ## 1800 Reverse-Engineering / Defuse the Bomb! ##
 
@@ -666,7 +938,34 @@ N/A
 
 **Solution**
 
-(TODO)
+If we connect to the server, it starts sending us an actual file with `200000000000000` bytes (around `181 TiB`). The download speed is fast over Ethernet, but not fast enough, not to mention we don't carry around `200 TiB` drives in our laptops!
+
+The data itself appears random and the actual HTTP response does contain `Content-Type: application/random`.
+
+But since it is a modern Apache 2 server, we can nicely ask it for only a small part of the data using a [range request](https://developer.mozilla.org/en-US/docs/Web/HTTP/Range_requests). Since there is only garbage at the beginning of the file, we can try to find out what is at the end.
+
+```
+$ printf "GET / HTTP/1.1\r\nHost: Internet-zip.hecc.io\r\nConnection: close\r\nRange: bytes=199999999999000-200000000000000\r\n\r\n" | nc Internet-zip.hecc.io 80 > out.bin
+```
+
+And indeed, we see:
+
+```
+HTTP/1.1 206 Partial Content
+Date: Sat, 09 Mar 2019 15:18:09 GMT
+Server: Apache/2.4.29 (Ubuntu)
+Content-disposition: attachment; filename=image.bin
+Accept-Ranges: bytes
+GAME: kek
+Content-Range: bytes 199999999999000-200000000000000/200000000000000
+Content-Length: 1000
+Connection: close
+Content-Type: application/random
+(some garbage data)
+flag{I_think_I_need_a_bigger_hdd}
+```
+
+`flag{I_think_I_need_a_bigger_hdd}`
 
 ## 12000 Web / The Donald ##
 
