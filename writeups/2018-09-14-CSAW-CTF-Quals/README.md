@@ -1254,7 +1254,108 @@ sh.interactive()
 
 **Solution**
 
-(TODO)
+This challenge is meant to be an introduction to x86 assembly. For this challenge, we are provided with [`stage-1.asm`](files/x86-1-stage-1.asm), [`Makefile`](files/x86-1-Makefile), [`stage-2.bin`](files/x86-1-stage-2.bin) but all we really need [`stage-1.asm`](files/x86-1-stage-1.asm). This file is heavily commented, explaining instructions. In order to get the flag, we need to answer 5 questions. The code is running in 16 bit mode.
+
+**Question 1**
+> What is the value of dh after line 129 executes? (Answer with a one-byte hex value, prefixed with '0x')
+
+Let's go and look at the code
+```asm
+  ; There are other ways to make a register be set to zero... I hope you know your binary operators (and, or, not, xor, compliments)
+  xor dh, dh  ; <- Question 1 (line 129)
+```
+The size of the register dh is 8 bits. We xor the value in the register dh with itself and put the value in dh.
+Xoring 2 values that are same returns 0, therefore the result stored in dh (in hexadecimal) after line 129 executes is `0x00`.
+
+**Question 2**
+> What is the value of gs after line 145 executes? (Answer with a one-byte hex value, prefixed with '0x')
+
+Let's look at the code.
+```asm
+  cmp dx, 0
+  jne .death  ; This time jumping backwards to a label we passed... Saves duplicate code.
+
+  ; Alright, recruits! New registers!
+  ; These are called segment registers and are all 16-bits only.
+  ; ...Yeah...
+  ; Fuckin' useless.
+
+  mov ds, ax ; Oh yeah so this time since
+  mov es, bx ; the other registers are
+  mov fs, cx ; already zero, I'm just going
+  mov gs, dx ; to use them to help me clear     <- Question 2 (line 145)
+  mov ss, ax ; these registers out.
+```
+The fist line of the code snippet compares dx with 0 and the line after that say to jump to the label .death if dx does not equal 0.
+Also reading the the comments on line 145 we can immediately say that the register gs contains the value (in hexadecimal) `0x00`. 
+
+**Question 3**
+> What is the value of si after line 151 executes? (Answer with a two-byte hex value, prefixed with '0x')
+
+Let's look at the code.
+
+```asm
+  mov cx, 0 ; (line 107)
+
+
+  ; Many of these registers actually have names, but they're mostly irrelevant and just legacy.
+  mov sp, cx ; Stack Pointer   (line 149)
+  mov bp, dx ; Base Pointer
+  mov si, sp ; Source Index       <- Question 3 (line 151)
+```
+The registers cx, sp and si are of size 16 bits. cx is set to 0 on line 107 and then the stack pointer is set to the value stored in cx on line 149. 
+The source index is set to the value stored in the source pointer on line 151. Therefore after line 151 is executed the source index contains the value `0x0000`.
+
+**Question 4**
+> What is the value of ax after line 169 executes? (Answer with a two-byte hex value, prefixed with '0x')
+
+```asm
+  mov al, 't'
+  mov ah, 0x0e      ; <- Question 4 (line 169)
+```
+
+The register ax is 16 bits longs. The top 8 bits can be modified using the register ah and the bottom 8 bits can be modified using the register al. After line 169 is executed, ah contains the value 0x0e and the register al contains the value 0x74 ('t' in hexadecimal). Therefore the register ax contains the value `0x0e74`.
+
+
+
+
+
+**Question 5**
+> What is the value of ax after line 199 executes for the first time? (Answer with a two-byte hex value, prefixed with '0x')
+
+```asm
+  mov ax, .string_to_print
+  jmp print_string
+  .string_to_print: db "acOS", 0x0a, 0x0d, "  by Elyk", 0x00  ; label: <size-of-elements> <array-of-elements>
+  ; db stands for define-bytes, there's db, dw, dd, dq, dt, do, dy, and dz.  I just learned that three of those exist.  It's not really assembly-specific knowledge. It's okay.  https://www.nasm.us/doc/nasmdoc3.html
+    ; The array can be in the form of a "string" or comma,separate,values,.
+
+; Now let's make a whole 'function' that prints a string
+print_string:
+  .init:
+    mov si, ax  ; We have no syntactic way of passing parameters, so I'm just going to pass the first argument of a function through ax - the string to print. (line 189)
+
+  .print_char_loop:
+    cmp byte [si], 0  ; The brackets around an expression is interpreted as "the address of" whatever that expression is.. It's exactly the same as the dereference operator in C-like languages
+                        ; So in this case, si is a pointer (which is a copy of the pointer from ax (line 183), which is the first "argument" to this "function", which is the pointer to the string we are trying to print)
+                        ; If we are currently pointing at a null-byte, we have the end of the string... Using null-terminated strings (the zero at the end of the string definition at line 178)
+    je .end
+   
+    mov al, [si]  ; Since this is treated as a dereference of si, we are getting the BYTE AT si... `al = *si`
+
+    mov ah, 0x0e  ; <- Question 5 (line 199)
+    int 0x10      ; Actually print the character
+ 
+    inc si        ; Increment the pointer, get to the next character
+    jmp .print_char_loop
+```
+
+The register si contains the pointer the .string_to_print. Iterating through the loop the first time, we compare the value of the pointer that si is pointing to and check to see if it is 0 (null byte). The value of the pointer that si is pointing to is 'a' therefore we do not jump to the .end label and assign 'a' (0x61 in hexadecimal) to the register al. We then assign the value 0x0e to the register ah. Therefore the register ax contains the value `0x0e61`.
+
+After answering this final question, the server gives us the flag.
+
+`flag{rev_up_y0ur_3ng1nes_reeeeeeeeeeeeecruit5!}`
+
 
 ## 100 Reversing / A Tour of x86 - Part 2 ##
 
