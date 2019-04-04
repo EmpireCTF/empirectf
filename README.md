@@ -31,3 +31,6 @@ Repository for our team's CTF write-ups. Coming soon, video materials, hopefully
  - [2019-01-19-Insomni-Hack-Teaser](writeups/2019-01-19-Insomni-Hack-Teaser/README.md)
  - [2019-02-01-nullcon-HackIM](writeups/2019-02-01-nullcon-HackIM/README.md)
  - [2019-03-09-HECCTF](writeups/2019-03-09-HECCTF/README.md)
+ - [2019-03-23-0CTF-CTF-Quals](writeups/2019-03-23-0CTF-CTF-Quals/README.md)
+ - [2019-03-29-VolgaCTF-Quals](writeups/2019-03-29-VolgaCTF-Quals/README.md)
+ - [2019-04-02-encryptCTF](writeups/2019-04-02-encryptCTF/README.md)
