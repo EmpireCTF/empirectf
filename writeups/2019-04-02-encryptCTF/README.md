@@ -75,7 +75,13 @@
 
 **Solution**
 
-(TODO)
+We can replace `-` with `1` and `\_` with `0`. We can add two `0` characters at the beginning of the text to have a multiple of 8 for easier decoding from binary. This results in:
+
+    656e63727970744354467b5734355f31375f483452445f334e305547483f217d
+
+Which decodes into:
+
+`encryptCTF{W45_17_H4RD_3N0UGH?!}`
 
 ## 100 Cryptography / RSA_Baby ##
 
@@ -95,7 +101,29 @@
 
 **Solution**
 
-(TODO)
+One of the primes (`q`) is hardcoded and we are given the modulus `n` in the ciphertext. We can recover `p`:
+
+```python
+>>> p = n // q
+>>> p
+13030877962244354814511445069542882449581922607390244121691806992913837762209651753257058518168164120459969457411474677047559297768866334000219225111914353
+```
+
+Then we simply follow the decryption steps:
+
+```python
+>>> import gmpy2
+>>> e = 65537
+>>> phi = (p - 1) * (q - 1)
+>>> d = gmpy2.invert(e, phi)
+>>> c = 0x1899b6cd310966281b1593a420205588f12ab93af850ad7d9d810a502f6fe4ad93a58b5bbb747803ba33ac94cc5f227761e72bdd9857b7b0227f510683596791526b9295b20be39567fc9a556663e3b0e3fcc5b233e78e38a06b29314d897258fbe15b037d8ff25d272822571dd98dfa4ee5d066d707149a313ad0c93e79b4ee
+>>> hex(pow(c, d, n))
+'0x656e63727970744354467b37344b314e475f423442595f53373350537d0a'
+```
+
+Which decodes to:
+
+`encryptCTF{74K1NG_B4BY_S73PS}`
 
 ## 100 Cryptography / Julius,Q2Flc2FyCg== ##
 
@@ -105,7 +133,7 @@
 > 
 > Can you solve this one, with weird name?
 > 
-> ciphertext: <span style="color:#990000;">fYZ7ipGIjFtsXpNLbHdPbXdaam1PS1c5lQ</span>
+> ciphertext: `fYZ7ipGIjFtsXpNLbHdPbXdaam1PS1c5lQ`
 > 
 > ```Author:@mostwanted002```
 
@@ -113,7 +141,26 @@
 
 **Solution**
 
-(TODO)
+We can use `base64` to decode the ciphertext, but it contains some high (non-ASCII) bytes:
+
+```bash
+$ base64 -D <<<"fYZ7ipGIjFtsXpNLbHdPbXdaam1PS1c5lQ" | xxd
+0000000: 7d86 7b8a 9188 8c5b 6c5e 934b 6c77 4f6d  }.{....[l^.KlwOm
+0000010: 775a 6a6d 4f4b 5739                      wZjmOKW9
+```
+
+We also know that the flag is in the format `encryptCTF{...}`, so the first character (`0x7D`) should actually be `e` (`0x65`). Based on the name of the challenge (`Julius Caesar` -> [Caesar cipher](https://en.wikipedia.org/wiki/Caesar_cipher)), we should shift each byte by the same amount.
+
+```haxe
+class Solve {
+  public static function main():Void {
+    var dec = haxe.crypto.Base64.decode("fYZ7ipGIjFtsXpNLbHdPbXdaam1PS1c5lQ");
+    Sys.println([ for (i in 0...dec.length) String.fromCharCode(dec.get(i) - (0x7D - 0x65)) ].join(""));
+  }
+}
+```
+
+`encryptCTF{3T_7U_BRU73?!}`
 
 ## 150 Cryptography / (TopNOTCH)SA ##
 
@@ -131,7 +178,36 @@
 
 **Solution**
 
-(TODO)
+In this RSA challenge we are given the public key in a PEM format. We can read it out using `openssl`:
+
+```bash
+$ openssl rsa -pubin -in pubkey.pem -text -noout
+Public-Key: (255 bit)
+Modulus:
+    7f:fd:2b:1a:a7:27:47:f6:a0:1b:9f:96:77:78:7b:
+    a1:72:90:93:3e:3a:46:64:0c:ee:55:38:34:32:09:
+    ab:d1
+Exponent: 65537 (0x10001)
+```
+
+The we can use e.g. [`yafu`](https://sourceforge.net/projects/yafu/) to factor this key, since it is quite small.
+
+```bash
+$ yafu
+...
+factor(0x7ffd2b1aa72747f6a01b9f9677787ba17290933e3a46640cee5538343209abd1)
+...
+```
+
+Which gives us:
+
+    n = 0x7ffd2b1aa72747f6a01b9f9677787ba17290933e3a46640cee5538343209abd1
+    p = 298348117320990514224871985940356407403
+    q = 194038568404418855662295887732506969011
+
+Then we simply follow the decryption steps as [before](#100-cryptography--rsa_baby) to obtain:
+
+`encryptCTF{1%_0F_1%}`
 
 ## 200 Cryptography / AEeeeeS ##
 
@@ -155,7 +231,25 @@
 
 **Solution**
 
-(TODO)
+The `key` file actually contains a binary string, which we can decode:
+
+```python
+>>> binary = 0b110100001010100111001101110001011101000010100000110001001101100010100101100010011110010111010001100101011010110110010101111001
+>>> key = binary.to_bytes(16, byteorder="big")
+>>> key
+b'4*sqt(16)bytekey'
+```
+
+Then we just AES decrypt, e.g. using PyCrypto:
+
+```python
+>>> import Crypto.Cipher.AES
+>>> aes = Crypto.Cipher.AES.new(key, Crypto.Cipher.AES.MODE_ECB)
+>>> cipher = 0xc68145ccbc1bd6228da45a574ad9e29a77ca32376bc1f2a1e4cd66c640450d77.to_bytes(32, 'big')
+>>> aes.decrypt(cipher)
+```
+
+`encryptCTF{3Y3S_4R3_0N_A3S_3CB!}`
 
 ## 10 Forensics / Get Schwifty ##
 
