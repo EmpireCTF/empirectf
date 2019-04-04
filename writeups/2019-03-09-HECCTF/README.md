@@ -2,6 +2,8 @@
 
 [Website](https://hecc.io)
 
+**Note:** the actual traffic captures were not kept and the challenge sources were not released, which is why a lot of the writeups are rather incomplete.
+
 ## Challenges  ##
 
 ### Crypto ###
@@ -237,11 +239,13 @@ N/A
 **Files provided**
 
  - [flags.zip](files/flags.zip)
- - [canyouhear_me.wav](files/)
+ - [can_you_hear_me.wav](files/can_you_hear_me.wav)
 
 **Solution**
 
-(TODO)
+**Note:** Not solved during the CTF.
+
+The `wav` file contained a link to a YouTube video (https://www.youtube.com/watch?v=3M47zawD59Q). Subtracting this known audio from the file provided results in a (quietly) read out password for the zip file containing a git repository, which should contain the flag (perhaps after `git stash pop` or similar).
 
 ## 6000 Forensics / Data Leak ##
 
@@ -403,7 +407,40 @@ With this we can also decrypt the whole flag:
 
 **Solution**
 
-(TODO)
+The `pcap` file contains a lot of interesting data. First, there are a number of FTP transfers. Of these, there is one of interest, a photo of a cat with green eyes. At the end of this file there is an embedded ZIP file, but it is password protected.
+
+In the `pcap` there are also two VoIP calls. From these we hear somebody contacting a tech support line. The important information:
+
+ - `sysjeff@hecc.io` - an (automated) e-mail address to contact to get credentials for servers
+ - SSH login is the same as "regular" login
+
+Among the HTTP requests, we can find some credentials:
+
+    /page.html?user=greg&password=eTiej1hahC4obaij
+
+We can also find a number of IP addresses / hosts. We can connect to one of these using the credentials from the HTTP request to obtain the first flag.
+
+From the `history` listing on this SSH server, we find https://youtube.com/watch?v=UFcGnIgxSBk - a sequence of QR codes, put together they read `http://prectf.hecc.io/challenge17/staticfiles/whyisthisurlsolong/were-getting-there-now/almost/just/a/few/more/steps/thereweare.zip`. The ZIP file is password protected with the password `svXr8u2xdw`.
+
+After unzipping it contains `login.txt`:
+
+    competitor@challenge17.prectf.hecc.io
+    ho0ni6feiWodaegh
+
+This SSH login leads to another flag, as well as an executable with the `set UID` bit set (escalating privilege). However, it uses `system("touch ...")` (not `system("/usr/bin/touch ...")`), which we can exploit, by creating our own `touch` script that gives shell and putting it in the `PATH`.
+
+With higher privilege we can access the file `cat.txt`, which reads:
+
+    I hope you remember the green eyes
+    
+    iV2ci0OhdeehahV0
+
+This is the password for the ZIP file extracted from the cat photo at the beginning. The extracted file reads:
+
+    wow, you did it!
+    email pre.ctf.i.win.yay@hecc.io for your flag!
+
+For the final flag.
 
 ## 4800 Miscellaneous / Kiosk ##
 
@@ -465,7 +502,11 @@ N/A
 
 **Solution**
 
-(TODO)
+Capturing traffic on the network with WireShark, we can see a UDP packet every now and then that contains a JPG image:
+
+![](files/udp.jpg)
+
+`flag{listen-at-the-right-time}`
 
 ## 800 Networking / All of the lights! ##
 
@@ -477,7 +518,7 @@ N/A
 
 **Solution**
 
-(TODO)
+Capturing traffic on the network with WireShark, we can an odd protocol broadcasting the flag one character at a time.
 
 ## 2500 Networking /  Pick up the phone! ##
 
