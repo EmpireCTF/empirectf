@@ -267,7 +267,6 @@ Then we just AES decrypt, e.g. using PyCrypto:
 
 **Solution**
 
-
 We are provided with a disk image, when opened is empty. In order to recover the files we can use foremost
 
 ```bash
@@ -275,9 +274,6 @@ $ foremost GetSchwifty.img
 ```
 
 This creates a folder named output which will contain the files that foremost could recover. One of the png has the flag.
-
-`encryptCTF{alw4ys_d3lete_y0ur_f1les_c0mpletely}`
-
 
 **Alternative Solution** by ([ellamaark](https://github.com/ellamaark))
 
@@ -289,6 +285,8 @@ $ binwalk --dd='.*' GetSchwifty.img
 
 This creates a folder `_GetSchwifty.img.extracted` with all the files, it could extract and outputs to the terminal the file and it's type which we can use to find the png that has the flag.
 
+
+`encryptCTF{alw4ys_d3lete_y0ur_f1les_c0mpletely}`
 
 
 ## 50 Forensics / It's a WrEP ##
