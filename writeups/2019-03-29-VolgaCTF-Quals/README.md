@@ -409,6 +409,8 @@ A virtual machine with 512-bit register is implemented (I initially regarded it 
 
 This challenge is not so hard but time-consuming, so I will not detail it here. A thing to note is that IDA cannot analyze this switch statement very well, so you may want to manually patch the switch table to direct address instead of offset to `rip`, patch some other instructions, patch the `jmp` instruction to `jmp ds:switch_tab[rax*8]`, and use `Edit->Others->Specify switch idiom` to set correct number of entries.
 
+[Decrypt Script](files/trustvm.py)
+
 ## 250 Reverse / JAC II
 
 **Description**
