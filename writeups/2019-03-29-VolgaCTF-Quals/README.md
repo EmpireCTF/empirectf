@@ -272,7 +272,7 @@ if ( size_up > 0 )
 }
 ```
 
-Then `critical` function at `0x1150` is called, which is actually FFT as my teammate said
+Then `critical` function at `0x1150` is called, which is actually [FFT](https://en.wikipedia.org/wiki/FFT) as my teammate said
 
 ```c
 void __fastcall critical(struc_1 *heap, struc_1 *stack, int size_up, signed int a4)
