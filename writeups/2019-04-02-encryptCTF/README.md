@@ -261,11 +261,35 @@ Then we just AES decrypt, e.g. using PyCrypto:
 > <strong>Download file here:</strong> <a target="_blank" href="https://drive.google.com/open?id=1XxqRFFpn9Zj7gNQ6Ahg74rTAFPbkeNq9">link</a><br>
 > <span style="color:#e83e8c;">Author: maskofmydisguise</span>
 
-**No files provided**
+**Files provided**
+
+- [GetSchwifty.img](files/GetSchwifty.7z)
 
 **Solution**
 
-(TODO)
+
+We are provided with a disk image, when opened is empty. In order to recover the files we can use foremost
+
+```bash
+$ foremost GetSchwifty.img
+```
+
+This creates a folder named output which will contain the files that foremost could recover. One of the png has the flag.
+
+`encryptCTF{alw4ys_d3lete_y0ur_f1les_c0mpletely}`
+
+
+**Alternative Solution** by ([ellamaark](https://github.com/ellamaark))
+
+Instead of using foremost, one can use `binwalk` to extract files (using the `--dd` flag).
+
+```bash
+$ binwalk --dd='.*' GetSchwifty.img
+```
+
+This creates a folder `_GetSchwifty.img.extracted` with all the files, it could extract and outputs to the terminal the file and it's type which we can use to find the png that has the flag.
+
+
 
 ## 50 Forensics / It's a WrEP ##
 
@@ -283,11 +307,34 @@ Then we just AES decrypt, e.g. using PyCrypto:
 > 
 > ```Author:@mostwanted002```
 
-**No files provided**
+**Files provided**
+
+- [encryptCTFWEP.cap](files/encryptCTFWEP.cap)
 
 **Solution**
 
-(TODO)
+From the name of the challenge and description, we are trying to recover the password of a wifi network that is using WEP protocol.
+
+Using the tool `aircrack-ng`, we can retrieve the password
+
+```bash
+aircrack-ng -a 1 encryptCTFWEP.cap
+```
+
+The -a 1 forces aircrack-ng's attack mode to WEP.
+
+![](screens/aircrack-ng-1.png)
+
+After running this command, it list's out the available networks in the pcap file and asks to pick one. After picking the network with the name `encryptCTF`,
+aircrack tries to find the password.
+
+![](screens/aircrack-ng-2.png)
+
+It outputs the password `W45_17_R34L?!`
+
+`encryptCTF{ W45_17_R34L?!}`
+
+
 
 ## 75 Forensics / Journey to the centre of the file 1 ##
 
@@ -322,11 +369,24 @@ Unzip ad nauseam.
 > ```Author:@mostwanted002```
 > 
 
-**No files provided**
+**Files provided**
+
+ - [encryptCTFWPA.cap](files/encryptCTFWPA.cap)
 
 **Solution**
 
-(TODO)
+This challenge is similar to [It's a WrEP](#50-forensics--its-a-wrep) challenge. The only difference is that it is using the WPA protocol instead of the WEP protocol. 
+
+Using `aircrack-ng` again and waiting for a long time, give us the password.
+
+```bash
+$ aircrack-ng -a 2 -w rockyou.txt encryptCTFWPA.cap
+```
+We pass in a wordlist (rockyou.txt in this case) and picking the network to crack and waiting for quite some time, it outputs the password `ThanckYou`.
+
+
+`encryptCTF{ThanckYou}`
+
 
 ## 150 Forensics / Journey to the centre of the file 2 ##
 
