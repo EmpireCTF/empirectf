@@ -8,7 +8,7 @@
 
 ### Cryptography ###
 
- - [x] [75 Hard Looks](#75-cryptography--hardlooks)
+ - [x] [75 Hard Looks](#75-cryptography--hard-looks)
  - [x] [100 RSA_Baby](#100-cryptography--rsa_baby)
  - [x] [100 Julius,Q2Flc2FyCg==](#100-cryptography--juliusq2flc2fycg)
  - [x] [150 (TopNOTCH)SA](#150-cryptography--topnotchsa)
@@ -16,18 +16,18 @@
 
 ### Forensics ###
 
- - [x] [10 Get Schwifty](#10-forensics--getschwifty)
- - [x] [50 It's a WrEP](#50-forensics--itsawrep)
- - [x] [75 Journey to the centre of the file 1](#75-forensics--journeytothecentreofthefile1)
- - [x] [100 Wi Will H4CK YOU!!](#100-forensics--wiwillh4ckyou)
- - [x] [150 Journey to the centre of the file 2](#150-forensics--journeytothecentreofthefile2)
+ - [x] [10 Get Schwifty](#10-forensics--get-schwifty)
+ - [x] [50 It's a WrEP](#50-forensics--its-a-wrep)
+ - [x] [75 Journey to the centre of the file 1](#75-forensics--journey-to-the-centre-of-the-file1)
+ - [x] [100 Wi Will H4CK YOU!!](#100-forensics--wi-will-h4ck-you)
+ - [x] [150 Journey to the centre of the file 2](#150-forensics--journey-to-the-centre-of-the-file2)
 
 ### Misc ###
 
- - [x] [1 sanity check](#1-misc--sanitycheck)
- - [x] [50 Way Back](#50-misc--wayback)
- - [ ] [50 crack-jack](#50-misc--crackjack)
- - [x] [50 ham-me-baby-2](#50-misc--hammebaby2)
+ - [x] [1 sanity check](#1-misc--sanity-check)
+ - [x] [50 Way Back](#50-misc--way-back)
+ - [ ] [50 crack-jack](#50-misc--crack-jack)
+ - [x] [50 ham-me-baby-2](#50-misc--ham-me-baby-2)
 
 ### Pwn ###
 
@@ -42,18 +42,18 @@
  - [x] [75 crackme01](#75-reversing--crackme01)
  - [x] [150 crackme02](#150-reversing--crackme02)
  - [x] [250 crackme03](#250-reversing--crackme03)
- - [x] [500 dontlook at this Challenge](#500-reversing--dontlookatthischallenge)
+ - [x] [500 dontlook at this Challenge](#500-reversing--dontlook-at-this-challenge)
 
 ### Steganography ###
 
  - [x] [25 yhpargonagets](#25-steganography--yhpargonagets)
- - [x] [50 Into The Black](#50-steganography--intotheblack)
- - [ ] [100 Stressed out?](#100-steganography--stressedout)
+ - [x] [50 Into The Black](#50-steganography--into-the-black)
+ - [ ] [100 Stressed out?](#100-steganography--stressed-out)
 
 ### Web ###
 
  - [x] [50 Sweeeeeet](#50-web--sweeeeeet)
- - [x] [50 Slash Slash](#50-web--slashslash)
+ - [x] [50 Slash Slash](#50-web--slash-slash)
  - [x] [100 vault](#100-web--vault)
  - [ ] [100 Env](#100-web--env)
  - [x] [150 repeaaaaaat](#150-web--repeaaaaaat)
