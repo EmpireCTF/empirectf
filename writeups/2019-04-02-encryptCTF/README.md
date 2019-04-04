@@ -575,7 +575,56 @@ here's your flag: encryptCTF{1t_w4s_h4rd3r_th4n_1_th0ught}
 
 **Solution**
 
-(TODO)
+We can decompile the `main` method in IDA to get:
+
+```c
+__int64 __fastcall main(__int64 argc, char **argv, char **envp)
+{
+  char input[20]; // [rsp+10h] [rbp-20h]
+  unsigned __int64 v5; // [rsp+28h] [rbp-8h]
+
+  v5 = __readfsqword(0x28u);
+  printf("Enter The Secret Code To Open the Vault: ", argv, envp, argv);
+  fgets(input, 20, stdin);
+  printf("\nFlag: ", 20LL);
+  if ( input[1] == 'D' )
+  {
+    printf("en");
+    if ( input[2] == 'D' )
+    {
+      printf("cryptCTF{BYE}");
+      exit(0);
+    }
+    if ( input[2] == 1 )
+    {
+      printf("cry");
+      if ( input[3] != 'A' )
+        exit(0);
+      printf("ptC");
+      if ( input[5] != ' ' )
+        exit(0);
+      printf("TF{");
+      if ( input[6] != '!' )
+        exit(0);
+      printf("gdb");
+      if ( input[8] != 'e' )
+        exit(0);
+      printf("_or");
+      if ( input[9] != '\x19' )
+        exit(0);
+      printf("_r2?");
+      if ( input[10] != '\t' )
+        exit(0);
+      puts("}");
+    }
+  }
+  return 0LL;
+}
+```
+
+A password is read (could be brute-forced one character at a time if needed) from `stdin`. We can simply put the individual bits of the output together to assemble the flag:
+
+`encryptCTF{gdb_or_r2?}`
 
 ## 150 Reversing / crackme02 ##
 
@@ -591,7 +640,56 @@ here's your flag: encryptCTF{1t_w4s_h4rd3r_th4n_1_th0ught}
 
 **Solution**
 
-(TODO)
+We decompile the binary with IDA again. `main` asks for a password, but then calls `sub_73A` to actually print the flag. We can decompile that function:
+
+```c
+__int64 __fastcall printFlag(int key)
+{
+  signed int i; // [rsp+1Ch] [rbp-34h]
+  char encFlag[40]; // [rsp+20h] [rbp-30h]
+  unsigned __int64 v4; // [rsp+48h] [rbp-8h]
+
+  v4 = __readfsqword(0x28u);
+  *(_QWORD *)encFlag = 0x2E191D141F0E0308LL;
+  *(_QWORD *)&encFlag[8] = 0x1F020A012C162B39LL;
+  *(_QWORD *)&encFlag[16] = 0x203401E00051904LL;
+  *(_DWORD *)&encFlag[24] = 0xC084019;
+  *(_WORD *)&encFlag[28] = 0x141E;
+  encFlag[30] = 0x10;
+  for ( i = 0; i <= 30; ++i )
+    putchar(key ^ encFlag[i]);
+  return 0LL;
+}
+```
+
+The important thing to note is that this function takes a single argument and it actually has to be in the range `[0, 255]` for `putchar` to print out valid bytes. We could brute force this easily.
+
+However, we know the flag starts with `e` (`0x65`), and the encoded flag starts with `0x08`. Hence the key is `0x65 ^ 0x08 = 0x6D`.
+
+    0x2E191D141F0E0308
+    0x1F020A012C162B39
+    0x0203401E00051904
+    0x0C084019
+    0x141E
+    0x10
+    -> (little endian to big endian)
+    0x08030E1F141D192E
+    0x392B162C010A021F
+    0x041905001E400302
+    0x1940080C
+    0x1E14
+    0x10
+    -> (concatenate)
+    08030E1F141D192E392B162C010A021F041905001E4003021940080C1E1410
+    -> (pythonise)
+    [0x08, 0x03, 0x0E, 0x1F, 0x14, 0x1D, 0x19, 0x2E, 0x39, 0x2B, 0x16, 0x2C, 0x01, 0x0A, 0x02, 0x1F, 0x04, 0x19, 0x05, 0x00, 0x1E, 0x40, 0x03, 0x02, 0x19, 0x40, 0x08, 0x0C, 0x1E, 0x14, 0x10]
+
+```python
+>>> encFlag = [0x08, 0x03, 0x0E, 0x1F, 0x14, 0x1D, 0x19, 0x2E, 0x39, 0x2B, 0x16, 0x2C, 0x01, 0x0A, 0x02, 0x1F, 0x04, 0x19, 0x05, 0x00, 0x1E, 0x40, 0x03, 0x02, 0x19, 0x40, 0x08, 0x0C, 0x1E, 0x14, 0x10]
+>>> "".join([ chr(0x6D ^ x) for x in encFlag ])
+```
+
+`encryptCTF{Algorithms-not-easy}`
 
 ## 250 Reversing / crackme03 ##
 
@@ -608,7 +706,163 @@ here's your flag: encryptCTF{1t_w4s_h4rd3r_th4n_1_th0ught}
 
 **Solution**
 
-(TODO)
+In IDA we can find the `main` function as `sub1502`:
+
+```c
+int __cdecl main(int argc, const char **argv, const char **envp)
+{
+  int result; // eax
+  signed int i; // [esp+0h] [ebp-68h]
+  int (__cdecl *checkFuncs[5])(char *); // [esp+8h] [ebp-60h]
+  char checkInput[64]; // [esp+1Ch] [ebp-4Ch]
+  unsigned int stackCheck; // [esp+5Ch] [ebp-Ch]
+  int *argc_; // [esp+60h] [ebp-8h]
+
+  argc_ = &argc;
+  stackCheck = __readgsdword(0x14u);
+  checkFuncs[0] = checkFunc1;
+  checkFuncs[1] = checkFunc2;
+  checkFuncs[2] = checkFunc3;
+  checkFuncs[3] = checkFunc4;
+  checkFuncs[4] = checkFunc5;
+  setvbuf(stdout, 0, 2, 0);
+  puts("Hi!, i am a BOMB!\nI will go boom if you don't give me right inputs");
+  for ( i = 0; i <= 4; ++i )
+  {
+    printf("Enter input #%d: ", i);
+    __isoc99_scanf("%s", checkInput);
+    checkFuncs[i](checkInput);
+  }
+  showFlag();
+  result = 0;
+  if ( __readgsdword(0x14u) != stackCheck )
+    terminate();
+  return result;
+}
+```
+
+So we need to find 5 inputs for the 5 different functions.
+
+```c
+int __cdecl checkFunc1(char *s1)
+{
+  int result; // eax
+
+  result = strcmp(s1, "CRACKME02");
+  if ( result )
+    boom();
+  return result;
+}
+```
+
+The first password is `CRACKME02`.
+
+```c
+int __cdecl checkFunc2(char *a1)
+{
+  int result; // eax
+
+  result = *(_DWORD *)a1;
+  if ( *(_DWORD *)a1 != 0xDEADBEEF )
+    boom();
+  return result;
+}
+```
+
+The second password needs to be the four bytes `0xEF`, `0xBE`, `0xAD`, `0xDE` (so in little endian they read `0xDEADBEEF`).
+
+```c
+int __cdecl checkFunc3(char *a1)
+{
+  int result; // eax
+  unsigned int v2; // et1
+  size_t i; // [esp+10h] [ebp-28h]
+  char s[4]; // [esp+17h] [ebp-21h]
+  unsigned int v5; // [esp+2Ch] [ebp-Ch]
+
+  v5 = __readgsdword(0x14u);
+  strcpy(s, "ZXytUb9fl78evgJy3KJN");
+  for ( i = 0; strlen(s) > i; ++i )
+  {
+    if ( s[i] != a1[i] )
+      boom();
+  }
+  v2 = __readgsdword(0x14u);
+  result = v2 ^ v5;
+  if ( v2 != v5 )
+    terminate();
+  return result;
+}
+```
+
+The third password is `ZXytUb9fl78evgJy3KJN` (compared one byte at a time).
+
+```c
+int __cdecl checkFunc4(char *s)
+{
+  int v1; // ST1C_4
+
+  if ( strlen(s) > 3 )
+    boom();
+  v1 = atoi(s);
+  if ( v1 * v1 * v1 + 2 * (2 * v1 * v1 - v1) - 3 )
+    boom();
+  return puts("SUBSCRIBE TO PEWDIEPIE");
+}
+```
+
+The fourth password is a number less than 1000 (string length <= 3) that satisfies the formula `x * x * x + 2 * (2 * x * x - x) - 3 == 0`. We can simply check all the possible numbers with Python, but it turns out the solution, and hence the password, is `1`.
+
+```c
+int __cdecl checkFunc5(char *a1)
+{
+  int result; // eax
+  unsigned int v2; // et1
+  char dest[9]; // [esp+12h] [ebp-16h]
+  unsigned int v4; // [esp+1Ch] [ebp-Ch]
+
+  v4 = __readgsdword(0x14u);
+  strncpy(dest, a1, 0xAu);
+  puts("Validating Input 4");
+  if ( dest[0] + dest[8] != 213 )
+    boom();
+  if ( dest[1] + dest[7] != 206 )
+    boom();
+  if ( dest[2] + dest[6] != 231 )
+    boom();
+  if ( dest[3] + dest[5] != 201 )
+    boom();
+  if ( dest[4] == 105 )
+    puts("you earned it");
+  v2 = __readgsdword(0x14u);
+  result = v2 ^ v4;
+  if ( v2 != v4 )
+    terminate();
+  return result;
+}
+```
+
+Finally, we have a 9-character string. The middle character is `i`, the remaining ones need to sum up in pairs to various constants. We can choose `z` as one of the two characters, since there are no other constraints on the string, then find the character to complete the sum:
+
+```python
+>>> [ chr(x - ord('z')) for x in [213, 206, 231, 201] ]
+['[', 'T', 'm', 'O']
+```
+
+So the password can be `zzzziOmT[`.
+
+With the five password ready, we can get the flag:
+
+```
+$ printf "CRACKME02\n\xEF\xBE\xAD\xDE\nZXytUb9fl78evgJy3KJN\n1\nzzzziOmT[\n" | nc 104.154.106.182 7777
+Hi!, i am a BOMB!
+I will go boom if you don't give me right inputs
+Enter input #0: Enter input #1: Enter input #2: Enter input #3: SUBSCRIBE TO PEWDIEPIE
+Enter input #4: Validating Input 4
+you earned it
+```
+
+`encryptCTF{B0mB_D!ffu53d}`
 
 ## 500 Reversing / dontlook at this Challenge ##
 
@@ -850,13 +1104,13 @@ The second is similar, leading to [this video](https://www.youtube.com/watch?v=5
 
 But the final `/?secret=flag` clue is very important. Upon navigating to that URL, we are still on the front page with repeating images, but this time the source reads `Hello, (the repating images) flag`.
 
-Here we can identify a template injection, e.g. when we do `/?secret={{'a'*3}}`, which produces `aaa` in the output. There is no filtering on our input, so we just need to obtain a reference to e.g. the `os` module to do some shell stuff:
+Here we can identify a template injection, e.g. when we do `/?secret={{'a'*3}}`, which produces `aaa` in the output. Here is a [useful cheatsheet](https://pequalsnp-team.github.io/cheatsheet/flask-jinja2-ssti) when dealing with SSTI (server-side template injection). There is no filtering on our input, so we just need to obtain a reference to e.g. the `os` module to do some shell stuff:
 
     {{"".__class__.__mro__[1].__subclasses__()[240].__init__.__globals__["sys"].modules["os"].popen("cat%20flag.txt").read()}}
 
 Explanation:
 
- - `""` - a `str` value
+ - `""` - a `str` instance
  - `.__class__` - its type
  - `.__mro__[1]` - its superclass, `object`
  - `.__subclasses__()` - its subclasses
