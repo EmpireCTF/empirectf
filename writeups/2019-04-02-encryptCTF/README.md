@@ -1068,7 +1068,7 @@ you earned it
 
 **Solution**
 
-Patch the `call ptrace` and `call signal` that are used as anti-debug techniques to `NOPs`, then set breakpoint at `0x1078`, inspect the second argument to read the flag.
+Patch the `call ptrace` and `call signal` that are used as anti-debug techniques to `NOPs`, then set breakpoint at `PIE base + 0x1078`, inspect the second argument to read the flag.
 
 ## 25 Steganography / yhpargonagets ##
 
