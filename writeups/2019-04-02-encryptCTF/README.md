@@ -671,7 +671,7 @@ Rewrite the return address to `jmp esp`, so we can execute our shellcode on the 
 **Solution**
 
 ROP to call `puts(&puts@got)` and `pop xxx; ret` to leak address in GOT table and return to main for second exploitation.
-We can find that the `libc` being used is `2.19` by searching low 12 bits of remote `puts` function in `libc-database`.
+We can find that the `libc` being used is `2.19` by searching low 12 bits of remote `puts` function address being leaked in `libc-database`.
 Then call `System("/bin/sh")` to get shell.
 
 ## 300 Pwn / pwn4 ##
