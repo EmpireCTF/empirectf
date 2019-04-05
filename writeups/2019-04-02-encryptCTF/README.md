@@ -690,7 +690,7 @@ Then call `System("/bin/sh")` to get shell.
 
 **Solution**
 
-Almost same as `pwn3` except it has a canary protection and a format string vulnerability. Use that format string to rewrite GOT table entry of `__stack_chk_fail` to `retn` so it will not abort but will return immediately.
+Almost same as `pwn3` except it has a canary protection and a format string vulnerability. Use that format string to rewrite GOT table entry of `__stack_chk_fail` to any address pointing to a `retn` instruction so it will not abort but will return immediately when being called.
 ```python
 from pwn import *
 import struct
