@@ -312,7 +312,7 @@ I think this is the copy constructor of `kv`
 
 ### Exploitation
 
-The C++ heap is a bit messy since many copy constructor will be called, and a long `std::string` constructed by continuously appending character, in which `malloc/free` may be called to extend the chunk size. I successfully constructed a leak by simply trial and error. :)
+The C++ heap is a bit messy since many copy constructor will be called, and a long `std::string` is constructed by continuously appending character, in which `malloc/free` may be called to extend the chunk size. I successfully constructed a leak by simply trial and error. :)
 
 ```python
 from pwn import *
@@ -366,7 +366,7 @@ add("sep") #2 seperator
 #also, it seems in this operation the vector will be extended,
 #copy constructor of `kv` will be called, 
 #(I guess the source code did not use r-value reference in C++11)
-#so big chunk with 'U' will be `free` and `malloc` again, which makes leak possible
+#so big chunk with 'U' will be `malloc` and `free` again, which makes leak possible
 #but it was found by trial and error initially
 
 remove(2)
