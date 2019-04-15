@@ -364,9 +364,9 @@ add() #0
 add("U" * 0x800, 'A' * 0x800) #1
 add("sep") #2 seperator
 #also, it seems in this operation the vector will be extended,
-#copy constructor of `kv` will be called, 
-#(I guess the source code did not use r-value reference in C++11)
-#so big chunk with 'U' will be `malloc` and `free` again, which makes leak possible
+#copy constructor of `kv` will also be called, 
+#(btw I guess the source code did not use r-value reference in C++11)
+#I think it is this that makes leak possible
 #but it was found by trial and error initially
 
 remove(2)
