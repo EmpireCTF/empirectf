@@ -1,29 +1,228 @@
-## Plaid Party Planning III
+# 2019-04-12-PlaidCTF #
 
-This is actually a very easy challenge, I don't know why it worth 500 points...
+[CTFTime link](https://ctftime.org/event/743) | [Website](http://plaidctf.com/)
 
-If we run the program, it will abort. After a little bit reverse engineering, it seems that we need to find the parameter input such that the abort will not be called, and then the flag will be generated.
+---
 
-```c
-cprint(&v32, (__int64)"And I bought a ton of extra parmesan!", v10, v11, v12, v13);
-mysleep(&v32, 5uLL);
-cprint(&v33, (__int64)"Anyway, we brought you guys a gift.", v14, v15, v16, v17);
-mysleep(&v33, 1uLL);
-cprint(&v32, (__int64)"It's a flag!", v18, v19, v20, v21);
-mysleep(&v32, 5uLL);
-ptr = (void *)sub_555555555524(func_tab);
-cprint(
-  &func_tab[8].name,
-  (__int64)"Let me take a look. It seems to say\n\tPCTF{%s}.",
-  (__int64)ptr,
-  (__int64)&func_tab[8],
-  v23,
-  v24);
-```
+## Challenges ##
 
-Thus what if we cancel the abort function by putting a `ret` instruction at the `plt` entry of `abort` function? Also to make it less deterministic I also cancelled the `mysleep` function. Then I ran it directly and it seems that a deadlock situation is created, but when I ran it using `gdb`, the flag is printed!
+### Crypto ###
 
-## SPlaid Birch
+ - [ ] [600 SPlaid Cypress](#600-crypto--splaidcypress)
+ - [ ] [150 R u SAd?](#150-crypto--rusad)
+ - [ ] [200 Horst](#200-crypto--horst)
+
+### Misc ###
+
+ - [x] [1 Sanity Check](#1-misc--sanitycheck)
+ - [x] [250 Everland](#250-misc--everland)
+ - [x] [100 can you guess me](#100-misc--canyouguessme)
+ - [x] [10 docker](#10-misc--docker)
+ - [x] [100 Space Saver](#100-misc--spacesaver)
+ - [ ] [333 graffiti](#333-misc--graffiti)
+ - [x] [150 A Whaley Good Joke](#150-misc--awhaleygoodjoke)
+ - [x] [200 Project Eulernt](#200-misc--projecteulernt)
+
+### Pwnable ###
+
+ - [ ] [666 Spectre](#666-pwnable--spectre)
+ - [ ] [500 Suffarring](#500-pwnable--suffarring)
+ - [x] [300 SPlaid Birch](#300-pwnable--splaidbirch)
+ - [ ] [250 Plaid Adventure II](#250-pwnable--plaidadventureii)
+ - [x] [150 cppp](#150-pwnable--cppp)
+
+### Reversing ###
+
+ - [ ] [500 Plaid Party Planning III 2](#500-reversing--plaidpartyplanningiii2)
+ - [x] [500 Plaid Party Planning III](#500-reversing--plaidpartyplanningiii)
+ - [ ] [250 big maffs](#250-reversing--bigmaffs)
+ - [x] [50 i can count](#50-reversing--icancount)
+ - [ ] [250 The .Wat ness](#250-reversing--thewatness)
+
+### Web ###
+
+ - [ ] [280 Triggered](#280-web--triggered)
+ - [ ] [300 Potent Quotables](#300-web--potentquotables)
+
+---
+
+## 600 Crypto / SPlaid Cypress ##
+
+**Description**
+
+> I came up with this carbon-neutral cryptosystem and hid my secrets in the [forest](files/splaid-cypress_c3a8151251a3bcd2eac5f176112e9db9.zip). Can you help them find their way out?
+
+**Files provided**
+
+ - [`splaid-cypress_c3a8151251a3bcd2eac5f176112e9db9`](files/splaidcypress-splaidcypress_c3a8151251a3bcd2eac5f176112e9db9.zip)
+
+## 150 Crypto / R u SAd? ##
+
+**Description**
+
+> Tears dripped from my face as I stood over the bathroom sink. Exposed again! The tears melted into thoughts, and an idea formed in my head. [This](files/rusad_ece608061c4dd2d74b6011a5c7a7f83d.zip) will surely keep my secrets safe, once and for all. I crept back to my computer and began to type.
+
+**Files provided**
+
+ - [`rusad_ece608061c4dd2d74b6011a5c7a7f83d`](files/rusad-rusad_ece608061c4dd2d74b6011a5c7a7f83d.zip)
+
+## 200 Crypto / Horst ##
+
+**Description**
+
+> They say 3 rounds is provably secure, right? [Download](files/horst_1413814aa07a564df58dd90f700b2afd.tgz)
+
+**Files provided**
+
+ - [`horst_1413814aa07a564df58dd90f700b2afd`](files/horst-horst_1413814aa07a564df58dd90f700b2afd.tgz)
+
+## 1 Misc / Sanity Check ##
+
+**Description**
+
+> Let's make sure things are up and running: flags generally look like <pre>PCTF{welcome to PlaidCTF}</pre> unless we tell you otherwise.
+
+**No files provided**
+
+**Solution**
+
+(TODO)
+
+## 250 Misc / Everland ##
+
+**Description**
+
+> In a darkened land, a hero must fight for their flag! [Source](files/everland_19f72e788727d36b0200b0d9507aeb3f.sml)
+> 
+> running at everland.pwni.ng:7772
+
+**Files provided**
+
+ - [`everland_19f72e788727d36b0200b0d9507aeb3f`](files/everland-everland_19f72e788727d36b0200b0d9507aeb3f.sml)
+
+**Solution**
+
+(TODO)
+
+## 100 Misc / can you guess me ##
+
+**Description**
+
+> Here's the source to a guessing game: [here](files/can-you-guess-me-53d1aa54ca7d7151fcd2c48ce36d1bdb.py)
+> 
+> You can access the server at <pre>nc canyouguessme.pwni.ng 12349</pre>
+
+**Files provided**
+
+ - [`can-you-guess-me-53d1aa54ca7d7151fcd2c48ce36d1bdb`](files/canyouguessme-canyouguessme53d1aa54ca7d7151fcd2c48ce36d1bdb.py)
+
+**Solution**
+
+(TODO)
+
+## 10 Misc / docker ##
+
+**Description**
+
+> docker pull whowouldeverguessthis/public
+
+**No files provided**
+
+**Solution**
+
+(TODO)
+
+## 100 Misc / Space Saver ##
+
+**Description**
+
+> we couldn't think of anything cute so [here](files/space_saver-90a5a93dfdda2d0333f573eb3fac9789.dd) you go
+
+**Files provided**
+
+ - [`space_saver-90a5a93dfdda2d0333f573eb3fac9789`](files/spacesaver-space_saver90a5a93dfdda2d0333f573eb3fac9789.dd)
+
+**Solution**
+
+(TODO)
+
+## 333 Misc / graffiti ##
+
+**Description**
+
+> [QUAAAAAKE](files/graffiti-0baaf6c57f4f3efbed1e0d57bc02a13a.pcap)
+> <br>
+> In lieu of a description, please watch <a href="https://youtu.be/tpxOQzy27x4" target="_blank">this video</a>. Alternate <a href="https://v.youku.com/v_show/id_XNDEzNjczNDQwMA==.html" target="_blank">link</a>
+
+**Files provided**
+
+ - [`graffiti-0baaf6c57f4f3efbed1e0d57bc02a13a`](files/graffiti-graffiti0baaf6c57f4f3efbed1e0d57bc02a13a.pcap)
+
+## 150 Misc / A Whaley Good Joke ##
+
+**Description**
+
+> You'll have a whale of a time with [this one](files/pctf-whales_169aeb74f82dcdceb76e36a6c4c22a89)! I couldn't decide what I wanted the flag to be so I alternated adding and removing stuff in waves until I got something that looked good. Can you dive right in and tell me what was so punny?
+
+**Files provided**
+
+ - [`pctf-whales_169aeb74f82dcdceb76e36a6c4c22a89`](files/awhaleygoodjoke-pctfwhales_169aeb74f82dcdceb76e36a6c4c22a89)
+
+**Solution**
+
+(TODO)
+
+## 200 Misc / Project Eulernt ##
+
+**Description**
+
+> Guys, guys, don’t fight. I’m sure we’ll be able to come up with something roughly equal.<br>
+> <a href="/files/eulernt_6d26d176de9f441923057d2b5c14f126.py">source</a><br>
+> eulernt.pwni.ng:5555
+> 
+> NOTE: We originally uploaded the wrong version. It is still available here if you really want it: <a href="/files/eulernt_deb1006f29e8242a6f0c0d6fac15e32b.py">wrong version</a>.
+
+**No files provided**
+
+**Solution**
+
+(TODO)
+
+## 666 Pwnable / Spectre ##
+
+**Description**
+
+> Read the <a href="http://spectre.pwni.ng:4000" target="_blank">flag</a>. Don't trust anything.
+> 
+> Download the [vm](files/spectre_161f05f267601806bdcd2c499fbf3930). Workers are running Ubuntu 18.04 on GCE with 1 vCPU and 1 GB of memory.
+
+**Files provided**
+
+ - [`spectre_161f05f267601806bdcd2c499fbf3930`](files/spectre-spectre_161f05f267601806bdcd2c499fbf3930)
+
+## 500 Pwnable / Suffarring ##
+
+**Description**
+
+> Some days I want to do string manipulation. And I want to do it fast! This guy is optimal up to log factors.<br>
+> [files](files/suffarring_9617710f014cef44de2baac6219ff38d.zip)<br>
+> nc suffarring.pwni.ng 7361
+
+**Files provided**
+
+ - [`suffarring_9617710f014cef44de2baac6219ff38d`](files/suffarring-suffarring_9617710f014cef44de2baac6219ff38d.zip)
+
+## 300 Pwnable / SPlaid Birch ##
+
+**Description**
+
+> I make sure never to use <pre>scanf("%s")</pre> when doing competitive programming so that my solutions don't have buffer overflows. But writing algorithms is hard.<br>
+> <a href="/files/splaid-birch_c4bb20002c1f46a8a360d3eba748af59.zip">files</a><br>
+> splaid-birch.pwni.ng:17579
+
+**No files provided**
+
+**Solution**
 
 ### Reverse Engineering
 
@@ -158,7 +357,7 @@ add(3,0)
 add(-0x28, 1) #used to clear root by producing nullptr(not useful)
 add(2,0)
 
-#rearange heap
+#rearrange heap
 delete(3)
 delete(2)
 delete(-0x28)
@@ -227,7 +426,33 @@ delete(u64("/bin/sh\x00"))
 sh.interactive()
 ```
 
-## cppp
+## 250 Pwnable / Plaid Adventure II ##
+
+**Description**
+
+> Embark on another adventure! Restore from the savefile "flag.glksave" on the server to get the flag. (Apologies to Zarf for making a Glulx pwnable.)
+> <pre>
+> stty -icanon -echo
+> nc plaidadventure2.pwni.ng 6910
+> stty sane
+> </pre>
+> <a href="/files/Plaid_Adventure_2_36c2f32fe0c0866eeb250b7ac2f48310.ulx">download</a>
+
+**No files provided**
+
+## 150 Pwnable / cppp ##
+
+**Description**
+
+> C++ is hard.<br>
+> cppp.pwni.ng 4444<br>
+> [binary](files/cppp_58fc210859e4c5e43d051b6476cbc9f7), <a href="/files/libc-2.27_50390b2ae8aaa73c47745040f54e602f.so" target="_blank">libc</a>
+
+**Files provided**
+
+ - [`cppp_58fc210859e4c5e43d051b6476cbc9f7`](files/cppp-cppp_58fc210859e4c5e43d051b6476cbc9f7)
+
+**Solution**
 
 ### Reverse Engineering
 
@@ -395,4 +620,117 @@ sh.sendline("/bin/sh")
 
 sh.interactive()
 ```
+
+## 500 Reversing / Plaid Party Planning III 2 ##
+
+**Description**
+
+> [This binary](files/pppiii_450cfae15d4434c4f5fe320fae78ec40) has a fix for an unintentional solution. Let's keep the party going.
+> 
+> NOTE: We have pushed an updated binary. This update fixes a bug in the check function and should hopefully make the check function easier to understand. The diff with the binary below should be minimal. Apologies.
+> 
+> The previous Plaid Party Planning III 2 <a href="/files/pppiii-2454fc1645e9ffcee447eff7e6d5d2f2" target="_blank">binary</a>.
+
+**Files provided**
+
+ - [`pppiii_450cfae15d4434c4f5fe320fae78ec40`](files/plaidpartyplanningiii2-pppiii_450cfae15d4434c4f5fe320fae78ec40)
+
+## 500 Reversing / Plaid Party Planning III ##
+
+**Description**
+
+> This year, we're having another party. We managed to come to a consensus to have [Indian food](files/pppiii-b73804b431586f8ecd4a0e8c0daf3ba6), but I can't figure out where everyone should sit. Can you help us make sure the dinner goes off without a hitch?
+
+**Files provided**
+
+ - [`pppiii-b73804b431586f8ecd4a0e8c0daf3ba6`](files/plaidpartyplanningiii-pppiiib73804b431586f8ecd4a0e8c0daf3ba6)
+
+**Solution**
+
+This is actually a very easy challenge, I don't know why it worth 500 points...
+
+If we run the program, it will abort. After a little bit reverse engineering, it seems that we need to find the parameter input such that the abort will not be called, and then the flag will be generated.
+
+    cprint(&v32, (__int64)"And I bought a ton of extra parmesan!", v10, v11, v12, v13);
+    mysleep(&v32, 5uLL);
+    cprint(&v33, (__int64)"Anyway, we brought you guys a gift.", v14, v15, v16, v17);
+    mysleep(&v33, 1uLL);
+    cprint(&v32, (__int64)"It's a flag!", v18, v19, v20, v21);
+    mysleep(&v32, 5uLL);
+    ptr = (void *)sub_555555555524(func_tab);
+    cprint(
+      &func_tab[8].name,
+      (__int64)"Let me take a look. It seems to say\n\tPCTF{%s}.",
+      (__int64)ptr,
+      (__int64)&func_tab[8],
+      v23,
+      v24);
+
+Thus what if we cancel the abort function by putting a `ret` instruction at the `plt` entry of `abort` function? Also to make it less deterministic I also cancelled the `mysleep` function. Then I ran it directly and it seems that a deadlock situation is created, but when I ran it using `gdb`, the flag is printed!
+
+## 250 Reversing / big maffs ##
+
+**Description**
+
+> Do you have enough memory? [big_maffs](files/big_maffs_63f40a7dafe4a8350c4c06478b3685fd)
+
+**Files provided**
+
+ - [`big_maffs_63f40a7dafe4a8350c4c06478b3685fd`](files/bigmaffs-big_maffs_63f40a7dafe4a8350c4c06478b3685fd)
+
+## 50 Reversing / i can count ##
+
+**Description**
+
+> Let's do this together. You do know how to [count](files/i_can_count_8484ceff57cb99e3bdb3017f8c8a2467), don't you?
+
+**Files provided**
+
+ - [`i_can_count_8484ceff57cb99e3bdb3017f8c8a2467`](files/icancount-i_can_count_8484ceff57cb99e3bdb3017f8c8a2467)
+
+**Solution**
+
+(TODO)
+
+## 250 Reversing / The .Wat ness ##
+
+**Description**
+
+> The .Wat ness is open for testing!
+> 
+> <a href="http://watness.pwni.ng:7744/" target="_blank">http://watness.pwni.ng:7744/</a>
+> 
+> When it came out in 2016, the Witness impressed with its ability to gradually teach new players the rules of the game by simply having them play it. With the .Wat ness, we take this just a small step further.
+
+**No files provided**
+
+## 280 Web / Triggered ##
+
+**Description**
+
+> I stared into the abyss of microservices, and it stared back. I found something utterly terrifying about the chaos of connections.
+> <br>
+> "Screw this," I finally declared, "why have multiple services when the database can do everything just fine on its own?"
+> <br>
+> And so on that glorious day it came to be that everything ran in <a href="http://triggered.pwni.ng:52856/" target="_blank">plpgsql</a>.
+
+**No files provided**
+
+## 300 Web / Potent Quotables ##
+
+**Description**
+
+> I set up <a href="http://quotables.pwni.ng:1337" target="_blank">a little quotes server</a> so that we can all share our favorite quotes with each other. I wrote it in Flask, but I decided that since it's mostly static content anyway, I should probably put some kind of caching layer in front of it, so I wrote a [caching reverse proxy](files/potent_proxy_9b166042cc0a265a3749b8649e13fcea). It all seems to be working well, though I do get this weird error when starting up the server:
+> <pre>
+> * Environment: production
+> WARNING: Do not use the development server in a production environment.
+> Use a production WSGI server instead.
+> </pre>
+> I'm sure that's not important.
+> <br>
+> Oh, and don't bother trying to go to the /admin page, that's not for you.
+
+**Files provided**
+
+ - [`potent_proxy_9b166042cc0a265a3749b8649e13fcea`](files/potentquotables-potent_proxy_9b166042cc0a265a3749b8649e13fcea)
 
