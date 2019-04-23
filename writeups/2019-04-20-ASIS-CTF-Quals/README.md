@@ -697,4 +697,3 @@ for x in xrange(1,0xffff):
 However, this is slow, it might take much time to traverse all 65534 cases, but fortunately the flag comes up very soon.
 
 Also here is the [patched program](files/archimedes2).
-
