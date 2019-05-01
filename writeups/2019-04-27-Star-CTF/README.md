@@ -1,6 +1,6 @@
 ## hackme
 
-This is a kernel exploitation challenge that requires us to get root to read the flag, and I failed to solve it  let's see.
+This is a kernel exploitation challenge that requires us to get root to read the flag, and I failed to solve it in contest, but let's see.
 
 An `ioctl` is implemented in `hackme.ko`. There are 4 commands: to create memory chunk using `kmalloc`, to delete memory chunk using `kfree`, to read memory chunk using `copy_to_user` and to write the memory chunk using `copy_from_user`. When reading and writing the memory chunks, `offset` and `size` can be specified to only read or write part of the memory chunk. Here is where the vulnerability comes from: there is a integer overflow.
 
