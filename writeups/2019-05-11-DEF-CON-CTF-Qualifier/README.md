@@ -1,6 +1,6 @@
 ## 143 Pwn / RTOoOS
 
-###Overview
+### Overview
 
 In this challenge, a raw binary file that implements a command line using `amd64` assembly is given, but the hypervisor that is running this binary on remote server is not given. We can read files in remote server except `honcho` (the hypervisor) and `flag`, which are banned by kernel and hypervisor respectively. We need to find the vulnerability in the kernel to leak hypervisor first, then find the vulnerability in hypervisor to read the flag.
 
@@ -367,6 +367,8 @@ call rax ; cat flag
 this:
 jmp this ; used to debug: make sure everything is executed
 ```
+
+To debug the shellcode remotely (because our MacOS machine has no `socat`), `this: jmp this` is very important: if the program finally got stuck, it shows that our shellcode is executed without any crash; if not, it shows that something is wrong.
 
 Note the shellcode should be without `0`.
 
