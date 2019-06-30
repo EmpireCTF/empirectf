@@ -1076,6 +1076,8 @@ So we have a ciphertext, a decryption method, and the general layout of the key 
 What remains is 9 characters (`16 - "LINUX".length - "EN".length`) all of which can be `0` or `1`, except the last one, which can also be `2`. Just 1536 possibilities, very quick to brute-force.
 
 > And here is where our team hit a snag - we wrote a decryption script and run it in Node.JS, but it produced no results. We expanded the brute-force to be quite exhaustive, trying different values for `navigator.platform`, hundreds of possible language codes, nothing produced any code. It turns out the decryption code as-is simply does not function identically on Node.JS. Running the brute-force script on a browser leads to the next stage in a matter of seconds. We did not manage to think of this during the CTF, which cost us the flag. What follows is a write-up of steps taken after the CTF.
+>
+> [More on that later...](#what-breaks-on-nodejs)
 
 [Full decryption script here](scripts/malvertising3.html)
 
@@ -1100,3 +1102,48 @@ alert("CTF{I-LOVE-MALVERTISING-wkJsuw}")
 The last stage contained references to RTC/STUN servers, which may have been interesting to (try to) reverse, but it would be wasted effort!
 
 `CTF{I-LOVE-MALVERTISING-wkJsuw}`
+
+### What breaks on Node.JS?
+
+Finally, let's check what makes the script work in a browser but break in Node.JS. We can strip most of the functions out from the [file](files/malvertising3-b.js) and track it down to how a binary string is treated after it is decoded from Base-64.
+
+```js
+String.prototype.b1 = function() {
+  if ('undefined' != typeof atob)
+    return atob(this);
+  if ('undefined' != typeof Buffer)
+    return new Buffer(this, 'base64').toString('utf8');
+  throw new Error('err')
+};
+
+var a = "A2xcVTrDuF+EqdD8VibVZIWY2k334hwWPsIzgPgmHSapj+zeDlPqH/RHlpVCitdlxQQfzOjO01xCW/6TNqkciPRbOZsizdYNf5eEOgghG0YhmIplCBLhGdxmnvsIT/69I08I/ZvIxkWyufhLayTDzFeGZlPQfjqtY8Wr59Lkw/JggztpJYPWng=="
+
+let raw = a.b1();
+let ccs = [];
+for (let i = 0; i < raw.length; i++) {
+  ccs.push(raw.charCodeAt(i));
+}
+console.log(ccs);
+```
+
+If we run the above script on a browser, we get an array like:
+
+```js
+[3, 108, 92, 85, 58, 195, 184, 95, 132, ...]
+```
+
+The same on Node.JS produces a different result:
+
+```js
+[3, 108, 92, 85, 58, 248, 95, 65533, 65533, 65533, ...]
+```
+
+`65533` is the Unicode codepoint which Node.JS uses to indicate invalid UTF-8 decoding. Some character got jumbled (`195 184` -> `248`). The problem is that the Node.JS version is decoding the result of the Base-64 decoding as UTF-8, but binary data in general is not valid UTF-8. In particular, any byte over 127 has a special meaning in UTF-8. It seem that the `atob` function detects the faulty Unicode encoding and falls back to Latin-1 if needed.
+
+We can make the Node.JS version work by simply replacing the `Buffer` line with:
+
+```js
+    return new Buffer(this, 'base64').toString('latin1');
+```
+
+It is unfortunate this tiny misstep cost us the flag, but we can take solace in knowing it was not worth too many points.
