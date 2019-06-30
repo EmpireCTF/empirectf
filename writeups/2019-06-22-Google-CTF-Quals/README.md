@@ -1138,7 +1138,7 @@ The same on Node.JS produces a different result:
 [3, 108, 92, 85, 58, 248, 95, 65533, 65533, 65533, ...]
 ```
 
-`65533` is the Unicode codepoint which Node.JS uses to indicate invalid UTF-8 decoding. Some character got jumbled (`195 184` -> `248`). The problem is that the Node.JS version is decoding the result of the Base-64 decoding as UTF-8, but binary data in general is not valid UTF-8. In particular, any byte over 127 has a special meaning in UTF-8. It seem that the `atob` function detects the faulty Unicode encoding and falls back to Latin-1 if needed.
+`65533` is the Unicode codepoint which Node.JS uses to indicate invalid UTF-8 decoding. Some character got jumbled (`195 184` -> `248`). The problem is that the Node.JS version is decoding the result of the Base-64 decoding as UTF-8, but binary data in general is not valid UTF-8. In particular, any byte over 127 has a special meaning in UTF-8. It seems that the `atob` function always treats the encoded data as [Latin-1](https://en.wikipedia.org/wiki/ISO/IEC_8859-1). Its complementary function, `btoa`, throws an error if the input string contains characters outside the Latin-1 range.
 
 We can make the Node.JS version work by simply replacing the `Buffer` line with:
 
