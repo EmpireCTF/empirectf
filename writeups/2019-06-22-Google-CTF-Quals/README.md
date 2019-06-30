@@ -34,9 +34,378 @@
 
 **Files provided**
 
- - dialtone
+ - [dialtone](files/dialtone)
 
 **Solution**
+
+Looking at the file in IDA, we can immediately see references to some `pa_...` functions. We can confirm our suspicions with `ldd`:
+
+```bash
+$ ldd a.out 
+	linux-vdso.so.1 =>  (0x00007ffd1f1b6000)
+	libpulse.so.0 => /usr/lib/x86_64-linux-gnu/libpulse.so.0 (0x00007f34b722c000)
+	libpulse-simple.so.0 => /usr/lib/x86_64-linux-gnu/libpulse-simple.so.0 (0x00007f34b7028000)
+	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f34b6d22000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f34b6959000)
+	libjson-c.so.2 => /lib/x86_64-linux-gnu/libjson-c.so.2 (0x00007f34b674e000)
+	libpulsecommon-4.0.so => /usr/lib/x86_64-linux-gnu/pulseaudio/libpulsecommon-4.0.so (0x00007f34b64e7000)
+	libdbus-1.so.3 => /lib/x86_64-linux-gnu/libdbus-1.so.3 (0x00007f34b62a2000)
+	libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007f34b6084000)
+	/lib64/ld-linux-x86-64.so.2 (0x00007f34b7678000)
+	libxcb.so.1 => /usr/lib/x86_64-linux-gnu/libxcb.so.1 (0x00007f34b5e65000)
+	libwrap.so.0 => /lib/x86_64-linux-gnu/libwrap.so.0 (0x00007f34b5c5b000)
+	libsndfile.so.1 => /usr/lib/x86_64-linux-gnu/libsndfile.so.1 (0x00007f34b59f2000)
+	libasyncns.so.0 => /usr/lib/x86_64-linux-gnu/libasyncns.so.0 (0x00007f34b57ec000)
+	librt.so.1 => /lib/x86_64-linux-gnu/librt.so.1 (0x00007f34b55e4000)
+	libXau.so.6 => /usr/lib/x86_64-linux-gnu/libXau.so.6 (0x00007f34b53e0000)
+	libXdmcp.so.6 => /usr/lib/x86_64-linux-gnu/libXdmcp.so.6 (0x00007f34b51da000)
+	libnsl.so.1 => /lib/x86_64-linux-gnu/libnsl.so.1 (0x00007f34b4fc0000)
+	libFLAC.so.8 => /usr/lib/x86_64-linux-gnu/libFLAC.so.8 (0x00007f34b4d8f000)
+	libvorbisenc.so.2 => /usr/lib/x86_64-linux-gnu/libvorbisenc.so.2 (0x00007f34b4ae6000)
+	libresolv.so.2 => /lib/x86_64-linux-gnu/libresolv.so.2 (0x00007f34b48cb000)
+	libogg.so.0 => /usr/lib/x86_64-linux-gnu/libogg.so.0 (0x00007f34b46c2000)
+	libvorbis.so.0 => /usr/lib/x86_64-linux-gnu/libvorbis.so.0 (0x00007f34b4497000)
+```
+
+There is a number of audio codec libraries linked but, most importantly, the [Pulse Audio library](https://www.freedesktop.org/wiki/Software/PulseAudio/), which can deal with audio input and output on Linux. Let's have a look at the decompiled `main` function:
+
+```c
+int __cdecl main(int argc, const char **argv, const char **envp)
+{
+  __int64 v3; // rax
+  int result; // eax
+  __int64 v5; // rax
+  char v6; // [rsp+18h] [rbp-28020h]
+  char v7; // [rsp+8018h] [rbp-20020h]
+  int v8; // [rsp+2801Ch] [rbp-1Ch]
+  int v9; // [rsp+28020h] [rbp-18h]
+  char v10; // [rsp+28024h] [rbp-14h]
+  unsigned int v11; // [rsp+28028h] [rbp-10h]
+  int v12; // [rsp+2802Ch] [rbp-Ch]
+  __int64 v13; // [rsp+28030h] [rbp-8h]
+
+  v13 = pa_simple_new(0LL, *argv, 2LL, 0LL, "record", &ss_3811, 0LL, 0LL, &v11);
+  if ( v13 )
+  {
+    v8 = 0;
+    v9 = 0;
+    v10 = 0;
+    do
+    {
+      if ( (signed int)pa_simple_read(v13, &v6, 0x8000LL, &v11) < 0 )
+      {
+        v5 = pa_strerror(v11);
+        fprintf(stderr, "pa_simple_read() failed: %s\n", v5);
+        return 1;
+      }
+      x(&v6, &v7);
+      v12 = r(&v8, &v7);
+      if ( v12 < 0 )
+      {
+        fwrite("FAILED\n", 1uLL, 7uLL, stderr);
+        return 1;
+      }
+    }
+    while ( v12 );
+    fwrite("SUCCESS\n", 1uLL, 8uLL, stderr);
+    pa_simple_free(v13, 1LL);
+    result = 0;
+  }
+  else
+  {
+    v3 = pa_strerror(v11);
+    fprintf(stderr, "pa_simple_new() failed: %s\n", v3);
+    result = 1;
+  }
+  return result;
+}
+```
+
+The program connects to a pulse audio server using the [simple API](https://freedesktop.org/software/pulseaudio/doxygen/simple.html). The sample spec `ss_3811` specifies 1 channel at 44100 Hz, and the stream description is "record" - the program will try to access the microphone.
+
+Then we have a loop, reading samples into an audio buffer (`v6`), `0x8000` bytes at a time. The `x` function is called on that audio buffer, somehow transfers data into another buffer (`v7`), then the success / failure is determined based on the second buffer in the function `r`.
+
+Let's have a look into `x`:
+
+```c
+void __fastcall x(__int64 a1, __int64 a2)
+{
+  signed int v2; // [rsp+14h] [rbp-Ch]
+  signed int j; // [rsp+18h] [rbp-8h]
+  signed int i; // [rsp+1Ch] [rbp-4h]
+
+  bit_flip(a1, a2);
+  for ( i = 1; i <= 13; ++i )
+  {
+    v2 = 1 << i;
+    for ( j = 0; j <= 0x1FFF; j += v2 )
+      y(a2, (unsigned int)j, v2);
+  }
+}
+```
+
+And the accompanying `y` function:
+
+```c
+void __fastcall y(__int64 a1, __int64 a2, signed int a3)
+{
+  double v3; // ST48_8
+  double *v4; // rax
+  double v5; // ST30_8
+  double v6; // ST38_8
+  signed __int64 v7; // rdx
+  __int128 v8; // xmm2
+  __int128 v9; // xmm3
+  double *v10; // rbx
+  double *v11; // rbx
+  signed int v12; // [rsp+10h] [rbp-60h]
+  int i; // [rsp+5Ch] [rbp-14h]
+
+  v12 = a3;
+  for ( i = 0; i < v12 / 2; ++i )
+  {
+    cexp(a1, a2);
+    v3 = -0.0 * (long double)i / (long double)v12;
+    v4 = (double *)(16LL * ((signed int)a2 + i) + a1);
+    v5 = *v4;
+    v6 = v4[1];
+    v7 = 16LL * (i + (signed int)a2 + v12 / 2);
+    v8 = *(unsigned __int64 *)(v7 + a1);
+    v9 = *(unsigned __int64 *)(v7 + a1 + 8);
+    complex_mul(v3);
+    v10 = (double *)(16LL * ((signed int)a2 + i) + a1);
+    *(_QWORD *)v10 = complex_add(v5, v6, v3);
+    v10[1] = v6;
+    v11 = (double *)(16LL * (i + (signed int)a2 + v12 / 2) + a1);
+    complex_sub(a1);
+    *v11 = v5;
+    v11[1] = v6;
+  }
+}
+```
+
+The buffer contains audio data, `x` goes through powers of 2 (`2 ** 13 == 8192`), then has a loop over samples with an inner loop in the `y` function performing complex number operations. All of these are very strong hints that we are looking at a [Fourier transform](https://en.wikipedia.org/wiki/Discrete_Fourier_transform) function.
+
+More specifically `x` and `y` form an implementation of the [iterative Cooley-Tukey Fast Fourier Transform with bit reversal](https://en.wikipedia.org/wiki/Cooley%E2%80%93Tukey_FFT_algorithm#Data_reordering,_bit_reversal,_and_in-place_algorithms).
+
+In simple terms, the `x` function detects the volume of individual frequencies in the audio buffer. The description of the challenge further supports this theory. With this assumption, we can clean up `main`:
+
+```c
+int __cdecl main(int argc, const char **argv, const char **envp)
+{
+  __int64 strError_; // rax
+  int result; // eax
+  __int64 strError; // rax
+  double audioBuffer[4096]; // [rsp+18h] [rbp-28020h]
+  complex fftBuffer[8192]; // [rsp+8018h] [rbp-20020h]
+  state_s state; // [rsp+2801Ch] [rbp-1Ch]
+  unsigned int paError; // [rsp+28028h] [rbp-10h]
+  int subResult; // [rsp+2802Ch] [rbp-Ch]
+  void *paServer; // [rsp+28030h] [rbp-8h]
+
+  paServer = (void *)pa_simple_new(0LL, *argv, 2LL, 0LL, "record", &paSpec, 0LL, 0LL, &paError);
+  if ( paServer )
+  {
+    state.field_0 = 0;
+    state.field_4 = 0;
+    state.field_8 = 0;
+    do
+    {
+      if ( (signed int)pa_simple_read(paServer, audioBuffer, 0x8000LL, &paError) < 0 )
+      {
+        strError = pa_strerror(paError);
+        fprintf(stderr, "pa_simple_read() failed: %s\n", strError);
+        return 1;
+      }
+      fourier(audioBuffer, fftBuffer);
+      subResult = r(&state, fftBuffer);
+      if ( subResult < 0 )
+      {
+        fwrite("FAILED\n", 1uLL, 7uLL, stderr);
+        return 1;
+      }
+    }
+    while ( subResult );
+    fwrite("SUCCESS\n", 1uLL, 8uLL, stderr);
+    pa_simple_free(paServer, 1LL);
+    result = 0;
+  }
+  else
+  {
+    strError_ = pa_strerror(paError);
+    fprintf(stderr, "pa_simple_new() failed: %s\n", strError_);
+    result = 1;
+  }
+  return result;
+}
+```
+
+Now we can move on to the `r` function. There are several calls to a function called `f`, taking the result of the FFT and an integer:
+
+```c
+v8 = f(fftBuffer, 1209);
+v9 = f(fftBuffer, 1336);
+v10 = f(fftBuffer, 1477);
+v11 = f(fftBuffer, 1633);
+```
+
+`f`:
+
+```
+double __fastcall f(complex *a1, int frequency)
+{
+  return cabs(a1[(frequency << 13) / 44100]);
+}
+```
+
+`frequency` is given in Hertz, but then it is multiplied by `8192 / 44100`.
+
+ - `44100` is the sampling rate - number of samples (doubles) per second recorded
+ - `8192` is the size of the FFT buffer
+
+From DFT we know that this index will represent the amplitude, i.e. [volume of the sinewave](https://en.wikipedia.org/wiki/Discrete_Fourier_transform#Motivation) (pure tone) at the given `frequency`. Let's name it `measureFrequency`.
+
+So the `r` function measures a the loudness of various frequencies, specifically:
+
+ - 1209, 1336, 1477, 1633
+ - 697, 770, 852, 941
+
+There are two groups, as shown above, and the maximum is picked for each. The index of the loudest frequency in the group is kept. Finally, these indices are combined into a single number `0` ... `15`.
+
+```c
+amplitudes1[0] = measureFrequency(fftBuffer, 1209);
+amplitudes1[1] = measureFrequency(fftBuffer, 1336);
+amplitudes1[2] = measureFrequency(fftBuffer, 1477);
+amplitudes1[3] = measureFrequency(fftBuffer, 1633);
+maxIndex1 = -1;
+maxAmplitude1 = 1.0;
+for ( i = 0; i <= 3; ++i )
+{
+  if ( amplitudes1[i] > maxAmplitude1 )
+  {
+    maxIndex1 = i;
+    maxAmplitude1 = amplitudes1[i];
+  }
+}
+amplitudes2[0] = measureFrequency(fftBuffer, 697);
+amplitudes2[1] = measureFrequency(fftBuffer, 770);
+amplitudes2[2] = measureFrequency(fftBuffer, 852);
+amplitudes2[3] = measureFrequency(fftBuffer, 941);
+maxIndex2 = -1;
+maxAmplitude2 = 1.0;
+for ( j = 0; j <= 3; ++j )
+{
+  if ( amplitudes2[j] > maxAmplitude2 )
+  {
+    maxIndex2 = j;
+    maxAmplitude2 = amplitudes2[j];
+  }
+}
+// ...
+tone = maxIndex1 | 4 * maxIndex2;
+```
+
+There is a sequence position counter, which determines which "tone" is expected next:
+
+```c
+tone = maxIndex1 | 4 * maxIndex2;
+success = 0;
+switch ( state->field_4 )
+{
+  case 0u:
+    success = tone == 9;
+    goto EVALUATE;
+  case 1u:
+    success = tone == 5;
+    goto EVALUATE;
+  case 2u:
+    success = tone == 10;
+    goto EVALUATE;
+  case 3u:
+    success = tone == 6;
+    goto EVALUATE;
+  case 4u:
+    success = tone == 9;
+    goto EVALUATE;
+  case 5u:
+    success = tone == 8;
+    goto EVALUATE;
+  case 6u:
+    success = tone == 1;
+    goto EVALUATE;
+  case 7u:
+    success = tone == 13;
+    goto EVALUATE;
+  case 8u:
+    if ( tone )
+      goto EVALUATE;
+    return 0;
+  default:
+EVALUATE:
+    if ( success != 1 )
+      return -1u;
+    ++state->field_4;
+    state->field_0 = 0;
+    state->field_8 = 1;
+    break;
+}
+```
+
+So the tone sequence is:
+
+    9, 5, 10, 6, 9, 8, 1, 13, 0
+
+The final piece of the puzzle is to note the connection to phones since the challenge is called "dialtone". Searching for dialtone systems and the specific frequencies we have in the challenge leads us to [Dual-tone multi-frequency signaling](https://en.wikipedia.org/wiki/Dual-tone_multi-frequency_signaling). This system encodes numbers and symbols as combinations of two frequencies:
+
+| -          | **1209 Hz** | **1336 Hz** | **1477 Hz** | **1633 Hz** |
+| ---------- | ----------- | ----------- | ----------- | ----------- |
+| **697 Hz** | 1           | 2           | 3           | A           |
+| **770 Hz** | 4           | 5           | 6           | B           |
+| **852 Hz** | 7           | 8           | 9           | C           |
+| **941 Hz** | *           | 0           | #           | D           |
+
+We can map all frequencies to their respective indices, then find the mapping of `tone` values to characters on a phone keypad:
+
+| `maxIndex1` | Frequency 1 | `maxIndex2` | Frequency 2 | `tone` | Character |
+| ----------- | ----------- | ----------- | ----------- | ------ | --------- |
+| `0`         | 1209 Hz     | `0`         | 697 Hz      | `0`    | 1         |
+| `1`         | 1336 Hz     | `0`         | 697 Hz      | `1`    | 2         |
+| `2`         | 1477 Hz     | `0`         | 697 Hz      | `2`    | 3         |
+| `3`         | 1633 Hz     | `0`         | 697 Hz      | `3`    | A         |
+| `0`         | 1209 Hz     | `1`         | 770 Hz      | `4`    | 4         |
+| `1`         | 1336 Hz     | `1`         | 770 Hz      | `5`    | 5         |
+| `2`         | 1477 Hz     | `1`         | 770 Hz      | `6`    | 6         |
+| `3`         | 1633 Hz     | `1`         | 770 Hz      | `7`    | B         |
+| `0`         | 1209 Hz     | `2`         | 852 Hz      | `8`    | 7         |
+| `1`         | 1336 Hz     | `2`         | 852 Hz      | `9`    | 8         |
+| `2`         | 1477 Hz     | `2`         | 852 Hz      | `10`   | 9         |
+| `3`         | 1633 Hz     | `2`         | 852 Hz      | `11`   | C         |
+| `0`         | 1209 Hz     | `3`         | 941 Hz      | `12`   | *         |
+| `1`         | 1336 Hz     | `3`         | 941 Hz      | `13`   | 0         |
+| `2`         | 1477 Hz     | `3`         | 941 Hz      | `14`   | #         |
+| `3`         | 1633 Hz     | `3`         | 941 Hz      | `15`   | D         |
+
+Now we can map the sequence to the proper characters and put the result in `CTF{...}` (as per the challenge description) to get the flag:
+
+`CTF{859687201}`
+
+Just for fun, we can generate the audio signal that would produce the flag using real DTMF frequencies.
+
+```bash
+# depends on `sox` in PATH
+sox -n -r 44100 -d --combine sequence \
+    synth 0.1 sine 1336 sine 852 : \
+    synth 0.1 sine 1336 sine 770 : \
+    synth 0.1 sine 1477 sine 852 : \
+    synth 0.1 sine 1477 sine 770 : \
+    synth 0.1 sine 1336 sine 852 : \
+    synth 0.1 sine 1209 sine 852 : \
+    synth 0.1 sine 1336 sine 697 : \
+    synth 0.1 sine 1336 sine 941 : \
+    synth 0.1 sine 1209 sine 697
+```
+
+[Here is the generated wave file](files/dialtone.wav)
 
 ## 140 Reversing / Malvertising ##
 
