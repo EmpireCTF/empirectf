@@ -28,7 +28,7 @@ Note: incomplete listing.
 
 We are given a 64-bit ELF binary. Upon decompilation, we can see a single function of interest – `main` itself.
 
-## `main`
+### `main`
 
 With some manual clean-up, we can write its source code as (the meaning of the variable names will be clear soon):
 
@@ -64,7 +64,7 @@ int main(int argc, const char **argv, const char **envp) {
 }
 ```
 
-### Memory initialisation
+#### Memory initialisation
 
 Let's look at this bit by bit.
 
@@ -97,7 +97,7 @@ The first `0xF134` (`61748`) bytes of the memory region are initialised with the
 
 We'll see the exact contents of `SPRINT_ROM` later.
 
-### Registers
+#### Registers
 
 ```c
 uint16_t *regA = (uint16_t *)memory;
@@ -114,7 +114,7 @@ char *regIP = memory;
 
 A number of "register" variables is initialised. Nothing terribly exciting here, but these variables will be used in the `sprintf` machinery that will soon follow.
 
-### User prompt
+#### User prompt
 
 ```c
 puts("Input password:");
@@ -125,7 +125,7 @@ scanf(
 
 The user is prompted for a "password", consisting of up to 255 characters. These are loaded at the offset `0xE000` in the allocated memory.
 
-### Flag output
+#### Flag output
 
 ```c
 if (*((int16_t *)(&memory[0xE800]))) {
@@ -135,7 +135,7 @@ if (*((int16_t *)(&memory[0xE800]))) {
 
 The memory location at offset `0xE800` is checked at the end of the program execution. If the word (2 bytes) at that location is not zero, they should form the beginning of the flag as a null-terminated string.
 
-### Main loop
+#### Main loop
 
 Finally, let's tackle the elephant in the room.
 
@@ -168,9 +168,9 @@ All the additional arguments to the format string (23 of them!) refer to one of 
 
 But the code we saw so far still doesn't answer the key question: what does all of this actually *do*?
 
-## The format strings
+### The format strings
 
-### Atoms
+#### Atoms
 
 Let's take a closer look at the 146 format strings from `SPRINT_ROM`. They are all composed of smaller parts, i.e. individual format specifiers.
 
@@ -189,7 +189,7 @@ Every single format string in `SPRINT_ROM` uses `%n` at least once, in the form 
 
 With all of this in mind, let's try to categorise all of the format strings into a smaller number of "instructions".
 
-### `%1$NNNNNs%3$hn`
+#### `%1$NNNNNs%3$hn`
 
 Concrete example: `%1$00430s%3$hn`
 
@@ -202,7 +202,7 @@ regIP = bytesWritten;
 
 The first argument `1$` always refers to the empty string, ensuring that this instruction works even if `NNNNN` happened to be zero.
 
-### `%1$NNNNNs%3$hn%1$MMMMMs...`
+#### `%1$NNNNNs%3$hn%1$MMMMMs...`
 
 Concrete example: `%1$00789s%3$hn%1$64747s`
 
@@ -222,7 +222,7 @@ regIP = NNNNN;
 
 In the remaining instructions we'll shorten this common prefix to `<PRE>` and ignore its effects where possible.
 
-### `<PRE>%1$NNNNNs%X$hn`
+#### `<PRE>%1$NNNNNs%X$hn`
 
 Concrete example: `%1$28672s%9$hn`
 
@@ -238,7 +238,7 @@ As noted in the [main loop section](#main-loop), each register is passed twice, 
 *regX = NNNNN;
 ```
 
-### `<PRE>%1$*X$s%Y$hn`
+#### `<PRE>%1$*X$s%Y$hn`
 
 Concrete example: `%1$*8$s%7$hn`
 
@@ -249,7 +249,7 @@ bytesWritten += regX;
 regY = bytesWritten;
 ```
 
-### `<PRE>%1$*X$s%1$NNNNNs%Y$hn`
+#### `<PRE>%1$*X$s%1$NNNNNs%Y$hn`
 
 Concrete example: `%1$*8$s%1$2s%7$hn`
 
@@ -263,7 +263,7 @@ regY = bytesWritten;
 
 More combinations of summations occur in the instructions, some using constants, some using the registers, some writing to where a register points, some writing to the register itself. We will not enumerate all of these options, since they consist of blocks we have already seen.
 
-### `%X$c%1$NNNNNs%2$c%4$s%1$MMMMMs%3$hn`
+#### `%X$c%1$NNNNNs%2$c%4$s%1$MMMMMs%3$hn`
 
 Concrete example: `%14$c%1$00419s%2$c%4$s%1$65499s%3$hn`
 
@@ -299,7 +299,7 @@ if (regX & 0xFF) {
 }
 ```
 
-### Pseudo-assembly
+#### Pseudo-assembly
 
 Putting it all together, we can finally understand the format strings as a series of instructions with some conditional logic. `regIP` initially points to the first format string, but it is modified as the program executes. Most instructions contain a common prefix which sets `regIP` to the next instruction before performing a step with the other registers. The conditional branches always encode a jump to either the next instruction, or a completely different instruction. There is no restriction on the jump destinations, so backward jumps are possible. An unconditional jump to `0xFFFE` stops execution, due to the condition of the main `while` loop.
 
@@ -317,7 +317,7 @@ Putting it all together, we can finally understand the format strings as a serie
 
 Interestingly a lot of the arguments to `sprintf` were not used at all. We can only surmise that this is because the generator for this challenge was made somewhat generic, and the regular layout of the register arguments is neater. `regI` is only ever written to, and seems to indicate a sort of exit code, even though it is not checked, not by the `sprintf` program, nor by the host program.
 
-## Pseudocode
+### Pseudocode
 
 With our assembly in hand, we can perform analyses to get to something more readable, easier to understand.
 
@@ -383,7 +383,7 @@ if ([0xFFF0]) break; // or another operation on [0xFFF0]
 
 The variable is written into location `0xFFEF`, but because of the 16-bit operations, both `0xFFEF` and `0xFFF0` are modified. The second byte is then checked. In the example above, `break` is executed if `sub_position` is greater or equal to `256`.
 
-### Initialisation
+#### Initialisation
 
 ```
 // initialise the map walls
@@ -430,7 +430,7 @@ X   X X X X X X X X X   X X X X
 
 Where `X` represents a `1` byte, and spaces represent `0` bytes.
 
-### User input
+#### User input
 
 ```
 // calculate the length of user input
@@ -451,7 +451,7 @@ if (-254 != user_input_negative_length) {
 
 The next step is to check the length of the user input, which was loaded into memory at offset `0xE000` before the main loop. Nothing particularly interesting here, except that maybe the user input can be any length that is `254 + n * 256` for some `n`. We will assume it should be `254` though.
 
-### Maze navigation
+#### Maze navigation
 
 ```
 // check user password, navigate the maze
@@ -570,7 +570,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 ([Full map analysis script](scripts/SprintMap.hx))
 
-### Additional password checks
+#### Additional password checks
 
 ```
 // if some characters were invalid or we bumped into a wall, halt
@@ -589,7 +589,7 @@ if (checkpoint_counter != 9) {
 
 Not much to comment on here. `pw_valid` is set to `0` if the password includes an invalid character, or if we bumped into a wall. We also learn here that there are 9 checkpoints.
 
-### Flag decoding
+#### Flag decoding
 
 ```
 // success, let's decode the flag
@@ -634,7 +634,7 @@ to a byte the encrypted flag stored in the program memory at `0xF10C`:
 9E FF A1 26 14 3B 68 60 6B C7 34 C4 0A 1B 6D 8C C9 47 76 65 32 74 5F E2 25 72 32 74 62 0A B9 81 6E C6 17 E3 C5 66 7D
 ```
 
-### Bruteforcing
+#### Bruteforcing
 
 We have everything we need to find the correct password, but let's quickly talk about bruteforcing. This might have been relevant had we wanted to reach a solution as quickly as possible, without reverse engineering the program completely.
 
@@ -659,7 +659,7 @@ Where each column has exactly one character of the flag. We can see the `CTF` pr
 
 ([Full brute force script](scripts/SprintSolve.hx))
 
-## Finding the correct password
+### Finding the correct password
 
 Well, let's navigate the maze! We start in the top-left corner and we need to hit the checkpoints `0`...`8` in order. The shortest (unique) paths are:
 
