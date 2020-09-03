@@ -10,7 +10,7 @@ Note: incomplete listing.
 
 ### reversing ###
 
- - [x] [173 sprint](173-reversing--sprint)
+ - [x] [173 sprint](#173-reversing--sprint)
  
 ---
 
