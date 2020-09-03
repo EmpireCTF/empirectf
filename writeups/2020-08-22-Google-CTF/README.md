@@ -22,7 +22,7 @@ Note: incomplete listing.
 
 **Files provided**
 
- - [sprintf](https://storage.googleapis.com/gctf-2020-attachments-project/c39e555802aa479765c70804396ea5a55ca69583a8de716cc9f03f238a916cb01850b146a0313e9f684c5b86a164498324e42bd17502dea14ad91f1247c660ad)
+ - [sprint](https://storage.googleapis.com/gctf-2020-attachments-project/c39e555802aa479765c70804396ea5a55ca69583a8de716cc9f03f238a916cb01850b146a0313e9f684c5b86a164498324e42bd17502dea14ad91f1247c660ad)
 
 **Solution** (by [Aurel300](https://github.com/Aurel300))
 
@@ -33,7 +33,7 @@ We are given a 64-bit ELF binary. Upon decompilation, we can see a single functi
 With some manual clean-up, we can write its source code as (the meaning of the variable names will be clear soon):
 
 ```c
-char *SPRING_ROM;
+char *SPRINT_ROM;
 
 int main(int argc, const char **argv, const char **envp) {
   char *memory = (char *)mmap((void *)0x4000000, 0x4000000uLL, 0x3, 0x22, -1, 0LL);
@@ -313,7 +313,7 @@ Putting it all together, we can finally understand the format strings as a serie
 ...
 ```
 
-[Full pseudo-assembly here](files/sprint-assembly.txt)
+([Full pseudo-assembly here](files/sprint-assembly.txt))
 
 Interestingly a lot of the arguments to `sprintf` were not used at all. We can only surmise that this is because the generator for this challenge was made somewhat generic, and the regular layout of the register arguments is neater. `regI` is only ever written to, and seems to indicate a sort of exit code, even though it is not checked, not by the `sprintf` program, nor by the host program.
 
@@ -323,15 +323,15 @@ With our assembly in hand, we can perform analyses to get to something more read
 
 We first split the code into blocks. Any address mentioned in a `goto` (including conditional ones) is a jump destination and begins a new block. Equivalently, `goto`s and conditionals (and `halt`s) terminate a block.
 
-[Analysis source code: block splitting](scripts/SprintAnalyse.hx#L49-106)
+([Analysis source code: block splitting](scripts/SprintAnalyse.hx#L49-L106))
 
 Then we can look at which registers are read and written by each block. A block can both read and write the same register.
 
-[Analysis source code: register reads/writes](scripts/SprintAnalyse.hx#L108-112)
+([Analysis source code: register reads/writes](scripts/SprintAnalyse.hx#L108-L112))
 
 With this information, we can infer variables, to reverse the process of [register allocation](https://en.wikipedia.org/wiki/Register_allocation). In short, when the current block writes into a register, this register is propagated through to all the blocks that can follow the current one. As long as the blocks read the given register, we can fuse them into the same variable. Once we find a block that overwrites our chosen register, we stop the recursion.
 
-[Analysis source code: variable reconstruction](scripts/SprintAnalyse.hx#L126-149)
+([Analysis source code: variable reconstruction](scripts/SprintAnalyse.hx#L126-L149))
 
 At this point, we will have less difficulty re-organising code blocks, because we don't have to be afraid that we are missing what particular registers mean at any given point. Additionally, we can (manually) do some constant folding, further eliminating variables that are only written to once.
 
@@ -353,7 +353,7 @@ At this point, we will have less difficulty re-organising code blocks, because w
 ...
 ```
 
-[Full pseudo-assembly with blocks and variables here](files/sprint-renum.txt)
+([Full pseudo-assembly with blocks and variables here](files/sprint-renum.txt))
 
 Now we can take a better look at the way control flows through the program and recover proper loops and conditional blocks. The goal is to eliminate all `goto` instructions. This analysis can be also be done automatically (by looking at the "shapes" in the node graph), but the code was short enough where it was faster to do it by hand.
 
@@ -370,7 +370,7 @@ do {
 ...
 ```
 
-[Full pseudo-code after CF analysis here](files/sprint-reflow.txt)
+([Full pseudo-code after CF analysis here](files/sprint-reflow.txt))
 
 And finally, we can name the variables more sensibly. This would be much more difficult if we were working directly with the assembly. We will analyse the resulting code one piece at a time.
 
@@ -513,7 +513,7 @@ The maze is `16 ⨉ 16` tiles in size, but it is stored linearly in memory, so a
 
 Speaking of `map_position`, it is loaded from the memory location `0xF100`. The word stored there is `0x0011`, i.e. we start in the second column, second row.
 
-But the pattern generated into memory location `0x7000` does not really look like a maze. It is somewhat chaotic, but there are clearly no ways to navigate the empty positions. The answer comes from the conditional used to check wall bumps. Understanding the unaligned memory write-then-read access idion, it can be expressed instead as:
+But the pattern generated into memory location `0x7000` does not really look like a maze. It is somewhat chaotic, but there are clearly no ways to navigate the empty positions. The answer comes from the conditional used to check wall bumps. Understanding the unaligned memory write-then-read access idiom, it can be expressed instead as:
 
 ```
 if ([0x7000 + ([0xF000 + map_position] & 0xFF) * 2]) ...
@@ -568,7 +568,7 @@ XX 6    XX  XX          XX     1XX
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 ```
 
-[Full map analysis script](scripts/SprintMap.hx)
+([Full map analysis script](scripts/SprintMap.hx))
 
 ### Additional password checks
 
@@ -657,7 +657,7 @@ M^P{#0]U`q)#i%b6s<kZ'iTAzg'iWihvcpqB$[r
 
 Where each column has exactly one character of the flag. We can see the `CTF` prefix, which happens to line up at the same offsets, but the remained of the flag is not trivial to deduce. Still, some dictionary-based attack might be possible.
 
-[Full brute force script](scripts/SprintSolve.hx)
+([Full brute force script](scripts/SprintSolve.hx))
 
 ## Finding the correct password
 
