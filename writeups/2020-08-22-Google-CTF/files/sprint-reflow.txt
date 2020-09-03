@@ -1,0 +1,116 @@
+[0x7000] = 0x0001;
+[0x7002] = 0x0001;
+var2 = 0x0002;
+
+do {
+  if ([0x7000 + var2 * 2] == 0) {
+    var6 = var2 * 2;
+    while (true) {
+      [0xFFEF] = var6;
+      if ([0xFFF0]) break;
+      [0x7000 + var6 * 2] = 0x0001;
+      var6 += var2;
+    }
+  }
+  var2 += 0x0001;
+} while (var2);
+
+var11 = 0xE000;
+var12 = 0x0000;
+while ([var11]) {
+  var12 -= 0x0001;
+  var11 += 0x0001;
+}
+
+if (0x00FE + var12) {
+  var16 = 0x0005;
+  [0xE800] = 0x0000;
+  halt;
+}
+
+var17 = 0x0000;
+var18 = 0x0000;
+var20 = [0xF100];
+var21 = 0x0001;
+var22 = 0x0000;
+
+while (true) {
+  var24 = [0xE000 + var17];
+  if (!var24) break;
+
+  var17 += 0x0001;
+  if (var24 == 'u') {
+    var26 = 0xFFF0;
+  } else if (var24 == 'r') {
+    var26 = 0x0001;
+  } else if (var24 == 'd') {
+    var26 = 0x0010;
+  } else if (var24 == 'l') {
+    var26 = 0xFFFF;
+  } else {
+    var21 = 0x0000;
+    var26 = 0x0000;
+    var30 = 0x0001;
+  }
+
+  var20 += var26;
+  [0xFFEF] = var20;
+  if ([0xFFF0]) {
+    var38 = 0x0004;
+    halt;
+  }
+
+  [0xFFEF] = [0xF000 + var20];
+  [0xFFF0] = 0x0000;
+  if ([0x7000 + [0xFFEF] * 2]) {
+    var21 = 0x0000;
+    var37 = 0x0002;
+    continue;
+  }
+  if ([0xF102 + 0x0001 + var18] + var20) continue;
+  var18 += 0x0001;
+}
+
+if (!var21) {
+  [0xE800] = 0x0000;
+  halt;
+}
+
+if (var18 != 9) {
+  var40 = 0x0003;
+  [0xE800] = 0x0000;
+  halt;
+}
+
+var41 = 0x0000;
+var42 = 0x0000;
+
+while (var41 != 39) {
+  var44 = 0x0004;
+  var45 = 0x0000;
+
+  do {
+    var45 *= 4;
+    var47 = [0xE000 + var42];
+    if (var47 == 'u') {
+      // var45 += 0x0000;
+    } else if (var47 == 'r') {
+      var45 += 0x0001;
+    } else if (var47 == 'd') {
+      var45 += 0x0002;
+    } else if (var47 == 'l') {
+      var45 += 0x0003;
+    } else {
+      [0xE800] = 0x0000;
+      halt;
+    }
+    var42 += 0x0001;
+    var44 -= 0x0001;
+  } while (var44);
+
+  [0xE800 + var41] = [0xF10C + var41] + var45;
+  var41 += 0x0001;
+}
+
+[0xE800 + var41] = 0x0000;
+halt;

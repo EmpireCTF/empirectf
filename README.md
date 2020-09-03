@@ -34,3 +34,4 @@ Repository for our team's CTF write-ups. Coming soon, video materials, hopefully
  - [2019-03-23-0CTF-CTF-Quals](writeups/2019-03-23-0CTF-CTF-Quals/README.md)
  - [2019-03-29-VolgaCTF-Quals](writeups/2019-03-29-VolgaCTF-Quals/README.md)
  - [2019-04-02-encryptCTF](writeups/2019-04-02-encryptCTF/README.md)
+ - [2020-08-22-Google-CTF](writeups/2020-08-22-Google-CTF/README.md)

@@ -1,0 +1,135 @@
+// initialise the map walls
+[0x7000] = 0x0001;
+[0x7002] = 0x0001;
+
+let map_position = 0x0002;
+do {
+  if ([0x7000 + map_position * 2] == 0) {
+    let sub_position = map_position * 2;
+    while (true) {
+      [0xFFEF] = sub_position;
+      if ([0xFFF0]) break;
+      [0x7000 + sub_position * 2] = 0x0001;
+      sub_position += map_position;
+    }
+  }
+  map_position += 0x0001;
+} while (map_position);
+
+// calculate the length of user input
+let user_input_ptr = 0xE000;
+let user_input_negative_length = 0;
+while ([user_input_ptr]) {
+  user_input_negative_length -= 1;
+  user_input_ptr += 1;
+}
+
+// if the user input is not 254 characters long, halt
+if (-254 != user_input_negative_length) {
+  error_num = 5;
+  [0xE800] = 0;
+  halt;
+}
+
+// check user password, navigate the maze
+let pw_position = 0;
+let checkpoint_counter = 0;
+let map_position = [0xF100];
+let pw_valid = 1;
+error_num = 0;
+
+while (true) {
+  // take the next byte of the password
+  let pw_byte = [0xE000 + pw_position];
+  if (!pw_byte) break;
+  pw_position += 1;
+
+  // up / right / down / left
+  let map_delta;
+  if (pw_byte == 'u') {
+    map_delta = -16;
+  } else if (pw_byte == 'r') {
+    map_delta = 1;
+  } else if (pw_byte == 'd') {
+    map_delta = 16;
+  } else if (pw_byte == 'l') {
+    map_delta = -1;
+  } else {
+    pw_valid = 0x0000;
+    map_delta = 0;
+    error_num = 1;
+  }
+  map_position += map_delta;
+
+  // if we went out of bounds, halt
+  [0xFFEF] = map_position;
+  if ([0xFFF0]) {
+    error_num = 4;
+    halt;
+  }
+
+  // if we bumped into a wall, halt (eventually)
+  [0xFFEF] = [0xF000 + map_position];
+  [0xFFF0] = 0x0000;
+  if ([0x7000 + [0xFFEF] * 2]) { // note [0xFFEF] re-mapping coordinates
+    pw_valid = 0;
+    error_num = 2;
+    continue;
+  }
+
+  // if we hit a checkpoint, increase the checkpoint counter
+  if ([0xF103 + checkpoint_counter] == -map_position) {
+    checkpoint_counter += 1;
+  }
+}
+
+// if some characters were invalid or we bumped into a wall, halt
+if (!pw_valid) {
+  [0xE800] = 0x0000;
+  halt;
+}
+
+// if we did not make it through exactly 9 checkpoints, halt
+if (checkpoint_counter != 9) {
+  error_num = 3;
+  [0xE800] = 0x0000;
+  halt;
+}
+
+// success, let's decode the flag
+//
+// decoding consists of 39 rounds where 4 bytes of the password are taken,
+// an 8-bit checksum value is generated from them, then the checksum is added
+// to the encrypted flag stored in the program memory
+let flag_position = 0;
+let pw_position = 0;
+while (flag_position != 39) {
+  let block_counter = 4;
+  let checksum = 0;
+
+  do {
+    checksum *= 4;
+    let pw_byte = [0xE000 + pw_position];
+    if (pw_byte == 'u') {
+      // checksum += 0x0000;
+    } else if (pw_byte == 'r') {
+      checksum += 0x0001;
+    } else if (pw_byte == 'd') {
+      checksum += 0x0002;
+    } else if (pw_byte == 'l') {
+      checksum += 0x0003;
+    } else {
+      [0xE800] = 0x0000;
+      halt;
+    }
+    pw_position += 1;
+    block_counter -= 1;
+  } while (block_counter);
+
+  [0xE800 + flag_position] = [0xF10C + flag_position] + checksum;
+  flag_position += 0x0001;
+}
+
+// add a null byte and let's call it a string
+[0xE800 + flag_position] = 0x0000;
+halt;
