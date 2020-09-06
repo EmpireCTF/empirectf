@@ -27,7 +27,7 @@ Note: incomplete listing.
 
 **Solution** (by [Aurel300](https://github.com/Aurel300))
 
-We are given an Android APK. There is a textbox that will verify our flag, and a button. Not much to see there!
+We are given an Android APK. There is a text box that will verify our flag, and a button. Not much to see there!
 
 We can try to decompile it with a tool such as JADX (available online e.g. [here](http://www.javadecompilers.com/apk/)). Unfortunately, the method we really need to see, the button click handler, fails to decompile. JADX complains about `long` not being a class type. The main class also contains a field called `class`, and a field with a weird, single-letter Unicode name, both of which probably hinder decompilation, although JADX handles these issues well (by renaming the fields and telling us about it).
 
@@ -125,7 +125,7 @@ So, not the flag! Strangely, it would seem from the bytecode dump that the metho
     goto :L2
 ```
 
-[`L2`](files/android-bytecode-2.txt#L28-L244) initialises the bytes of the fake flag, [`L3`](files/android-bytecode-2.txt#L246-L254) converts them to a string, [`L4`](files/android-bytecode-2.txt#L256-L265) displays them and compares them to the user output. Here we have a branch between the [end of `L4`](files/android-bytecode-2.txt#L266-L269) and [`L5`](files/android-bytecode-2.txt#L271-L273), displaying the Unicode characters `🚩` and `❌`, respectively. Then both go to [`L6`](files/android-bytecode-2.txt#L275), then [`L13`](files/android-bytecode-2.txt#L388), and then the method returns.
+[`L2`](files/android-bytecode-2.txt#L28-L244) initialises the bytes of the fake flag, [`L3`](files/android-bytecode-2.txt#L246-L254) converts them to a string, [`L4`](files/android-bytecode-2.txt#L256-L265) displays them and compares them to the user output. Here we have a branch that goes to either the [end of `L4`](files/android-bytecode-2.txt#L266-L269) or [`L5`](files/android-bytecode-2.txt#L271-L273), displaying the Unicode characters `🚩` (success!) and `❌` (failure), respectively. Then both go to [`L6`](files/android-bytecode-2.txt#L275), then [`L13`](files/android-bytecode-2.txt#L388), and then the method returns.
 
 But there are still large parts of the method that we haven't gone through at all. There are also a number of exception handlers listed:
 
@@ -136,15 +136,15 @@ But there are still large parts of the method that we haven't gone through at al
   .catch Ljava/lang/Exception; { :L7 .. :L14 } :L0
 ```
 
-As an aside here – the third exception handler handles exceptions of type `J`, which is Java mangling for the `long` type. `try { ... } catch (long e) { ... }` is invalid Java code, because the exception type should be a class type. This is also what JADX complained about during decompilation. It may be semantically invalid bytecode, but it seems to pass verification (at least in its Dalvik/DEX form) and throw off the decompilers.
+As an aside here – the third exception handler handles exceptions of type `J`, which is Java mangling for the `long` type. `try { ... } catch (long e) { ... }` is invalid Java code, because the exception type should be a class type. This is also what JADX complained about during decompilation. It may be semantically invalid bytecode, but it seems to pass verification (at least in its Dalvik/DEX form) and it throws off decompilers.
 
-[One of the calls](files/android-bytecode-2.txt#L249) in the method subtly causes an exception to be thrown, which then enters `L0`:
+[One of the calls](files/android-bytecode-2.txt#L249) in the method subtly causes an exception to be thrown, which is then "handled" by `L0`:
 
 ```
     check-cast v9, Ljava/lang/Character;
 ```
 
-Although `int` can be forced into a `char`, `Integer` cannot be cast to a `Character` (it throws a `ClassCastException`)! We can just assume we got to `L0` then, and see where that leads us.
+Although `int` can be cast into a `char`, `Integer` cannot be cast to a `Character` (it throws a `ClassCastException`)! We can just assume we got to `L0` then, and see where that leads us.
 
 At `L0`, we get code very similar to the beginning of the method. Same constants, but leading elsewhere:
 
@@ -343,7 +343,7 @@ This checks just 4 bytes of the flag, but:
     throw v8
 ```
 
-We conditionally jump to [`L12`](files/android-bytecode-2.txt#L384-386) from [`L11`](files/android-bytecode-2.txt#L368-L382) based on the value of an integer field, also called `ő`. Each time `L11` is entered, the field is incremented, and if it is smaller than the number of 4-byte flag pieces, `L12` is entered, where an exception is thrown, which puts us back into `L0`. This way, we get a loop implemented with exception handlers.
+We conditionally jump to [`L12`](files/android-bytecode-2.txt#L384-L386) from [`L11`](files/android-bytecode-2.txt#L368-L382) based on the value of an integer field, also called `ő`. Each time `L11` is entered, the field is incremented, and if it is smaller than the number of 4-byte flag pieces, `L12` is entered, where an exception is thrown, which puts us back into `L0`. This way, we get a loop implemented with exception handlers.
 
 ### Finding the flag
 
@@ -391,7 +391,7 @@ flag_piece[10] * 0xC5C9799F + 0x100000000 * ? == gcd(flag_piece[10], 0x100000000
 flag_piece[11] * 0x2F838E65 + 0x100000000 * ? == gcd(flag_piece[11], 0x100000000) mod 2 ** 32
 ```
 
-We don't know the flag pieces or the second Bézout coefficient, but we do know something about the GCD. No matter what the flag piece is, the greates common divisor must be a power of two, since `0x100000000 == 2 ** 32 == 2 * 2 * ... * 2`. As an additional constraint we know that each flag piece must be composed of ASCII bytes.
+We don't know the flag pieces or the second Bézout coefficient, but we do know something about the GCD. No matter what the flag piece is, the greatest common divisor must be a power of two, since `0x100000000 == 2 ** 32 == 2 * 2 * ... * 2`. As an additional constraint we know that each flag piece must be composed of ASCII bytes.
 
 We are also operating in `mod 2 ** 32`, which means that the `+ 0x100000000 * ?` part will never have an effect on the result. Therefore, we can simplify:
 
