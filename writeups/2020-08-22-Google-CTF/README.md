@@ -10,9 +10,440 @@ Note: incomplete listing.
 
 ### reversing ###
 
+ - [x] [94 android](#94-reversing--android)
  - [x] [173 sprint](#173-reversing--sprint)
- 
+
 ---
+
+## 94 reversing / android ##
+
+**Description**
+
+> Can you find the correct key to unlock this app?
+
+**Files provided**
+
+ - [android](https://storage.googleapis.com/gctf-2020-attachments-project/91b17683f3f2b06b679d729a5b5279cdbdfea7607546ac34c1f7114add7e4a0970410d22d359d09055f8fa7d6efe20b4b3f4be67ed5d7a5257fc4117175848c8)
+
+**Solution** (by [Aurel300](https://github.com/Aurel300))
+
+We are given an Android APK. There is a textbox that will verify our flag, and a button. Not much to see there!
+
+We can try to decompile it with a tool such as JADX (available online e.g. [here](http://www.javadecompilers.com/apk/)). Unfortunately, the method we really need to see, the button click handler, fails to decompile. JADX complains about `long` not being a class type. The main class also contains a field called `class`, and a field with a weird, single-letter Unicode name, both of which probably hinder decompilation, although JADX handles these issues well (by renaming the fields and telling us about it).
+
+The one method of interest that is decompiled successfully is hidden in the `R` class, which typically holds many uninteresting (automatically-generated) constants, usually related to the layout of elements on screen. The method is:
+
+```java
+public static long[] m0(long a, long b) {
+  if (a == 0) {
+    return new long[]{0, 1};
+  }
+  long[] r = m0(b % a, a);
+  return new long[]{r[1] - ((b / a) * r[0]), r[0]};
+}
+```
+
+We will return to this method later. If we can't see the decompiled code for the interesting parts, we can at least see the bytecode. By unzipping the `apk` like a regular Zip archive, we can find `classes.dex`. Using [`dex2jar`](https://github.com/pxb1988/dex2jar), this file can be converted into individual `.class` files containing Java bytecode. The two files of interest are the strangely-named ones. On a Mac machine, they display as `+%E6.class` and `+%E6$1.class`, which may refer to the Unicode character `æ` (codepoint `U+00E6`). However, JADX seemed to report the class name as `ő` (codepoint `U+0151`), which is what we'll use as well.
+
+The Java JDK is bundled with a tool called `javap` that lets us dump the bytecode in a human-readable format:
+
+```bash
+$ javap -c '+%E6'
+$ javap -c '+%E6$1'
+```
+
+But even here, we face some issues! `dex2jar`, even the latest version, produces `.class` files for us, but they contain stubs instead of the real bytecode:
+
+```
+String d2j fail translate: java.lang.NullPointerException
+  at java.lang.String.<init>(String.java:204)
+  at org.objectweb.asm.Type.getInternalName(Type.java:580)
+  at com.googlecode.d2j.converter.IR2JConverter.toInternal(IR2JConverter.java:97)
+  ... (etc etc)
+```
+
+Fortunately, it also produces an error report which shows what we need to see:
+
+ - [Bytecode of `ő.<init>` (static initialisation code).](files/android-bytecode-1.txt)
+ - [Bytecode of `ő.<inner class>.onClick` (click event handler).](files/android-bytecode-2.txt)
+
+### Static initialiser
+
+The first method is not terribly interesting, except for the [array data](files/android-bytecode-1.txt#L29-L40):
+
+```
+    107t -104t 113t 2t 0t 0t 0t 0t
+    -55t 57t 66t -90t 0t 0t 0t 0t
+    75t -19t 29t 39t 0t 0t 0t 0t
+    67t 97t 24t 1t 0t 0t 0t 0t
+    -97t 34t -6t -64t 0t 0t 0t 0t
+    -65t 16t 14t 105t 0t 0t 0t 0t
+    87t -94t -36t 40t 0t 0t 0t 0t
+    -47t -103t -58t 22t 0t 0t 0t 0t
+    -3t 111t -91t 85t 0t 0t 0t 0t
+    -95t 112t -72t 126t 0t 0t 0t 0t
+    -97t 121t -55t -59t 0t 0t 0t 0t
+    101t -114t -125t 47t 0t 0t 0t 0t
+```
+
+We can decode this into 12 integers (each number is a single byte, MSB-to-LSB left-to-right):
+
+```
+0x0271986B
+0xA64239C9
+0x271DED4B
+0x01186143
+0xC0FA229F
+0x690E10BF
+0x28DCA257
+0x16C699D1
+0x55A56FFD
+0x7EB870A1
+0xC5C9799F
+0x2F838E65
+```
+
+Interesting, but not at all the flag we are after.
+
+### Click handler
+
+The click event handler method is much longer, although most of it is due to a section [initialising an array byte by byte](files/android-bytecode-2.txt#L28-L244). We can take the bytecode and do some text replacement magic to get [the equivalent Python code](scripts/android-bytes.py). The result after all that work is:
+
+```
+Apparently this is not the flag. What's going on?
+```
+
+So, not the flag! Strangely, it would seem from the bytecode dump that the method can only ever execute the part that outputs the fake flag. From the beginning, we unconditionally enter the section:
+
+```
+    const/16 v2, 49
+    const/4 v3, 0
+    const/4 v4, 3
+    const/4 v5, 2
+    const/4 v6, 1
+    const/4 v7, 4
+    goto :L2
+```
+
+[`L2`](files/android-bytecode-2.txt#L28-L244) initialises the bytes of the fake flag, [`L3`](files/android-bytecode-2.txt#L246-L254) converts them to a string, [`L4`](files/android-bytecode-2.txt#L256-L265) displays them and compares them to the user output. Here we have a branch between the [end of `L4`](files/android-bytecode-2.txt#L266-L269) and [`L5`](files/android-bytecode-2.txt#L271-L273), displaying the Unicode characters `🚩` and `❌`, respectively. Then both go to [`L6`](files/android-bytecode-2.txt#L275), then [`L13`](files/android-bytecode-2.txt#L388), and then the method returns.
+
+But there are still large parts of the method that we haven't gone through at all. There are also a number of exception handlers listed:
+
+```
+  .catch Ljava/lang/Exception; { :L1 .. :L6 } :L0
+  .catch Ljava/lang/Error; { :L1 .. :L6 } :L0
+  .catch J { :L1 .. :L6 } :L0
+  .catch Ljava/lang/Exception; { :L7 .. :L14 } :L0
+```
+
+As an aside here – the third exception handler handles exceptions of type `J`, which is Java mangling for the `long` type. `try { ... } catch (long e) { ... }` is invalid Java code, because the exception type should be a class type. This is also what JADX complained about during decompilation. It may be semantically invalid bytecode, but it seems to pass verification (at least in its Dalvik/DEX form) and throw off the decompilers.
+
+[One of the calls](files/android-bytecode-2.txt#L249) in the method subtly causes an exception to be thrown, which then enters `L0`:
+
+```
+    check-cast v9, Ljava/lang/Character;
+```
+
+Although `int` can be forced into a `char`, `Integer` cannot be cast to a `Character` (it throws a `ClassCastException`)! We can just assume we got to `L0` then, and see where that leads us.
+
+At `L0`, we get code very similar to the beginning of the method. Same constants, but leading elsewhere:
+
+```
+  :L0
+    const/16 v2, 49
+    const/4 v3, 0
+    const/4 v4, 3
+    const/4 v5, 2
+    const/4 v6, 1
+    const/4 v7, 4
+    goto/16 :L7
+```
+
+At [`L7`](files/android-bytecode-2.txt#L277-L289):
+
+```
+  :L7
+    iget-object v3, v1, Lcom/google/ctf/sandbox/\u0151$1;->val$editText:Landroid/widget/EditText;
+    invoke-virtual { v3 }, Landroid/widget/EditText;->getText()Landroid/text/Editable;
+    move-result-object v3
+    invoke-virtual { v3 }, Ljava/lang/Object;->toString()Ljava/lang/String;
+    move-result-object v3
+    invoke-virtual { v3 }, Ljava/lang/String;->length()I
+    move-result v5
+    const/16 v6, 48
+    if-eq v5, v6, :L8
+    iget-object v4, v1, Lcom/google/ctf/sandbox/\u0151$1;->val$textView:Landroid/widget/TextView;
+    const-string v5, "\u274c"
+    invoke-virtual { v4, v5 }, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    return-void
+```
+
+We read the user input from the `android.widget.EditText` object. The length of that string is checked. If it is `48`, we move on to `L8`, otherwise `❌` is displayed and execution stops.
+
+At [`L8`](files/android-bytecode-2.txt#L291) and [`L9`](files/android-bytecode-2.txt#L293-L340), we finally do some actual computations:
+
+```
+  :L8
+    const/4 v5, 0
+  :L9
+    invoke-virtual { v3 }, Ljava/lang/String;->length()I
+    move-result v6
+    div-int/2addr v6, v7
+    if-ge v5, v6, :L10
+    iget-object v6, v1, Lcom/google/ctf/sandbox/\u0151$1;->this$0:Lcom/google/ctf/sandbox/\u0151;
+    iget-object v6, v6, Lcom/google/ctf/sandbox/\u0151;->ő:[J
+    mul-int/lit8 v8, v5, 4
+    add-int/2addr v8, v4
+    invoke-virtual { v3, v8 }, Ljava/lang/String;->charAt(I)C
+    move-result v8
+    shl-int/lit8 v8, v8, 24
+    int-to-long v8, v8
+    aput-wide v8, v6, v5
+    iget-object v6, v1, Lcom/google/ctf/sandbox/\u0151$1;->this$0:Lcom/google/ctf/sandbox/\u0151;
+    iget-object v6, v6, Lcom/google/ctf/sandbox/\u0151;->ő:[J
+    aget-wide v8, v6, v5
+    mul-int/lit8 v10, v5, 4
+    const/4 v11, 2
+    add-int/2addr v10, v11
+    invoke-virtual { v3, v10 }, Ljava/lang/String;->charAt(I)C
+    move-result v10
+    shl-int/lit8 v10, v10, 16
+    int-to-long v12, v10
+    or-long/2addr v8, v12
+    aput-wide v8, v6, v5
+    iget-object v6, v1, Lcom/google/ctf/sandbox/\u0151$1;->this$0:Lcom/google/ctf/sandbox/\u0151;
+    iget-object v6, v6, Lcom/google/ctf/sandbox/\u0151;->ő:[J
+    aget-wide v8, v6, v5
+    mul-int/lit8 v10, v5, 4
+    const/4 v12, 1
+    add-int/2addr v10, v12
+    invoke-virtual { v3, v10 }, Ljava/lang/String;->charAt(I)C
+    move-result v10
+    shl-int/lit8 v10, v10, 8
+    int-to-long v12, v10
+    or-long/2addr v8, v12
+    aput-wide v8, v6, v5
+    iget-object v6, v1, Lcom/google/ctf/sandbox/\u0151$1;->this$0:Lcom/google/ctf/sandbox/\u0151;
+    iget-object v6, v6, Lcom/google/ctf/sandbox/\u0151;->ő:[J
+    aget-wide v8, v6, v5
+    mul-int/lit8 v10, v5, 4
+    invoke-virtual { v3, v10 }, Ljava/lang/String;->charAt(I)C
+    move-result v10
+    int-to-long v12, v10
+    or-long/2addr v8, v12
+    aput-wide v8, v6, v5
+    add-int/lit8 v5, v5, 1
+    goto :L9
+```
+
+This is a loop that can be encoded in Python as:
+
+```python
+flag_pieces = [0] * 12
+
+# v3 is the flag, as a string
+I32 = 0xFFFFFFFF
+I64 = 0xFFFFFFFFFFFFFFFF
+
+# L8
+v5 = 0
+
+# L9
+while True:
+  v6 = len(v3)
+  v6 //= v7
+  if v5 >= v6:
+    break
+  v8 = (ord(v3[v5 * 4 + 3]) << 24) & I32
+  flag_pieces[v5] = v8
+
+  v10 = (ord(v3[v5 * 4 + 2]) << 16) & I32
+  v8 = (v8 | v10) & I64
+  flag_pieces[v5] = v8
+
+  v10 = (ord(v3[v5 * 4 + 1]) << 8) & I32
+  v8 = (v8 | v10) & I64
+  flag_pieces[v5] = v8
+
+  v10 = ord(v3[v5 * 4])
+  v8 = (v8 | v10) & I64
+  flag_pieces[v5] = v8
+
+  v5 += 1
+```
+
+The result is actually just that 4 bytes of the flag at a time get packed into a single number. We end up with 12 `long`s representing our input.
+
+```
+  :L10
+    const-wide v4, 4294967296L
+    iget-object v6, v1, Lcom/google/ctf/sandbox/\u0151$1;->this$0:Lcom/google/ctf/sandbox/\u0151;
+    iget-object v7, v1, Lcom/google/ctf/sandbox/\u0151$1;->this$0:Lcom/google/ctf/sandbox/\u0151;
+    iget-object v7, v7, Lcom/google/ctf/sandbox/\u0151;->ő:[J
+    iget-object v8, v1, Lcom/google/ctf/sandbox/\u0151$1;->this$0:Lcom/google/ctf/sandbox/\u0151;
+    iget v8, v8, Lcom/google/ctf/sandbox/\u0151;->ő:I
+    aget-wide v8, v7, v8
+    invoke-static { v8, v9, v4, v5 }, Lcom/google/ctf/sandbox/R;->\u0151(JJ)[J
+    move-result-object v6
+    const/4 v7, 0
+    aget-wide v7, v6, v7
+    rem-long/2addr v7, v4
+    add-long/2addr v7, v4
+    rem-long/2addr v7, v4
+    iget-object v9, v1, Lcom/google/ctf/sandbox/\u0151$1;->this$0:Lcom/google/ctf/sandbox/\u0151;
+    iget-object v9, v9, Lcom/google/ctf/sandbox/\u0151;->class:[J
+    iget-object v10, v1, Lcom/google/ctf/sandbox/\u0151$1;->this$0:Lcom/google/ctf/sandbox/\u0151;
+    iget v10, v10, Lcom/google/ctf/sandbox/\u0151;->ő:I
+    aget-wide v10, v9, v10
+    cmp-long v9, v7, v10
+    if-eqz v9, :L11
+    iget-object v9, v1, Lcom/google/ctf/sandbox/\u0151$1;->val$textView:Landroid/widget/TextView;
+    const-string v10, "\u274c"
+    invoke-virtual { v9, v10 }, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    return-void
+```
+
+At [`L10`](files/android-bytecode-2.txt#L342-L366), we take one of the numbers from the array initialised during [static initialisation](#static-initialiser). It is then compared to the result of `ő(flag_piece, 4294967296L) % 0x100000000` (JADX decompiled `ő` as `m0`, also listed all the way at the beginning). Keep the modulo operation in mind! In Python:
+
+```python
+v8 = flag_pieces[field_int]
+v6 = m0(v8, 0x100000000)
+v7 = v6[0]
+# v7 = (v7 % 0x100000000) & I64
+# v7 = (v7 + 0x100000000) & I64
+# v7 = (v7 % 0x100000000) & I64
+# the above three seem to just do:
+v7 = v7 & I32
+if v7 != init_arr[field_int]:
+  print("fail")
+```
+
+This checks just 4 bytes of the flag, but:
+
+```
+  :L11
+    iget-object v9, v1, Lcom/google/ctf/sandbox/\u0151$1;->this$0:Lcom/google/ctf/sandbox/\u0151;
+    iget v10, v9, Lcom/google/ctf/sandbox/\u0151;->ő:I
+    const/4 v11, 1
+    add-int/2addr v10, v11
+    iput v10, v9, Lcom/google/ctf/sandbox/\u0151;->ő:I
+    iget-object v9, v1, Lcom/google/ctf/sandbox/\u0151$1;->this$0:Lcom/google/ctf/sandbox/\u0151;
+    iget v9, v9, Lcom/google/ctf/sandbox/\u0151;->ő:I
+    iget-object v10, v1, Lcom/google/ctf/sandbox/\u0151$1;->this$0:Lcom/google/ctf/sandbox/\u0151;
+    iget-object v10, v10, Lcom/google/ctf/sandbox/\u0151;->ő:[J
+    array-length v10, v10
+    if-lt v9, v10, :L12
+    iget-object v9, v1, Lcom/google/ctf/sandbox/\u0151$1;->val$textView:Landroid/widget/TextView;
+    const-string v10, "\ud83d\udea9"
+    invoke-virtual { v9, v10 }, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    return-void
+  :L12
+    new-instance v8, Ljava/lang/RuntimeException;
+    invoke-direct { v8 }, Ljava/lang/RuntimeException;-><init>()V
+    throw v8
+```
+
+We conditionally jump to [`L12`](files/android-bytecode-2.txt#L384-386) from [`L11`](files/android-bytecode-2.txt#L368-L382) based on the value of an integer field, also called `ő`. Each time `L11` is entered, the field is incremented, and if it is smaller than the number of 4-byte flag pieces, `L12` is entered, where an exception is thrown, which puts us back into `L0`. This way, we get a loop implemented with exception handlers.
+
+### Finding the flag
+
+Understanding the click handler, we can conclude that we are looking for a flag that satisfies the following constraints:
+
+```python
+m0(flag_piece[ 0], 0x100000000) % 0x100000000 == 0x0271986B
+m0(flag_piece[ 1], 0x100000000) % 0x100000000 == 0xA64239C9
+m0(flag_piece[ 2], 0x100000000) % 0x100000000 == 0x271DED4B
+m0(flag_piece[ 3], 0x100000000) % 0x100000000 == 0x01186143
+m0(flag_piece[ 4], 0x100000000) % 0x100000000 == 0xC0FA229F
+m0(flag_piece[ 5], 0x100000000) % 0x100000000 == 0x690E10BF
+m0(flag_piece[ 6], 0x100000000) % 0x100000000 == 0x28DCA257
+m0(flag_piece[ 7], 0x100000000) % 0x100000000 == 0x16C699D1
+m0(flag_piece[ 8], 0x100000000) % 0x100000000 == 0x55A56FFD
+m0(flag_piece[ 9], 0x100000000) % 0x100000000 == 0x7EB870A1
+m0(flag_piece[10], 0x100000000) % 0x100000000 == 0xC5C9799F
+m0(flag_piece[11], 0x100000000) % 0x100000000 == 0x2F838E65
+```
+
+During the CTF, this part was brute forced, since checking all `2 ** 32` possible inputs on many cores took a relatively short amount of time.
+
+Upon closer inspection of `m0`, we can find it is actually computing [Bézout's coefficients](https://en.wikipedia.org/wiki/B%C3%A9zout%27s_identity), i.e. for inputs `a` and `b`, it is finding `x` and `y` such that:
+
+```
+a * x + b * y == gcd(a, b)
+```
+
+(Where `gcd` is the [greatest common divisor](https://en.wikipedia.org/wiki/Greatest_common_divisor).)
+
+Although the method returns both of the coefficients, we only know the first one. So in our case:
+
+```
+flag_piece[ 0] * 0x0271986B + 0x100000000 * ? == gcd(flag_piece[ 0], 0x100000000) mod 2 ** 32
+flag_piece[ 1] * 0xA64239C9 + 0x100000000 * ? == gcd(flag_piece[ 1], 0x100000000) mod 2 ** 32
+flag_piece[ 2] * 0x271DED4B + 0x100000000 * ? == gcd(flag_piece[ 2], 0x100000000) mod 2 ** 32
+flag_piece[ 3] * 0x01186143 + 0x100000000 * ? == gcd(flag_piece[ 3], 0x100000000) mod 2 ** 32
+flag_piece[ 4] * 0xC0FA229F + 0x100000000 * ? == gcd(flag_piece[ 4], 0x100000000) mod 2 ** 32
+flag_piece[ 5] * 0x690E10BF + 0x100000000 * ? == gcd(flag_piece[ 5], 0x100000000) mod 2 ** 32
+flag_piece[ 6] * 0x28DCA257 + 0x100000000 * ? == gcd(flag_piece[ 6], 0x100000000) mod 2 ** 32
+flag_piece[ 7] * 0x16C699D1 + 0x100000000 * ? == gcd(flag_piece[ 7], 0x100000000) mod 2 ** 32
+flag_piece[ 8] * 0x55A56FFD + 0x100000000 * ? == gcd(flag_piece[ 8], 0x100000000) mod 2 ** 32
+flag_piece[ 9] * 0x7EB870A1 + 0x100000000 * ? == gcd(flag_piece[ 9], 0x100000000) mod 2 ** 32
+flag_piece[10] * 0xC5C9799F + 0x100000000 * ? == gcd(flag_piece[10], 0x100000000) mod 2 ** 32
+flag_piece[11] * 0x2F838E65 + 0x100000000 * ? == gcd(flag_piece[11], 0x100000000) mod 2 ** 32
+```
+
+We don't know the flag pieces or the second Bézout coefficient, but we do know something about the GCD. No matter what the flag piece is, the greates common divisor must be a power of two, since `0x100000000 == 2 ** 32 == 2 * 2 * ... * 2`. As an additional constraint we know that each flag piece must be composed of ASCII bytes.
+
+We are also operating in `mod 2 ** 32`, which means that the `+ 0x100000000 * ?` part will never have an effect on the result. Therefore, we can simplify:
+
+```
+(flag_piece[ 0] * 0x0271986B) % 0x100000000 in [1, 2, 4, ... ]
+(flag_piece[ 1] * 0xA64239C9) % 0x100000000 in [1, 2, 4, ... ]
+(flag_piece[ 2] * 0x271DED4B) % 0x100000000 in [1, 2, 4, ... ]
+(flag_piece[ 3] * 0x01186143) % 0x100000000 in [1, 2, 4, ... ]
+(flag_piece[ 4] * 0xC0FA229F) % 0x100000000 in [1, 2, 4, ... ]
+(flag_piece[ 5] * 0x690E10BF) % 0x100000000 in [1, 2, 4, ... ]
+(flag_piece[ 6] * 0x28DCA257) % 0x100000000 in [1, 2, 4, ... ]
+(flag_piece[ 7] * 0x16C699D1) % 0x100000000 in [1, 2, 4, ... ]
+(flag_piece[ 8] * 0x55A56FFD) % 0x100000000 in [1, 2, 4, ... ]
+(flag_piece[ 9] * 0x7EB870A1) % 0x100000000 in [1, 2, 4, ... ]
+(flag_piece[10] * 0xC5C9799F) % 0x100000000 in [1, 2, 4, ... ]
+(flag_piece[11] * 0x2F838E65) % 0x100000000 in [1, 2, 4, ... ]
+```
+
+Where each result is *most likely* `1`. The operation was simplified down to a modular multiplication. If the result is `1`, the inverse operation is the modular inverse. So our solution is simply:
+
+```python
+import gmpy2
+
+coeffs = [
+  0x0271986B,
+  0xA64239C9,
+  0x271DED4B,
+  0x01186143,
+  0xC0FA229F,
+  0x690E10BF,
+  0x28DCA257,
+  0x16C699D1,
+  0x55A56FFD,
+  0x7EB870A1,
+  0xC5C9799F,
+  0x2F838E65
+]
+
+flag_pieces = []
+for c in coeffs:
+  flag_piece = int(gmpy2.invert(c, 0x100000000))
+  flag_pieces.append(flag_piece.to_bytes(4, "little").decode("utf-8"))
+
+print("".join(flag_pieces))
+```
+
+And indeed:
+
+```bash
+$ python3 android-solve.py
+CTF{y0u_c4n_k3ep_y0u?_m4gic_1_h4Ue_laser_b3ams!}
+```
 
 ## 173 reversing / sprint ##
 

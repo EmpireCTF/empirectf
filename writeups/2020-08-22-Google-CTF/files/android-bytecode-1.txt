@@ -1,0 +1,42 @@
+.method public constructor <init>()V
+  .catch Ljava/lang/Exception; { :L0 .. :L1 } :L5
+  .catch Ljava/lang/Error; { :L0 .. :L1 } :L5
+  .catch I { :L0 .. :L1 } :L6
+  .catch Ljava/lang/Exception; { :L2 .. :L4 } :L5
+  .registers 15
+    invoke-direct { p0 }, Landroid/app/Activity;-><init>()V
+  :L0
+    const/16 v0, 12
+    new-array v1, v0, [J
+    fill-array-data v1, :L7
+    iput-object v1, p0, Lcom/google/ctf/sandbox/\u0151;->class:[J
+    new-array v0, v0, [J
+    iput-object v0, p0, Lcom/google/ctf/sandbox/\u0151;->ő:[J
+    const/4 v0, 0
+    iput v0, p0, Lcom/google/ctf/sandbox/\u0151;->ő:I
+  :L1
+    goto/16 :L3
+  :L2
+  :L3
+    return-void
+  :L4
+  :L5
+    goto :L0
+  :L6
+    goto :L3
+  :L7
+  .array-data 8
+    107t -104t 113t 2t 0t 0t 0t 0t
+    -55t 57t 66t -90t 0t 0t 0t 0t
+    75t -19t 29t 39t 0t 0t 0t 0t
+    67t 97t 24t 1t 0t 0t 0t 0t
+    -97t 34t -6t -64t 0t 0t 0t 0t
+    -65t 16t 14t 105t 0t 0t 0t 0t
+    87t -94t -36t 40t 0t 0t 0t 0t
+    -47t -103t -58t 22t 0t 0t 0t 0t
+    -3t 111t -91t 85t 0t 0t 0t 0t
+    -95t 112t -72t 126t 0t 0t 0t 0t
+    -97t 121t -55t -59t 0t 0t 0t 0t
+    101t -114t -125t 47t 0t 0t 0t 0t
+  .end array-data
+.end method

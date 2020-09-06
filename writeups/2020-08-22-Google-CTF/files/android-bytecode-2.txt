@@ -1,0 +1,390 @@
+.method public onClick(Landroid/view/View;)V
+  .catch Ljava/lang/Exception; { :L1 .. :L6 } :L0
+  .catch Ljava/lang/Error; { :L1 .. :L6 } :L0
+  .catch J { :L1 .. :L6 } :L0
+  .catch Ljava/lang/Exception; { :L7 .. :L14 } :L0
+  .registers 20
+    move-object/from16 v1, p0
+    iget-object v2, v1, Lcom/google/ctf/sandbox/\u0151$1;->this$0:Lcom/google/ctf/sandbox/\u0151;
+    const/4 v3, 0
+    iput v3, v2, Lcom/google/ctf/sandbox/\u0151;->ő:I
+    const/16 v2, 49
+    const/4 v3, 0
+    const/4 v4, 3
+    const/4 v5, 2
+    const/4 v6, 1
+    const/4 v7, 4
+    goto :L2
+  :L0
+    const/16 v2, 49
+    const/4 v3, 0
+    const/4 v4, 3
+    const/4 v5, 2
+    const/4 v6, 1
+    const/4 v7, 4
+    goto/16 :L7
+  :L1
+  :L2
+    new-array v2, v2, [Ljava/lang/Object;
+    const/16 v8, 65
+    invoke-static { v8 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v8
+    aput-object v8, v2, v3
+    const/16 v8, 112
+    invoke-static { v8 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v9
+    aput-object v9, v2, v6
+    invoke-static { v8 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v8
+    aput-object v8, v2, v5
+    const/16 v8, 97
+    invoke-static { v8 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v9
+    aput-object v9, v2, v4
+    const/16 v9, 114
+    invoke-static { v9 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v9
+    aput-object v9, v2, v7
+    const/4 v9, 5
+    const/16 v10, 101
+    invoke-static { v10 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v10
+    aput-object v10, v2, v9
+    const/4 v9, 6
+    const/16 v10, 110
+    invoke-static { v10 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v11
+    aput-object v11, v2, v9
+    const/4 v9, 7
+    const/16 v11, 116
+    invoke-static { v11 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v12
+    aput-object v12, v2, v9
+    const/16 v9, 8
+    const/16 v12, 108
+    invoke-static { v12 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v12
+    aput-object v12, v2, v9
+    const/16 v9, 9
+    const/16 v12, 121
+    invoke-static { v12 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v12
+    aput-object v12, v2, v9
+    const/16 v9, 10
+    const/16 v12, 32
+    invoke-static { v12 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v13
+    aput-object v13, v2, v9
+    const/16 v9, 11
+    invoke-static { v11 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v13
+    aput-object v13, v2, v9
+    const/16 v9, 12
+    const/16 v13, 104
+    invoke-static { v13 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v14
+    aput-object v14, v2, v9
+    const/16 v9, 13
+    const/16 v14, 105
+    invoke-static { v14 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v15
+    aput-object v15, v2, v9
+    const/16 v9, 14
+    const/16 v15, 115
+    invoke-static { v15 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v16
+    aput-object v16, v2, v9
+    const/16 v9, 15
+    invoke-static { v12 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v16
+    aput-object v16, v2, v9
+    const/16 v9, 16
+    invoke-static { v14 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v16
+    aput-object v16, v2, v9
+    const/16 v9, 17
+    invoke-static { v15 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v16
+    aput-object v16, v2, v9
+    const/16 v9, 18
+    invoke-static { v12 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v16
+    aput-object v16, v2, v9
+    const/16 v9, 19
+    invoke-static { v10 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v16
+    aput-object v16, v2, v9
+    const/16 v9, 20
+    const/16 v3, 111
+    invoke-static { v3 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v16
+    aput-object v16, v2, v9
+    const/16 v9, 21
+    invoke-static { v11 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v16
+    aput-object v16, v2, v9
+    const/16 v9, 22
+    invoke-static { v12 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v16
+    aput-object v16, v2, v9
+    const/16 v9, 23
+    invoke-static { v11 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v16
+    aput-object v16, v2, v9
+    const/16 v9, 24
+    invoke-static { v13 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v16
+    aput-object v16, v2, v9
+    const/16 v9, 25
+    const/16 v6, 101
+    invoke-static { v6 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v6
+    aput-object v6, v2, v9
+    const/16 v6, 26
+    invoke-static { v12 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v9
+    aput-object v9, v2, v6
+    const/16 v6, 27
+    const/16 v9, 102
+    invoke-static { v9 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v9
+    aput-object v9, v2, v6
+    const/16 v6, 28
+    const/16 v9, 108
+    invoke-static { v9 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v9
+    aput-object v9, v2, v6
+    const/16 v6, 29
+    invoke-static { v8 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v9
+    aput-object v9, v2, v6
+    const/16 v6, 30
+    const/16 v9, 103
+    invoke-static { v9 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v16
+    aput-object v16, v2, v6
+    const/16 v6, 31
+    const/16 v5, 46
+    invoke-static { v5 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v5
+    aput-object v5, v2, v6
+    invoke-static { v12 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v5
+    aput-object v5, v2, v12
+    const/16 v5, 33
+    const/16 v6, 87
+    invoke-static { v6 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v6
+    aput-object v6, v2, v5
+    const/16 v5, 34
+    invoke-static { v13 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v6
+    aput-object v6, v2, v5
+    const/16 v5, 35
+    invoke-static { v8 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v6
+    aput-object v6, v2, v5
+    const/16 v5, 36
+    invoke-static { v11 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v6
+    aput-object v6, v2, v5
+    const/16 v5, 37
+    const/16 v6, 39
+    invoke-static { v6 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v6
+    aput-object v6, v2, v5
+    const/16 v5, 38
+    invoke-static { v15 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v6
+    aput-object v6, v2, v5
+    const/16 v5, 39
+    invoke-static { v12 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v6
+    aput-object v6, v2, v5
+    const/16 v5, 40
+    invoke-static { v9 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v6
+    aput-object v6, v2, v5
+    const/16 v5, 41
+    invoke-static { v3 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v6
+    aput-object v6, v2, v5
+    const/16 v5, 42
+    invoke-static { v14 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v6
+    aput-object v6, v2, v5
+    const/16 v5, 43
+    invoke-static { v10 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v6
+    aput-object v6, v2, v5
+    const/16 v5, 44
+    invoke-static { v9 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v6
+    aput-object v6, v2, v5
+    const/16 v5, 45
+    invoke-static { v12 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v6
+    aput-object v6, v2, v5
+    const/16 v5, 46
+    invoke-static { v3 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v3
+    aput-object v3, v2, v5
+    const/16 v3, 47
+    invoke-static { v10 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v5
+    aput-object v5, v2, v3
+    const/16 v3, 48
+    const/16 v5, 63
+    invoke-static { v5 }, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v5
+    aput-object v5, v2, v3
+    new-instance v3, Ljava/lang/StringBuilder;
+    invoke-direct { v3 }, Ljava/lang/StringBuilder;-><init>()V
+    array-length v5, v2
+    const/4 v6, 0
+  :L3
+    if-ge v6, v5, :L4
+    aget-object v8, v2, v6
+    move-object v9, v8
+    check-cast v9, Ljava/lang/Character;
+    invoke-virtual { v9 }, Ljava/lang/Character;->charValue()C
+    move-result v9
+    invoke-virtual { v3, v9 }, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
+    add-int/lit8 v6, v6, 1
+    goto :L3
+  :L4
+    iget-object v5, v1, Lcom/google/ctf/sandbox/\u0151$1;->val$editText:Landroid/widget/EditText;
+    invoke-virtual { v5 }, Landroid/widget/EditText;->getText()Landroid/text/Editable;
+    move-result-object v5
+    invoke-virtual { v5 }, Ljava/lang/Object;->toString()Ljava/lang/String;
+    move-result-object v5
+    invoke-virtual { v3 }, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    move-result-object v6
+    invoke-virtual { v5, v6 }, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v5
+    if-eqz v5, :L5
+    iget-object v5, v1, Lcom/google/ctf/sandbox/\u0151$1;->val$textView:Landroid/widget/TextView;
+    const-string v6, "\ud83d\udea9"
+    invoke-virtual { v5, v6 }, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    goto :L6
+  :L5
+    iget-object v5, v1, Lcom/google/ctf/sandbox/\u0151$1;->val$textView:Landroid/widget/TextView;
+    const-string v6, "\u274c"
+    invoke-virtual { v5, v6 }, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+  :L6
+    goto/16 :L13
+  :L7
+    iget-object v3, v1, Lcom/google/ctf/sandbox/\u0151$1;->val$editText:Landroid/widget/EditText;
+    invoke-virtual { v3 }, Landroid/widget/EditText;->getText()Landroid/text/Editable;
+    move-result-object v3
+    invoke-virtual { v3 }, Ljava/lang/Object;->toString()Ljava/lang/String;
+    move-result-object v3
+    invoke-virtual { v3 }, Ljava/lang/String;->length()I
+    move-result v5
+    const/16 v6, 48
+    if-eq v5, v6, :L8
+    iget-object v4, v1, Lcom/google/ctf/sandbox/\u0151$1;->val$textView:Landroid/widget/TextView;
+    const-string v5, "\u274c"
+    invoke-virtual { v4, v5 }, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    return-void
+  :L8
+    const/4 v5, 0
+  :L9
+    invoke-virtual { v3 }, Ljava/lang/String;->length()I
+    move-result v6
+    div-int/2addr v6, v7
+    if-ge v5, v6, :L10
+    iget-object v6, v1, Lcom/google/ctf/sandbox/\u0151$1;->this$0:Lcom/google/ctf/sandbox/\u0151;
+    iget-object v6, v6, Lcom/google/ctf/sandbox/\u0151;->ő:[J
+    mul-int/lit8 v8, v5, 4
+    add-int/2addr v8, v4
+    invoke-virtual { v3, v8 }, Ljava/lang/String;->charAt(I)C
+    move-result v8
+    shl-int/lit8 v8, v8, 24
+    int-to-long v8, v8
+    aput-wide v8, v6, v5
+    iget-object v6, v1, Lcom/google/ctf/sandbox/\u0151$1;->this$0:Lcom/google/ctf/sandbox/\u0151;
+    iget-object v6, v6, Lcom/google/ctf/sandbox/\u0151;->ő:[J
+    aget-wide v8, v6, v5
+    mul-int/lit8 v10, v5, 4
+    const/4 v11, 2
+    add-int/2addr v10, v11
+    invoke-virtual { v3, v10 }, Ljava/lang/String;->charAt(I)C
+    move-result v10
+    shl-int/lit8 v10, v10, 16
+    int-to-long v12, v10
+    or-long/2addr v8, v12
+    aput-wide v8, v6, v5
+    iget-object v6, v1, Lcom/google/ctf/sandbox/\u0151$1;->this$0:Lcom/google/ctf/sandbox/\u0151;
+    iget-object v6, v6, Lcom/google/ctf/sandbox/\u0151;->ő:[J
+    aget-wide v8, v6, v5
+    mul-int/lit8 v10, v5, 4
+    const/4 v12, 1
+    add-int/2addr v10, v12
+    invoke-virtual { v3, v10 }, Ljava/lang/String;->charAt(I)C
+    move-result v10
+    shl-int/lit8 v10, v10, 8
+    int-to-long v12, v10
+    or-long/2addr v8, v12
+    aput-wide v8, v6, v5
+    iget-object v6, v1, Lcom/google/ctf/sandbox/\u0151$1;->this$0:Lcom/google/ctf/sandbox/\u0151;
+    iget-object v6, v6, Lcom/google/ctf/sandbox/\u0151;->ő:[J
+    aget-wide v8, v6, v5
+    mul-int/lit8 v10, v5, 4
+    invoke-virtual { v3, v10 }, Ljava/lang/String;->charAt(I)C
+    move-result v10
+    int-to-long v12, v10
+    or-long/2addr v8, v12
+    aput-wide v8, v6, v5
+    add-int/lit8 v5, v5, 1
+    goto :L9
+  :L10
+    const-wide v4, 4294967296L
+    iget-object v6, v1, Lcom/google/ctf/sandbox/\u0151$1;->this$0:Lcom/google/ctf/sandbox/\u0151;
+    iget-object v7, v1, Lcom/google/ctf/sandbox/\u0151$1;->this$0:Lcom/google/ctf/sandbox/\u0151;
+    iget-object v7, v7, Lcom/google/ctf/sandbox/\u0151;->ő:[J
+    iget-object v8, v1, Lcom/google/ctf/sandbox/\u0151$1;->this$0:Lcom/google/ctf/sandbox/\u0151;
+    iget v8, v8, Lcom/google/ctf/sandbox/\u0151;->ő:I
+    aget-wide v8, v7, v8
+    invoke-static { v8, v9, v4, v5 }, Lcom/google/ctf/sandbox/R;->\u0151(JJ)[J
+    move-result-object v6
+    const/4 v7, 0
+    aget-wide v7, v6, v7
+    rem-long/2addr v7, v4
+    add-long/2addr v7, v4
+    rem-long/2addr v7, v4
+    iget-object v9, v1, Lcom/google/ctf/sandbox/\u0151$1;->this$0:Lcom/google/ctf/sandbox/\u0151;
+    iget-object v9, v9, Lcom/google/ctf/sandbox/\u0151;->class:[J
+    iget-object v10, v1, Lcom/google/ctf/sandbox/\u0151$1;->this$0:Lcom/google/ctf/sandbox/\u0151;
+    iget v10, v10, Lcom/google/ctf/sandbox/\u0151;->ő:I
+    aget-wide v10, v9, v10
+    cmp-long v9, v7, v10
+    if-eqz v9, :L11
+    iget-object v9, v1, Lcom/google/ctf/sandbox/\u0151$1;->val$textView:Landroid/widget/TextView;
+    const-string v10, "\u274c"
+    invoke-virtual { v9, v10 }, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    return-void
+  :L11
+    iget-object v9, v1, Lcom/google/ctf/sandbox/\u0151$1;->this$0:Lcom/google/ctf/sandbox/\u0151;
+    iget v10, v9, Lcom/google/ctf/sandbox/\u0151;->ő:I
+    const/4 v11, 1
+    add-int/2addr v10, v11
+    iput v10, v9, Lcom/google/ctf/sandbox/\u0151;->ő:I
+    iget-object v9, v1, Lcom/google/ctf/sandbox/\u0151$1;->this$0:Lcom/google/ctf/sandbox/\u0151;
+    iget v9, v9, Lcom/google/ctf/sandbox/\u0151;->ő:I
+    iget-object v10, v1, Lcom/google/ctf/sandbox/\u0151$1;->this$0:Lcom/google/ctf/sandbox/\u0151;
+    iget-object v10, v10, Lcom/google/ctf/sandbox/\u0151;->ő:[J
+    array-length v10, v10
+    if-lt v9, v10, :L12
+    iget-object v9, v1, Lcom/google/ctf/sandbox/\u0151$1;->val$textView:Landroid/widget/TextView;
+    const-string v10, "\ud83d\udea9"
+    invoke-virtual { v9, v10 }, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    return-void
+  :L12
+    new-instance v8, Ljava/lang/RuntimeException;
+    invoke-direct { v8 }, Ljava/lang/RuntimeException;-><init>()V
+    throw v8
+  :L13
+    return-void
+  :L14
+.end method
